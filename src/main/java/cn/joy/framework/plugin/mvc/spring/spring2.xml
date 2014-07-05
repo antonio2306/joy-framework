@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+        "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="abstractRuleServiceDefinition"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		lazy-init="true" abstract="true">
+		<property name="proxyTargetClass">
+			<value>true</value>
+		</property>
+		<property name="transactionManager">
+			<ref bean="transactionManager" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">
+					PROPAGATION_REQUIRED,ISOLATION_DEFAULT,-Exception
+				</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="ruleDao" class="cn.joy.framework.adapter.spring.db.RuleDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="ruleDaoProxy" parent="abstractRuleServiceDefinition">
+		<property name="target" ref="ruleDao" />
+	</bean>
+
+	<bean id="springResource" class="cn.joy.framework.adapter.spring.SpringResource"
+		<property name="ruleDao" ref="ruleDaoProxy" />
+	</bean>
+
+	<!-- 服务 -->
+	<bean name="/openservice.do" class="cn.joy.framework.adapter.spring.web.OpenRuleController">
+		<property name="methodNameResolver" ref="methodNameResolver" />
+	</bean>
+
+	<bean name="/businessservice.do" class="cn.joy.framework.adapter.spring.web.BusinessRuleController">
+		<property name="methodNameResolver" ref="methodNameResolver" />
+	</bean>
+</beans>
