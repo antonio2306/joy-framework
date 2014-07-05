@@ -1,6 +1,6 @@
-package cn.joy.framework.plugin.mvc.spring;
+package cn.joy.framework.plugin.spring;
 
-import cn.joy.framework.plugin.mvc.spring.db.RuleDao;
+import cn.joy.framework.plugin.spring.db.RuleDao;
 
 public class SpringResource{
 	private static RuleDao ruleDao;

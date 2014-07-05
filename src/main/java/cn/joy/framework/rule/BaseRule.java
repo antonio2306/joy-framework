@@ -1,10 +1,13 @@
 package cn.joy.framework.rule;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import cn.joy.framework.core.JoyCallback;
+import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
@@ -47,29 +50,33 @@ public abstract class BaseRule {
 		}
 	}
 	
-	protected RuleResult doInvokeActionMethod(Method method, RuleContext rContext, RuleParam rParam) throws Exception{
-		RuleResult ruleResult = (RuleResult)method.invoke(this, this.getActionMethodParam(rContext, rParam));
-		if(ruleResult==null)
-			ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
-		if(logger.isDebugEnabled())
-			logger.debug("doInvokeActionMethod, ruleResult="+ruleResult.toJSON());
-		return ruleResult;
+	protected RuleResult doInvokeActionMethod(final Method method, final RuleContext rContext, final RuleParam rParam) throws Exception{
+		final Object[] mParams = this.getActionMethodParam(rContext, rParam);
+		
+		return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
+			public RuleResult run() throws Exception{
+				RuleResult ruleResult = (RuleResult)method.invoke(this, mParams);
+				if(ruleResult==null)
+					ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
+				if(logger.isDebugEnabled())
+					logger.debug("doInvokeActionMethod, ruleResult="+ruleResult.toJSON());
+				return ruleResult;
+			}
+		});
 	}
 
 	protected Class[] getActionMethodParamClass(){
-		return new Class[]{RuleContext.class, RuleParam.class};
+		if(this.getClass().getSimpleName().endsWith("ControllerRule"))
+			return new Class[]{RuleContext.class, RuleParam.class, HttpServletRequest.class};
+		else
+			return new Class[]{RuleContext.class, RuleParam.class};
 	}
 	
 	protected Object[] getActionMethodParam(RuleContext rContext, RuleParam rParam) {
-		return new Object[]{rContext, rParam};
-	}
-	
-	protected RuleResult execute(RuleContext rContext, RuleParam rParam) throws Exception{
-		return RuleResult.empty().fail("EMPTY　IMPL");
-	}
-	
-	protected RuleResult execute(Object...  params) throws Exception{
-		return RuleResult.empty().fail("EMPTY　IMPL");
+		if(this.getClass().getSimpleName().endsWith("ControllerRule"))
+			return new Object[]{rContext, rParam, rContext.getRequest()};
+		else
+			return new Object[]{rContext, rParam};
 	}
 	
 }

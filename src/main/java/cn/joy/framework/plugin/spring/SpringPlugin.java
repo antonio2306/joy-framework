@@ -1,15 +1,18 @@
-package cn.joy.framework.plugin.mvc.spring;
+package cn.joy.framework.plugin.spring;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.plugin.mvc.IMVCPlugin;
+import cn.joy.framework.plugin.IMVCPlugin;
+import cn.joy.framework.plugin.ITransactionPlugin;
+import cn.joy.framework.rule.RuleResult;
 
-public class SpringPlugin implements IMVCPlugin{
+public class SpringPlugin implements IMVCPlugin, ITransactionPlugin{
 	public static String MVC_OPEN_REQUEST_URL = "openservice.do";
 	public static String MVC_BUSINESS_REQUEST_URL = "businesservice.do";
 	
@@ -41,5 +44,12 @@ public class SpringPlugin implements IMVCPlugin{
 	
 	public void stop(){
 		
+	}
+
+	public RuleResult doTransaction(JoyCallback callback) throws Exception{
+		//start transaction
+		RuleResult ruleResult = callback.run();
+		//end transaction
+		return ruleResult;
 	}
 }

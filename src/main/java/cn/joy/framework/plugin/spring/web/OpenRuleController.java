@@ -1,4 +1,4 @@
-package cn.joy.framework.plugin.mvc.spring.web;
+package cn.joy.framework.plugin.spring.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

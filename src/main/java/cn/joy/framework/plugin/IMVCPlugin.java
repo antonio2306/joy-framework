@@ -1,4 +1,4 @@
-package cn.joy.framework.plugin.mvc;
+package cn.joy.framework.plugin;
 
 import java.util.Map;
 

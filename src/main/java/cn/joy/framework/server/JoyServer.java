@@ -1,8 +1,6 @@
 package cn.joy.framework.server;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 
 import cn.joy.framework.kits.StringKit;
@@ -54,8 +52,16 @@ public abstract class JoyServer {
 		return this.getVariable("app_default_app_server_url");
 	}
 	
+	public String getPlugins(){
+		return this.getVariable("plugins", "");	//spring jfinal
+	}
+	
 	public String getMVCPlugin(){
 		return this.getVariable("plugin_mvc", "spring");	//jfinal
+	}
+	
+	public String getTransactionPlugin(){
+		return this.getVariable("plugin_transaction", "spring");	//jfinal
 	}
 	
 	public String getLoginIdParam(){

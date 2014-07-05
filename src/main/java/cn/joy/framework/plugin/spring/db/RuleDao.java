@@ -1,4 +1,4 @@
-package cn.joy.framework.plugin.mvc.spring.db;
+package cn.joy.framework.plugin.spring.db;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import cn.joy.framework.core.JoyThreadLocalMap;
 /**
- * 数据访问接口，事务与dataset分离
+ * 数据访问接口，独立事务
  * @author liyy
  * @date 2014-05-20
  */
@@ -17,31 +17,10 @@ public class RuleDao extends HibernateDaoSupport {
 	private Logger logger = Logger.getLogger(RuleDao.class);
 	
 	private JoyThreadLocalMap threadMap = new JoyThreadLocalMap();
-	/*
-	public Long getCompanyId(){
-		return RuleExecutor.getCurrentExecutor().getRuleContext().getCompanyId();
-	}
 	
-	public RuleDao ignoreMultiTenant(){
-		threadMap.setThreadAttribute("ignoreMultiTenant", false);
-		return this;
-	}
-	
-	public RuleDao cancelIgnoreMultiTenant(){
-		threadMap.setThreadAttribute("ignoreMultiTenant", true);
-		return this;
-	}
-	
-	private boolean isIgnoreMultiTenant(){
-		return Boolean.valueOf(threadMap.getThreadAttribute("ignoreMultiTenant")+"");
-	}
-	*/
 	public boolean save(Object obj) {
 		boolean result = true;
 		try {
-			/*if(!isIgnoreMultiTenant()){
-				BeanKit.setSimpleProperty(obj, "actizcompanyid", getCompanyId());
-			}*/
 			getHibernateTemplate().save(obj);
 		} catch (Exception e) {
 			logger.error("add object error", e);
@@ -75,9 +54,6 @@ public class RuleDao extends HibernateDaoSupport {
 	public boolean save(String entityName, Object obj) {
 		boolean result = true;
 		try {
-			/*if(!isIgnoreMultiTenant()){
-				BeanKit.setSimpleProperty(obj, "actizcompanyid", getCompanyId());
-			}*/
 			getHibernateTemplate().save(entityName, obj);
 		} catch (Exception e) {
 			logger.error("add object error", e);
@@ -98,9 +74,6 @@ public class RuleDao extends HibernateDaoSupport {
 	}
 	
 	public List list(String hql, Object[] params) {
-		/*if(!isIgnoreMultiTenant()){
-			hql += " and actizcompanyid="+getCompanyId();
-		}*/
 		Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 		for (int i = 0; params != null && i < params.length; i++)
 			query.setParameter(i, params[i]);
@@ -114,9 +87,6 @@ public class RuleDao extends HibernateDaoSupport {
 	public List list(String hql, int start, int count, Object[] params) {
 		List list = null;
 		try {
-			/*if(!isIgnoreMultiTenant()){
-				hql += " and actizcompanyid="+getCompanyId();
-			}*/
 			Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
 			if (start >= 0) {
 				query.setFirstResult(start);
