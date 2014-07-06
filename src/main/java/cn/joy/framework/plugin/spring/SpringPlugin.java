@@ -10,6 +10,7 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
+import cn.joy.framework.plugin.spring.db.Db;
 import cn.joy.framework.rule.RuleResult;
 
 public class SpringPlugin implements IMVCPlugin, ITransactionPlugin{
@@ -47,9 +48,19 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin{
 	}
 
 	public RuleResult doTransaction(JoyCallback callback) throws Exception{
-		//start transaction
-		RuleResult ruleResult = callback.run();
-		//end transaction
+		RuleResult ruleResult = null;
+		try {
+			Db.beginTransaction();
+			
+			ruleResult = callback.run();
+			
+			Db.commitAndEndTransaction();
+		} catch (Exception e) {
+			Db.rollbackAndEndTransaction();
+			throw e;
+		} finally {
+			Db.endTransaction();
+		}
 		return ruleResult;
 	}
 }

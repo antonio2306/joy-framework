@@ -11,6 +11,7 @@ import org.hibernate.CacheMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.plugin.spring.SpringResource;
 
 public class Db {
@@ -19,6 +20,22 @@ public class Db {
 
 	public static Session getSession() {
 		return mainDb.getSession();
+	}
+	
+	public static void beginTransaction() {
+		mainDb.beginTransaction();
+	}
+
+	public static void endTransaction() {
+		mainDb.endTransaction();
+	}
+
+	public static void commitAndEndTransaction() {
+		mainDb.commitAndEndTransaction();
+	}
+
+	public static void rollbackAndEndTransaction() {
+		mainDb.rollbackAndEndTransaction();
 	}
 
 	public static Object get(Class<?> clazz, Serializable pk) {

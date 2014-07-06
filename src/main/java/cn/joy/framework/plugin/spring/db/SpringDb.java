@@ -83,7 +83,7 @@ public class SpringDb {
 
 	public void beginTransaction() {
 		if (logger.isDebugEnabled())
-			logger.debug("begin session...");
+			logger.debug("beginTransaction...");
 		Session session = getSession();
 		if (session != null) 
 			session.beginTransaction();
@@ -92,7 +92,7 @@ public class SpringDb {
 
 	public void endTransaction() {
 		if (logger.isDebugEnabled())
-			logger.debug("close session...");
+			logger.debug("endTransaction...");
 		Session session = getThreadLocalSession();
 		if (session != null && session.isOpen())
 			session.close();
@@ -101,7 +101,7 @@ public class SpringDb {
 
 	public void commitAndEndTransaction() {
 		if (logger.isDebugEnabled())
-			logger.debug("commitAndCloseSession...");
+			logger.debug("commitAndEndTransaction...");
 		Session session = getThreadLocalSession();
 		if (session != null) {
 			try {
@@ -119,7 +119,7 @@ public class SpringDb {
 
 	public void rollbackAndEndTransaction() {
 		if (logger.isDebugEnabled())
-			logger.debug("rollbackAndCloseSession...");
+			logger.debug("rollbackAndEndTransaction...");
 		Session session = getThreadLocalSession();
 		if (session != null) {
 			try {

@@ -54,7 +54,7 @@ public abstract class BaseRule {
 		final Object[] mParams = this.getActionMethodParam(rContext, rParam);
 		
 		return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
-			public RuleResult run() throws Exception{
+			public RuleResult run(Object... params) throws Exception{
 				RuleResult ruleResult = (RuleResult)method.invoke(this, mParams);
 				if(ruleResult==null)
 					ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
