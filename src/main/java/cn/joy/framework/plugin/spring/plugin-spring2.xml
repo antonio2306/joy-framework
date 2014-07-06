@@ -20,6 +20,10 @@
 		</property>
 	</bean>
 	
+	<bean id="springDb" class="cn.joy.framework.adapter.spring.db.SpringDb">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
 	<bean id="ruleDao" class="cn.joy.framework.adapter.spring.db.RuleDao">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
@@ -30,9 +34,9 @@
 
 	<bean id="springResource" class="cn.joy.framework.adapter.spring.SpringResource"
 		<property name="ruleDao" ref="ruleDaoProxy" />
+		<property name="springDb" ref="springDb" />
 	</bean>
 
-	<!-- 服务 -->
 	<bean name="/openservice.do" class="cn.joy.framework.adapter.spring.web.OpenRuleController">
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
