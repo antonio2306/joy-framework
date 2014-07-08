@@ -77,16 +77,24 @@ public class BusinessRuleController extends MultiActionController {
 			rParam = RuleParam.create();
 		
 		String isMergeRequest = RuleKit.getStringParam(request, "imr");
+		if(logger.isDebugEnabled())
+			logger.debug("isMergeRequest="+isMergeRequest);
 		if("y".equals(isMergeRequest)){
 			String mergeKey = RuleKit.getStringParam(request, "mk");
+			if(logger.isDebugEnabled())
+				logger.debug("mergeKey="+mergeKey+", keyValues="+RuleKit.getStringParam(request, mergeKey));
 			String[] keyValues = RuleKit.getStringParam(request, mergeKey).split(",");
-			Map<String, String> mergeResult = new HashMap<String, String>();
+			Map<String, RuleResult> mergeResult = new HashMap<String, RuleResult>();
 			for(String kv:keyValues){
+				if(StringKit.isEmpty(kv))
+					continue;
 				request.setAttribute("MK_"+mergeKey, kv);
 				//执行分离，事务分离，合并结果
 				RuleResult result = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
-				content = result.toJSON();
-				mergeResult.put(kv, content);
+				//content = result.toJSON();
+				if(logger.isDebugEnabled())
+					logger.debug("kv="+kv+", content="+result.toJSON());
+				mergeResult.put(kv, result);
 				RuleExecutor.clearCurrentExecutor();
 			}
 			HttpKit.writeResponse(response, JsonKit.object2Json(mergeResult));

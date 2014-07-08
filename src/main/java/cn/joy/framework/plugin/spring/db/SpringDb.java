@@ -1,11 +1,8 @@
 package cn.joy.framework.plugin.spring.db;
 
-import java.sql.Connection;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import cn.joy.framework.exception.RuleException;
 

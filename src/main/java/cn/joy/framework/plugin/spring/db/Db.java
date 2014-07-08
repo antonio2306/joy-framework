@@ -80,7 +80,7 @@ public class Db {
 		return list == null ? new ArrayList<T>() : list;
 	}
 
-	public static <T> List<T> page(String hql, int start, int max, Object... params) {
+	public static <T> List<T> page(String hql, int start, int count, Object... params) {
 		if (logger.isDebugEnabled())
 			logger.debug("db page ==> " + hql);
 		Session session = mainDb.getSession();
@@ -91,9 +91,9 @@ public class Db {
 		}
 		if (start < 0)
 			start = 0;
-		if (max < 0)
-			max = 10;
-		List<T> list = query.setFirstResult(start).setMaxResults(max).list();
+		if (count < 0)
+			count = 10;
+		List<T> list = query.setFirstResult(start).setMaxResults(count).list();
 		return list == null ? new ArrayList<T>() : list;
 	}
 

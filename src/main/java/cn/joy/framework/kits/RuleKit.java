@@ -4,17 +4,29 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+
 /**
  * 
  * @author liyy
  * @date 2014-05-20
  */
 public class RuleKit {
+	private static Logger logger = Logger.getLogger(RuleKit.class);
+	
 	private static String getParam(HttpServletRequest request, String key){
 		if("y".equals(request.getParameter("imr"))){
 			String mergeKey = request.getParameter("mk");
-			if(key.equals(mergeKey))
-				return StringKit.getString(request.getAttribute("MK_"+mergeKey));
+			if(key.equals(mergeKey)){
+				String value = StringKit.getString(request.getAttribute("MK_"+mergeKey));
+				if(logger.isDebugEnabled())
+					logger.debug("get param MK_"+mergeKey+", value="+value);
+				if(StringKit.isEmpty(value))
+					return request.getParameter(key);	//如果还没放MK_循环参数
+				else
+					return value;
+			}
+				
 		}
 		return request.getParameter(key);
 	}
@@ -38,6 +50,19 @@ public class RuleKit {
 		String value = getParam(request, key);
 		try {
 			return Long.parseLong(value);
+		} catch (NumberFormatException e) {
+		}
+		return defaultValue;
+	}
+	
+	public static Integer getIntParam(HttpServletRequest request, String key){
+		return getIntParam(request, key, null);
+	}
+	
+	public static Integer getIntParam(HttpServletRequest request, String key, Integer defaultValue){
+		String value = getParam(request, key);
+		try {
+			return Integer.parseInt(value);
 		} catch (NumberFormatException e) {
 		}
 		return defaultValue;
