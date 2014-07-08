@@ -1,5 +1,5 @@
 app_base_package=com.actiz.business
-app_rule_package=com.actiz.business
+app_module_package=com.actiz.business.module
 
 app_default_module=shangtan
 

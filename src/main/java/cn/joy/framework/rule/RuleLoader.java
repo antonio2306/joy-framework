@@ -88,7 +88,7 @@ public class RuleLoader {
 		int idx = ruleURI.indexOf("#");
 		if(idx>0)
 			ruleURI = ruleURI.substring(0, idx);
-		if(ruleURI.startsWith(JoyManager.getServer().getRulePackage()))
+		if(ruleURI.startsWith(JoyManager.getServer().getModulePackage()))
 			return ruleURI;
 		
 		String moduleName = "";

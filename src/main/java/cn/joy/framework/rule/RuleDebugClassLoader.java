@@ -56,7 +56,7 @@ public class RuleDebugClassLoader extends ClassLoader {
 			return result;
 		}
 		
-		if(className.startsWith(JoyManager.getServer().getRulePackage())){
+		if(className.startsWith(JoyManager.getServer().getModulePackage())){
 			byte[] classData = getTypeFromBasePath(className);
 			if (classData == null)
 				throw new ClassNotFoundException();

@@ -28,12 +28,16 @@ public abstract class JoyServer {
 		return this.getVariable("app_base_package");
 	}
 	
-	public String getRulePackage(){
-		return this.getVariable("app_rule_package");
+	public String getModulePackage(){
+		return this.getVariable("app_module_package");
 	}
 	
 	public String getRuleURIPattern(){
-		return this.getVariable("app_rule_uri_pattern", getRulePackage()+".%1$s.rule.%2$sRule");
+		return this.getVariable("app_rule_uri_pattern", getModulePackage()+".%1$s.rule.%2$sRule");
+	}
+	
+	public String getEventPackagePattern(){
+		return this.getVariable("app_event_package_pattern", getModulePackage()+".%1$s.event");
 	}
 	
 	public String getLocalServerTag(){

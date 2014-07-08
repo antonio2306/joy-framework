@@ -2,13 +2,18 @@ package cn.joy.framework.core;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import cn.joy.framework.event.EventManager;
+import cn.joy.framework.event.JoyEventListener;
 import cn.joy.framework.kits.BeanKit;
+import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.PathKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
@@ -27,6 +32,7 @@ import cn.joy.framework.server.JoyServer;
 public class JoyManager {
 	private static Logger logger = Logger.getLogger(JoyManager.class);
 	private static Map<String, IPlugin> plugins = new HashMap();
+	private static List<String> modules = new ArrayList();
 	
 	private static RuleLoader rLoader;
 	private static JoyServer server;
@@ -50,7 +56,7 @@ public class JoyManager {
 	}
 
 	public static void init() throws Exception{
-		logger.debug("RuleManager init start...");
+		logger.info("RuleManager init start...");
 		
 		Properties config = new Properties();
 		
@@ -78,6 +84,27 @@ public class JoyManager {
 		}
 		
 		rLoader = RuleLoader.singleton();
+		
+		File moduleBaseDir = new File(server.getModulePackage());
+		if(moduleBaseDir.exists()){
+			File[] moduleDirs = moduleBaseDir.listFiles();
+			for(File moduleDir:moduleDirs){
+				if(moduleDir.isDirectory()){
+					String moduleName = moduleDir.getName();
+					if(logger.isInfoEnabled())
+						logger.info("found module: "+moduleName);
+					modules.add(moduleName);
+					
+					String eventPackage = String.format(JoyManager.getServer().getEventPackagePattern(), moduleName);
+					List<Class> listeners = ClassKit.getAllClassByInterface(eventPackage, JoyEventListener.class);
+					for(Class listenerClass:listeners){
+						if(logger.isInfoEnabled())
+							logger.info("found module event listener: "+listenerClass);
+						EventManager.addListener((JoyEventListener)BeanKit.getNewInstance(listenerClass));
+					}
+				}
+			}
+		}
 		
 		logger.debug("RuleManager init end...");
 	}

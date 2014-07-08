@@ -16,12 +16,10 @@ public class ClassKit {
 	/**
 	 * 取得某个接口下所有实现这个接口的类
 	 * */
-	public static List<Class> getAllClassByInterface(Class c) {
+	public static List<Class> getAllClassByInterface(String packageName, Class c) {
 		List<Class> returnClassList = null;
 
 		if (c.isInterface()) {
-			// 获取当前的包名
-			String packageName = c.getPackage().getName();
 			// 获取当前包下以及子包下所以的类
 			List<Class<?>> allClass = getClasses(packageName);
 			if (allClass != null) {
