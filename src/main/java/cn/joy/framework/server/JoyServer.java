@@ -68,6 +68,10 @@ public abstract class JoyServer {
 		return this.getVariable("plugin_transaction", "spring");	//jfinal
 	}
 	
+	public String getRoutePlugin(){
+		return this.getVariable("plugin_route", "spring");	
+	}
+	
 	public String getLoginIdParam(){
 		return this.getVariable("param_loginid", "loginId");
 	}

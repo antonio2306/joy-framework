@@ -5,15 +5,19 @@ import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
+import cn.joy.framework.plugin.IRoutePlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
 import cn.joy.framework.plugin.spring.db.Db;
 import cn.joy.framework.rule.RuleResult;
 
-public class SpringPlugin implements IMVCPlugin, ITransactionPlugin{
+public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugin{
+	private static Logger logger = Logger.getLogger(SpringPlugin.class);
 	public static String MVC_OPEN_REQUEST_URL = "openservice.do";
 	public static String MVC_BUSINESS_REQUEST_URL = "businesservice.do";
 	
@@ -25,7 +29,7 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin{
 					url += "&"+entry.getKey()+"="+URLEncoder.encode(entry.getValue(), JoyManager.getServer().getCharset());
 				}
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				logger.error("", e);
 			}
 		}
 		return url;
@@ -53,14 +57,36 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin{
 			Db.beginTransaction();
 			
 			ruleResult = callback.run();
-			
-			Db.commitAndEndTransaction();
+			logger.error("doTransaction, ruleResult="+ruleResult.toJSON());
+			if(ruleResult.isSuccess())
+				Db.commitAndEndTransaction();
+			else
+				Db.rollbackAndEndTransaction();
 		} catch (Exception e) {
+			logger.error("", e);
 			Db.rollbackAndEndTransaction();
 			throw e;
 		} finally {
 			Db.endTransaction();
 		}
 		return ruleResult;
+	}
+
+	public String getServerURLByServerTag(String serverTag) {
+		if(SpringResource.getRouteStore()==null){
+			if(logger.isDebugEnabled())
+				logger.debug("RouteStore not impl");
+			return "";
+		}
+		return SpringResource.getRouteStore().getServerURLByServerTag(serverTag);
+	}
+
+	public void storeServerURL(String serverTag, String serverURL) {
+		if(SpringResource.getRouteStore()==null){
+			if(logger.isDebugEnabled())
+				logger.debug("RouteStore not impl");
+			return;
+		}
+		SpringResource.getRouteStore().storeServerURL(serverTag, serverURL);
 	}
 }

@@ -93,6 +93,10 @@ public class JsonKit {
 		Map<String, TestBean> mst = json2MapBean(json, String.class, TestBean.class);
 		System.out.println(mst);
 		System.out.println(mst.get("t1").getName());
+		
+		String j = "[\"13213\",\"32234\"]";
+		List<String> l = (List<String>)json2Object(j, List.class);
+		System.out.println(l.size());
 	}
 
 	private static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {

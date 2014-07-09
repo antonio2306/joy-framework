@@ -5,5 +5,9 @@ import javax.servlet.http.HttpServletRequest;
 import cn.joy.framework.rule.RuleResult;
 
 public interface SecurityManager {
-	public RuleResult checkRequest(HttpServletRequest request);
+	public RuleResult checkOpenRequest(HttpServletRequest request);
+	
+	public String secureOpenRequestURL(String requestURL);
+	
+	public RuleResult checkBusinessRequest(HttpServletRequest request);
 }

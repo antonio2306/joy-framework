@@ -51,11 +51,12 @@ public abstract class BaseRule {
 	}
 	
 	protected RuleResult doInvokeActionMethod(final Method method, final RuleContext rContext, final RuleParam rParam) throws Exception{
+		final BaseRule rule = this;
 		final Object[] mParams = this.getActionMethodParam(rContext, rParam);
 		
 		return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
 			public RuleResult run(Object... params) throws Exception{
-				RuleResult ruleResult = (RuleResult)method.invoke(this, mParams);
+				RuleResult ruleResult = (RuleResult)method.invoke(rule, mParams);
 				if(ruleResult==null)
 					ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
 				if(logger.isDebugEnabled())

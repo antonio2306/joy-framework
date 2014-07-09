@@ -54,17 +54,17 @@ public class RouteManager {
 	}
 	
 	public static String getServerURLByTag(String serverTag){
-		if(StringKit.isEmpty(serverTag))
-			serverTag = getServerTag();
+		if(StringKit.isEmpty(serverTag))	//空tag，则为默认应用服务器
+			return getDefaultAppServerURL();
 		
 		String serverURL = routes.get(serverTag);
 		if(serverURL==null){
 			if(JoyManager.getServer() instanceof CenterServer){
-				//TODO server注册表，对应tag和url
-				serverURL = "";
+				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag(serverTag);
 			}else{
 				serverURL = HttpKit.get(getCenterServerURL()+"/"+JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", 
 						"&key=get_app_url&tag="+serverTag, null));
+				JoyManager.getRoutePlugin().storeServerURL(serverTag, serverURL);
 			}
 			routes.put(serverTag, serverURL);
 		}
@@ -74,5 +74,5 @@ public class RouteManager {
 	public static String getServerURLByQyescode(String qyescode){
 		return getServerURLByTag(getServerTag(qyescode));
 	}
-	
+
 }

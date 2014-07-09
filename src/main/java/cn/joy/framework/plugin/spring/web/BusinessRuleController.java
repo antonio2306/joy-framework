@@ -1,5 +1,6 @@
 package cn.joy.framework.plugin.spring.web;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
+import cn.joy.framework.plugin.spring.SpringResource;
 import cn.joy.framework.rule.RuleContext;
 import cn.joy.framework.rule.RuleExecutor;
 import cn.joy.framework.rule.RuleParam;
@@ -38,7 +40,15 @@ public class BusinessRuleController extends MultiActionController {
 			return null;
 		}
 		
-		boolean isMobile = "true".equals(request.getParameter("mobile"));
+		if(SpringResource.getSecurityManager()!=null){
+			RuleResult checkResult = SpringResource.getSecurityManager().checkBusinessRequest(request);
+			if(!checkResult.isSuccess()){
+				HttpKit.writeResponse(response, checkResult.toJSON());
+				return null;
+			}
+		}
+		
+		/*boolean isMobile = "true".equals(request.getParameter("mobile"));
 		if(isMobile){
 			if(StringKit.isEmpty(request.getParameter("versionID"))){
 				HttpKit.writeResponse(response, "CHECK PARAMETER versionID FAIL");
@@ -57,16 +67,23 @@ public class BusinessRuleController extends MultiActionController {
 					return null;
 				}
 				
-				//TODO token
-				/*IDataSet dataset = DataSet.getInstance();
+				IDataSet dataset = DataSet.getInstance();
 				MobileSession ms = UserSession.dao.getSession(dataset, loginId, tn);
 				if(ms==null){
+				//去网站验证tn是否为最新token，若是，则更新本地token
+				RuleResult checkResult = RuleExecutor.createRemote(RuleContext.create(request)).execute("website@account.accountService#checkAccessToken", 
+					RuleParam.create().put("loginId", request.getParameter("loginId")).put("tn", tn));
+				if(checkResult.isSuccess() && checkResult.getContent()==Boolean.TRUE){
+					ms = new MobileSession(tn, request.getParameter("loginId"), "sync from website", new Date());
+					AuthAppRegister.getCustomer().insertMobileSession(ms);
+				}
+				
 					ms = UserSession.dao.getLastestSession(dataset, loginId);
 					response.setStatus(518);
 					HttpKit.writeResponse(response, "INVALID_TOKEN|"+JsonKit.object2Json(ms));
-				}*/
+				}
 			}
-		}
+		}*/
 			
 		String ruleURI = service+"."+service+"Controller#"+action;
 		if(logger.isDebugEnabled())

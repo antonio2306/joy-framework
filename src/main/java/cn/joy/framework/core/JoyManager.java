@@ -18,6 +18,7 @@ import cn.joy.framework.kits.PathKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
 import cn.joy.framework.plugin.IPlugin;
+import cn.joy.framework.plugin.IRoutePlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
 import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
@@ -38,6 +39,7 @@ public class JoyManager {
 	private static JoyServer server;
 	private static IMVCPlugin mvcPlugin;
 	private static ITransactionPlugin txPlugin;
+	private static IRoutePlugin routePlugin;
 	
 	public static RuleLoader getRuleLoader() {
 		return rLoader;
@@ -49,6 +51,10 @@ public class JoyManager {
 	
 	public static ITransactionPlugin getTransactionPlugin() {
 		return txPlugin;
+	}
+	
+	public static IRoutePlugin getRoutePlugin() {
+		return routePlugin;
 	}
 	
 	public static JoyServer getServer(){
@@ -78,6 +84,8 @@ public class JoyManager {
 		mvcPlugin = (IMVCPlugin)loadPlugin(server.getMVCPlugin());
 		
 		txPlugin = (ITransactionPlugin)loadPlugin(server.getTransactionPlugin());
+		
+		routePlugin = (IRoutePlugin)loadPlugin(server.getRoutePlugin());
 		
 		for(IPlugin plugin:plugins.values()){
 			plugin.start();

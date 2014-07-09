@@ -40,7 +40,7 @@ public class Db {
 
 	public static Object get(Class<?> clazz, Serializable pk) {
 		if (logger.isDebugEnabled())
-			logger.debug("db get ==> " + pk);
+			logger.debug("db get ==> class="+clazz.getSimpleName()+", pk=" + pk);
 		Session session = mainDb.getSession();
 		return session.get(clazz, pk);
 	}
@@ -55,44 +55,67 @@ public class Db {
 	}
 
 	public static Object unique(String hql, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db unique ==> " + hql);
 		Session session = mainDb.getSession();
 		Query query = session.createQuery(hql);
+		StringBuilder paramsInfo = null;
+		if (logger.isDebugEnabled())
+			paramsInfo = new StringBuilder();
 		if (params != null) {
-			for (int i = 0; i < params.length; i++)
+			for (int i = 0; i < params.length; i++){
+				if (logger.isDebugEnabled())
+					paramsInfo.append(params[i]).append(",");
 				query.setParameter(i, params[i]);
+			}
 		}
+		
+		if (logger.isDebugEnabled())
+			logger.debug("db unique ==> " + hql+", params=["+paramsInfo+"]");
 		return query.uniqueResult();
 	}
 
 	public static <T> List<T> list(String hql, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db list ==> " + hql);
 		Session session = mainDb.getSession();
 		Query query = session.createQuery(hql);
+		StringBuilder paramsInfo = null;
+		if (logger.isDebugEnabled())
+			paramsInfo = new StringBuilder();
 		if (params != null) {
-			for (int i = 0; i < params.length; i++)
+			for (int i = 0; i < params.length; i++){
+				if (logger.isDebugEnabled())
+					paramsInfo.append(params[i]).append(",");
 				query.setParameter(i, params[i]);
+			}
+				
 		}
-
+		
+		if (logger.isDebugEnabled())
+			logger.debug("db list ==> " + hql+", params=["+paramsInfo+"]");
+		
 		List<T> list = query.list();
 		return list == null ? new ArrayList<T>() : list;
 	}
 
 	public static <T> List<T> page(String hql, int start, int count, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db page ==> " + hql);
 		Session session = mainDb.getSession();
 		Query query = session.createQuery(hql);
+		StringBuilder paramsInfo = null;
+		if (logger.isDebugEnabled())
+			paramsInfo = new StringBuilder();
 		if (params != null) {
-			for (int i = 0; i < params.length; i++)
+			for (int i = 0; i < params.length; i++){
+				if (logger.isDebugEnabled())
+					paramsInfo.append(params[i]).append(",");
 				query.setParameter(i, params[i]);
+			}
 		}
 		if (start < 0)
 			start = 0;
 		if (count < 0)
 			count = 10;
+		
+		if (logger.isDebugEnabled())
+			logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count);
+		
 		List<T> list = query.setFirstResult(start).setMaxResults(count).list();
 		return list == null ? new ArrayList<T>() : list;
 	}
@@ -126,7 +149,7 @@ public class Db {
 
 	public static void execute(DbCallback callback, Object... params) {
 		if (logger.isDebugEnabled())
-			logger.debug("db execute ==> " + callback);
+			logger.debug("db execute ==> callback");
 		Session session = mainDb.getSession();
 		try {
 			mainDb.beginTransaction(session);

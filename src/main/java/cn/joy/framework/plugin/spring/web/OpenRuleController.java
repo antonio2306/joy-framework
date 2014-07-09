@@ -11,11 +11,13 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.StringKit;
+import cn.joy.framework.plugin.spring.SpringResource;
 import cn.joy.framework.rule.RuleExecutor;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
 import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.RouteManager;
+import cn.joy.framework.support.SecurityManager;
 /**
  * 通用开放规则调用控制器
  * @author liyy
@@ -23,6 +25,19 @@ import cn.joy.framework.server.RouteManager;
  */
 public class OpenRuleController extends MultiActionController {
 	private Logger logger = Logger.getLogger(OpenRuleController.class);
+	
+	@Override
+	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		if(SpringResource.getSecurityManager()!=null){
+			RuleResult checkResult = SpringResource.getSecurityManager().checkOpenRequest(request);
+			if(!checkResult.isSuccess()){
+				HttpKit.writeResponse(response, checkResult.toJSON());
+				return null;
+			}
+		}
+		return super.handleRequestInternal(request, response);
+	}
 	
 	public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String content = "";
@@ -58,4 +73,5 @@ public class OpenRuleController extends MultiActionController {
 		HttpKit.writeResponse(response, content);
 		return null;
 	}
+
 }
