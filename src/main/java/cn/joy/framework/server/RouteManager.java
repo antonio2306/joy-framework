@@ -3,6 +3,8 @@ package cn.joy.framework.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.StringKit;
@@ -12,6 +14,7 @@ import cn.joy.framework.kits.StringKit;
  * @date 2014-06-11
  */
 public class RouteManager {
+	private static Logger logger = Logger.getLogger(RouteManager.class);
 	public static final String CENTER_SERVER_TAG = JoyManager.getServer().getCenterServerTag();
 	private static Map<String, String> routes = new HashMap<String, String>();
 	private static Map<String, String> routes4File = new HashMap<String, String>();
@@ -37,6 +40,8 @@ public class RouteManager {
 			serverURL = JoyManager.getServer().getCenterServerUrl();
 			routes.put(CENTER_SERVER_TAG, serverURL);
 		}
+		if(logger.isDebugEnabled())
+			logger.debug("routes: "+routes);
 		return serverURL;
 	}
 	
@@ -51,6 +56,8 @@ public class RouteManager {
 			}
 			routes.put("app", serverURL);
 		}
+		if(logger.isDebugEnabled())
+			logger.debug("routes: "+routes);
 		return serverURL;
 	}
 	
@@ -65,6 +72,8 @@ public class RouteManager {
 			}
 			routes4File.put("appFile", serverURL);
 		}
+		if(logger.isDebugEnabled())
+			logger.debug("routes4File: "+routes4File);
 		return serverURL;
 	}
 	
@@ -83,6 +92,8 @@ public class RouteManager {
 			}
 			routes.put(serverTag, serverURL);
 		}
+		if(logger.isDebugEnabled())
+			logger.debug("routes: "+routes);
 		return serverURL;
 	}
 	
@@ -101,6 +112,8 @@ public class RouteManager {
 			}
 			routes4File.put(serverTag, serverURL);
 		}
+		if(logger.isDebugEnabled())
+			logger.debug("routes4File: "+routes4File);
 		return serverURL;
 	}
 

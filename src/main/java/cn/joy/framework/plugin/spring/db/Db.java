@@ -232,6 +232,7 @@ public class Db {
 				if (list != null) {
 					if (list != null) {
 						for (T obj:list) {
+							setLastModifyTime(obj);
 							session.update(obj);
 						}
 					}
@@ -245,6 +246,7 @@ public class Db {
 			logger.debug("db saveOrUpdate ==> " + obj);
 		execute(new DbCallback() {
 			public void run(Session session, Object... params) throws Exception {
+				setLastModifyTime(params[0]);
 				session.saveOrUpdate(params[0]);
 			}
 		}, obj);
@@ -255,6 +257,7 @@ public class Db {
 			logger.debug("db merge ==> " + obj);
 		execute(new DbCallback() {
 			public void run(Session session, Object... params) throws Exception {
+				setLastModifyTime(params[0]);
 				session.merge(params[0]);
 			}
 		}, obj);

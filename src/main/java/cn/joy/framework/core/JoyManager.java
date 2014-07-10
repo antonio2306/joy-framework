@@ -93,7 +93,8 @@ public class JoyManager {
 		
 		rLoader = RuleLoader.singleton();
 		
-		File moduleBaseDir = new File(server.getModulePackage());
+		File moduleBaseDir = new File(PathKit.getPackagePath(server.getModulePackage()));
+		logger.info("module base dir: "+moduleBaseDir);
 		if(moduleBaseDir.exists()){
 			File[] moduleDirs = moduleBaseDir.listFiles();
 			for(File moduleDir:moduleDirs){
