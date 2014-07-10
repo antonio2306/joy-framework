@@ -1,7 +1,7 @@
 package cn.joy.framework.plugin.spring.support;
 
 public interface RouteStore {
-	public String getServerURLByServerTag(String serverTag);
+	public String getServerURLByServerTag(String serverType, String serverTag);
 
-	public void storeServerURL(String serverTag, String serverURL);
+	public void storeServerURL(String serverType, String serverTag, String serverURL);
 }

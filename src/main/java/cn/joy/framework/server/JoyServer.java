@@ -56,6 +56,10 @@ public abstract class JoyServer {
 		return this.getVariable("app_default_app_server_url");
 	}
 	
+	public String getDefaultAppFileServerUrl(){
+		return this.getVariable("app_default_app_file_server_url");
+	}
+	
 	public String getPlugins(){
 		return this.getVariable("plugins", "");	//spring jfinal
 	}

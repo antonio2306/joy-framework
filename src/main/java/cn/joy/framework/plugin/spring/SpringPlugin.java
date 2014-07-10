@@ -72,21 +72,21 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 		return ruleResult;
 	}
 
-	public String getServerURLByServerTag(String serverTag) {
+	public String getServerURLByServerTag(String serverType, String serverTag) {
 		if(SpringResource.getRouteStore()==null){
 			if(logger.isDebugEnabled())
 				logger.debug("RouteStore not impl");
 			return "";
 		}
-		return SpringResource.getRouteStore().getServerURLByServerTag(serverTag);
+		return SpringResource.getRouteStore().getServerURLByServerTag(serverType, serverTag);
 	}
 
-	public void storeServerURL(String serverTag, String serverURL) {
+	public void storeServerURL(String serverType, String serverTag, String serverURL) {
 		if(SpringResource.getRouteStore()==null){
 			if(logger.isDebugEnabled())
 				logger.debug("RouteStore not impl");
 			return;
 		}
-		SpringResource.getRouteStore().storeServerURL(serverTag, serverURL);
+		SpringResource.getRouteStore().storeServerURL(serverType, serverTag, serverURL);
 	}
 }

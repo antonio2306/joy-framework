@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.spring.SpringResource;
@@ -43,48 +44,15 @@ public class BusinessRuleController extends MultiActionController {
 		if(SpringResource.getSecurityManager()!=null){
 			RuleResult checkResult = SpringResource.getSecurityManager().checkBusinessRequest(request);
 			if(!checkResult.isSuccess()){
-				HttpKit.writeResponse(response, checkResult.toJSON());
+				Map<String, Object> checkResultContent = checkResult.getMapFromContent();
+				if(checkResultContent.containsKey("statusCode"))
+					response.setStatus(NumberKit.getInteger(checkResultContent.get("statusCode"), 500));
+				
+				HttpKit.writeResponse(response, checkResult.getMsg());
 				return null;
 			}
 		}
 		
-		/*boolean isMobile = "true".equals(request.getParameter("mobile"));
-		if(isMobile){
-			if(StringKit.isEmpty(request.getParameter("versionID"))){
-				HttpKit.writeResponse(response, "CHECK PARAMETER versionID FAIL");
-				return null;
-			}
-			
-			String loginId = request.getParameter("loginId");
-			if(StringKit.isEmpty(loginId)){
-				HttpKit.writeResponse(response, "CHECK PARAMETER loginId FAIL");
-				return null;
-			}
-			if(!"account".equals(service)){
-				String tn = request.getParameter("mtn");
-				if(StringKit.isEmpty(tn)){
-					HttpKit.writeResponse(response, "CHECK PARAMETER mtn FAIL");
-					return null;
-				}
-				
-				IDataSet dataset = DataSet.getInstance();
-				MobileSession ms = UserSession.dao.getSession(dataset, loginId, tn);
-				if(ms==null){
-				//去网站验证tn是否为最新token，若是，则更新本地token
-				RuleResult checkResult = RuleExecutor.createRemote(RuleContext.create(request)).execute("website@account.accountService#checkAccessToken", 
-					RuleParam.create().put("loginId", request.getParameter("loginId")).put("tn", tn));
-				if(checkResult.isSuccess() && checkResult.getContent()==Boolean.TRUE){
-					ms = new MobileSession(tn, request.getParameter("loginId"), "sync from website", new Date());
-					AuthAppRegister.getCustomer().insertMobileSession(ms);
-				}
-				
-					ms = UserSession.dao.getLastestSession(dataset, loginId);
-					response.setStatus(518);
-					HttpKit.writeResponse(response, "INVALID_TOKEN|"+JsonKit.object2Json(ms));
-				}
-			}
-		}*/
-			
 		String ruleURI = service+"."+service+"Controller#"+action;
 		if(logger.isDebugEnabled())
 			logger.debug("business controller rule invoke, ruleURI="+ruleURI);

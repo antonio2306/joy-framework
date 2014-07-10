@@ -62,7 +62,7 @@ public class JoyManager {
 	}
 
 	public static void init() throws Exception{
-		logger.info("RuleManager init start...");
+		logger.info("JOY Framework start...");
 		
 		Properties config = new Properties();
 		
@@ -114,7 +114,7 @@ public class JoyManager {
 			}
 		}
 		
-		logger.debug("RuleManager init end...");
+		logger.info("JOY Framework run...");
 	}
 	
 	private static IPlugin loadPlugin(String pluginName) throws Exception{

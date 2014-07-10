@@ -67,6 +67,10 @@ public class OpenRuleController extends MultiActionController {
 				content = RouteManager.getDefaultAppServerURL();
 			}else if("get_app_url".equals(key)){
 				content = RouteManager.getServerURLByTag(tag);
+			}else if("get_default_app_file_url".equals(key)){
+				content = RouteManager.getDefaultAppFileServerURL();
+			}else if("get_app_file_url".equals(key)){
+				content = RouteManager.getFileServerURLByTag(tag);
 			}
 		}
 		

@@ -14,6 +14,7 @@ import cn.joy.framework.kits.StringKit;
 public class RouteManager {
 	public static final String CENTER_SERVER_TAG = JoyManager.getServer().getCenterServerTag();
 	private static Map<String, String> routes = new HashMap<String, String>();
+	private static Map<String, String> routes4File = new HashMap<String, String>();
 	
 	public static String getServerTag(String qyescode){
 		String tag = "";
@@ -48,7 +49,21 @@ public class RouteManager {
 				serverURL = HttpKit.get(getCenterServerURL()+"/"+JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", 
 						"&key=get_default_app_url", null));
 			}
-			routes.put("brm", serverURL);
+			routes.put("app", serverURL);
+		}
+		return serverURL;
+	}
+	
+	public static String getDefaultAppFileServerURL(){
+		String serverURL = routes4File.get("appFile");
+		if(serverURL==null){
+			if(JoyManager.getServer() instanceof CenterServer){
+				serverURL = JoyManager.getServer().getDefaultAppFileServerUrl();
+			}else{
+				serverURL = HttpKit.get(getCenterServerURL()+"/"+JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", 
+						"&key=get_default_app_file_url", null));
+			}
+			routes4File.put("appFile", serverURL);
 		}
 		return serverURL;
 	}
@@ -60,13 +75,31 @@ public class RouteManager {
 		String serverURL = routes.get(serverTag);
 		if(serverURL==null){
 			if(JoyManager.getServer() instanceof CenterServer){
-				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag(serverTag);
+				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("app", serverTag);
 			}else{
 				serverURL = HttpKit.get(getCenterServerURL()+"/"+JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", 
 						"&key=get_app_url&tag="+serverTag, null));
-				JoyManager.getRoutePlugin().storeServerURL(serverTag, serverURL);
+				JoyManager.getRoutePlugin().storeServerURL("app", serverTag, serverURL);
 			}
 			routes.put(serverTag, serverURL);
+		}
+		return serverURL;
+	}
+	
+	public static String getFileServerURLByTag(String serverTag){
+		if(StringKit.isEmpty(serverTag))	//空tag，则为默认应用文件服务器
+			return getDefaultAppFileServerURL();
+		
+		String serverURL = routes4File.get(serverTag);
+		if(serverURL==null){
+			if(JoyManager.getServer() instanceof CenterServer){
+				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", serverTag);
+			}else{
+				serverURL = HttpKit.get(getCenterServerURL()+"/"+JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", 
+						"&key=get_app_file_url&tag="+serverTag, null));
+				JoyManager.getRoutePlugin().storeServerURL("file", serverTag, serverURL);
+			}
+			routes4File.put(serverTag, serverURL);
 		}
 		return serverURL;
 	}
@@ -75,4 +108,7 @@ public class RouteManager {
 		return getServerURLByTag(getServerTag(qyescode));
 	}
 
+	public static String getFileServerURLByQyescode(String qyescode){
+		return getFileServerURLByTag(getServerTag(qyescode));
+	}
 }
