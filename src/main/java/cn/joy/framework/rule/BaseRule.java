@@ -19,35 +19,28 @@ import cn.joy.framework.exception.RuleException;
 public abstract class BaseRule {
 	protected Logger logger = Logger.getLogger(BaseRule.class);
 	
-	RuleResult handleExecuteInternal(RuleContext rContext, RuleParam rParam) {
-		try {
-			String ruleURI = rParam.getString(RuleParam.KEY_RULE_URI);
-			int idx = ruleURI.indexOf("#");
-			String action = "execute";
-			if(idx>0){
-				action = ruleURI.substring(idx+1);
-				if(logger.isDebugEnabled())
-					logger.debug("execute action="+action);
-			}
-
-			Method method = null;
-			try {
-				method = this.getClass().getDeclaredMethod(action, this.getActionMethodParamClass());
-			} catch (SecurityException e) {
-				logger.error("", e);
-				return RuleResult.create().fail(MainError.create(MainErrorType.FORBIDDEN_REQUEST));
-			} catch (NoSuchMethodException e) {
-				logger.error("", e);
-				return RuleResult.create().fail(MainError.create(MainErrorType.INVALID_METHOD));
-			}
-			
-			return doInvokeActionMethod(method, rContext, rParam);
-		} catch (Exception e) {
-			if(e instanceof RuleException)
-				throw (RuleException)e;
-			else
-				throw new RuleException(MainErrorType.PROGRAM_ERROR);
+	RuleResult handleExecuteInternal(RuleContext rContext, RuleParam rParam) throws Exception{
+		String ruleURI = rParam.getString(RuleParam.KEY_RULE_URI);
+		int idx = ruleURI.indexOf("#");
+		String action = "execute";
+		if(idx>0){
+			action = ruleURI.substring(idx+1);
+			if(logger.isDebugEnabled())
+				logger.debug("execute action="+action);
 		}
+
+		Method method = null;
+		try {
+			method = this.getClass().getDeclaredMethod(action, this.getActionMethodParamClass());
+		} catch (SecurityException e) {
+			logger.error("", e);
+			return RuleResult.create().fail(MainError.create(MainErrorType.FORBIDDEN_REQUEST));
+		} catch (NoSuchMethodException e) {
+			logger.error("", e);
+			return RuleResult.create().fail(MainError.create(MainErrorType.INVALID_METHOD));
+		}
+		
+		return doInvokeActionMethod(method, rContext, rParam);
 	}
 	
 	protected RuleResult doInvokeActionMethod(final Method method, final RuleContext rContext, final RuleParam rParam) throws Exception{

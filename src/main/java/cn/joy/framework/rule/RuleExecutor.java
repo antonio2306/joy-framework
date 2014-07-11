@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
@@ -184,12 +185,12 @@ public class RuleExecutor {
 			}
 			
 			postExecute(ruleResult);
-		} catch (RuleException re) {
-			logger.error("", re);
-			ruleResult.fail(re);
 		} catch (Exception e) {
 			logger.error("", e);
-			ruleResult.fail(new RuleException(e));
+			if(e instanceof RuleException)
+				throw (RuleException)e;
+			else
+				throw new RuleException(e);
 		} finally {
 			if(!isInnerInvoke && autoReleaseAfterExecuteOnce)
 				release();
@@ -199,7 +200,7 @@ public class RuleExecutor {
 		return ruleResult;
 	}
 	
-	private RuleResult doExecute(BaseRule rule, RuleParam rParam, boolean isInnerInvoke){
+	private RuleResult doExecute(BaseRule rule, RuleParam rParam, boolean isInnerInvoke) throws Exception{
 		if(logger.isDebugEnabled())
 			logger.debug("doExecute, rule="+rule);
 		return rule.handleExecuteInternal(rContext, rParam);
@@ -210,7 +211,11 @@ public class RuleExecutor {
 			logger.debug("doExecuteAsyn, rule="+rule);
 		new Thread(new Runnable(){
 			public void run() {
-				rule.handleExecuteInternal(rContext, rParam);
+				try {
+					rule.handleExecuteInternal(rContext, rParam);
+				} catch (Exception e) {
+					logger.error("", e);
+				}
 			}
 		}).start();
 		return RuleResult.create().success();

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
+import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.NumberKit;
@@ -75,7 +76,12 @@ public class BusinessRuleController extends MultiActionController {
 					continue;
 				request.setAttribute("MK_"+mergeKey, kv);
 				//执行分离，事务分离，合并结果
-				RuleResult result = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
+				RuleResult result = null;
+				try{
+					result = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
+				}catch(RuleException e){
+					result = e.getFailResult();
+				}
 				//content = result.toJSON();
 				if(logger.isDebugEnabled())
 					logger.debug("kv="+kv+", content="+result.toJSON());

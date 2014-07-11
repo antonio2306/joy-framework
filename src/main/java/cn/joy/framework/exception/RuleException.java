@@ -8,11 +8,11 @@ import cn.joy.framework.rule.RuleResult;
  * @date 2014-05-20
  */
 public class RuleException extends RuntimeException {
-	private MainError error;
 	private RuleResult failResult;
 
 	public RuleException(String message){
 		super(message);
+		this.failResult = RuleResult.create().fail(message);
 	}
 	
 	public RuleException(RuleResult failResult){
@@ -24,24 +24,19 @@ public class RuleException extends RuntimeException {
 	}
 	
 	public RuleException(MainErrorType mainErrorType){
-		this.error = MainError.create(mainErrorType);
+		this.failResult = RuleResult.create().fail(MainError.create(mainErrorType));
 	}
 	
 	public RuleException(SubErrorType subErrorType, Object... params){
-		this.error = SubError.getMainError(subErrorType);
+		MainError mainError = SubError.getMainError(subErrorType);
 		SubError subError = SubError.create(subErrorType, params);
-		this.error.addSubError(subError);
+		mainError.addSubError(subError);
+		this.failResult = RuleResult.create().fail(mainError);
 	}
 
-	public MainError getError() {
-		return error;
-	}
-	
 	@Override
 	public String getMessage() {
-		if(this.error!=null){
-			return this.error.toJSON();
-		}else if(this.failResult!=null){
+		if(this.failResult!=null){
 			return this.failResult.getMsg();
 		}
 		return super.getMessage();

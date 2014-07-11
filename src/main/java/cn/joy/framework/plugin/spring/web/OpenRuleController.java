@@ -8,10 +8,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.spring.SpringResource;
+import cn.joy.framework.rule.RuleContext;
 import cn.joy.framework.rule.RuleExecutor;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
@@ -47,7 +49,12 @@ public class OpenRuleController extends MultiActionController {
 		
 		if(StringKit.isNotEmpty(ruleURI)){
 			RuleParam rParam = (RuleParam)JsonKit.json2Object(request.getParameter("params"), RuleParam.class);
-			RuleResult result = RuleExecutor.create(request).execute(ruleURI, rParam);
+			RuleResult result = null;
+			try{
+				result = RuleExecutor.create(request).execute(ruleURI, rParam);
+			}catch(RuleException e){
+				result = e.getFailResult();
+			}
 			content = result.toJSON();
 		}
 		HttpKit.writeResponse(response, content);

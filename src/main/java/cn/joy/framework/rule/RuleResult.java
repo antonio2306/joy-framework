@@ -86,11 +86,9 @@ public class RuleResult {
 		if(failResult!=null){
 			this.rMessage = failResult.getMsg();
 			this.rContent = failResult.getContent();
+			this.rError = failResult.getError();
 		}else{
-			this.rError = exception.getError();
 			this.rMessage = exception.getMessage();
-			if(StringKit.isEmpty(this.rMessage))
-				this.rMessage = exception.getError().toJSON();
 		}
 		return this;
 	}
