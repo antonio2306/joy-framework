@@ -82,10 +82,16 @@ public class RuleResult {
 	public RuleResult fail(RuleException exception){
 		this.result = false;
 		this.rException = exception;
-		this.rError = exception.getError();
-		this.rMessage = exception.getMessage();
-		if(StringKit.isEmpty(this.rMessage))
-			this.rMessage = exception.getError().toJSON();
+		RuleResult failResult = exception.getFailResult();
+		if(failResult!=null){
+			this.rMessage = failResult.getMsg();
+			this.rContent = failResult.getContent();
+		}else{
+			this.rError = exception.getError();
+			this.rMessage = exception.getMessage();
+			if(StringKit.isEmpty(this.rMessage))
+				this.rMessage = exception.getError().toJSON();
+		}
 		return this;
 	}
 	

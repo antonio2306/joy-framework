@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
 import cn.joy.framework.plugin.IRoutePlugin;
@@ -61,8 +62,10 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 				logger.debug("doTransaction, ruleResult="+ruleResult.toJSON());
 			if(ruleResult.isSuccess())
 				Db.commitAndEndTransaction();
+			//else
+			//	Db.rollbackAndEndTransaction();
 			else
-				Db.rollbackAndEndTransaction();
+				throw new RuleException(ruleResult);
 		} catch (Exception e) {
 			logger.error("", e);
 			Db.rollbackAndEndTransaction();

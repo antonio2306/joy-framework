@@ -275,8 +275,6 @@ public class RuleExecutor {
 		try {
 			if(isThreadBinding){
 				threadRuleExecutor.remove();
-				//if(this.rContext!=null)
-				//	this.rContext.getDataset().getThreadLocal().remove();
 			}
 				
 			if(this.rContext!=null)

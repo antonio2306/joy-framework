@@ -1,5 +1,7 @@
 package cn.joy.framework.exception;
 
+import cn.joy.framework.rule.RuleResult;
+
 /**
  * 规则执行异常
  * @author liyy
@@ -7,9 +9,14 @@ package cn.joy.framework.exception;
  */
 public class RuleException extends RuntimeException {
 	private MainError error;
+	private RuleResult failResult;
 
 	public RuleException(String message){
 		super(message);
+	}
+	
+	public RuleException(RuleResult failResult){
+		this.failResult = failResult;
 	}
 	
 	public RuleException(Throwable thr){
@@ -34,8 +41,14 @@ public class RuleException extends RuntimeException {
 	public String getMessage() {
 		if(this.error!=null){
 			return this.error.toJSON();
+		}else if(this.failResult!=null){
+			return this.failResult.getMsg();
 		}
 		return super.getMessage();
+	}
+
+	public RuleResult getFailResult() {
+		return failResult;
 	}
 	
 }
