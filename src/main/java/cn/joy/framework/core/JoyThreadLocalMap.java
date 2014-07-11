@@ -3,7 +3,7 @@ package cn.joy.framework.core;
 import java.util.HashMap;
 import java.util.Map;
 /**
- * 
+ * 扩展ThreadLocal，支持常用的Map存储数据
  * @author liyy
  * @date 2014-05-21
  */

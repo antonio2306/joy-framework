@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
 /**
- * 调试状态的业务规则类加载器
+ * 调试状态的业务规则类加载器，对于指定调试的规则，每次执行都重新加载类定义并产生一个实例
  * @author liyy
  * @date 2014-05-22
  */
@@ -34,7 +34,6 @@ public class RuleDebugClassLoader extends ClassLoader {
 			throw new RuntimeException(e);
 		}
 	}
-
 	
 	public Class loadRuleClass(String className) throws ClassNotFoundException{
 		return this.loadClass(className);
@@ -81,7 +80,8 @@ public class RuleDebugClassLoader extends ClassLoader {
 		FileInputStream fis;
 		String fileName = debugClassPath + File.separatorChar
 				+ typeName.replace('.', File.separatorChar) + ".class";
-		logger.debug("fileName:" + fileName);
+		if(logger.isDebugEnabled())
+			logger.debug("fileName:" + fileName);
 		try {
 			fis = new FileInputStream(fileName);
 		} catch (FileNotFoundException e) {

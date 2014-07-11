@@ -30,9 +30,9 @@ public class RuleExecutor {
 	private boolean isAsyn = false;
 	
 	private boolean isRemote = false;
-	
+	//同步、本地执行的执行器，绑定到当前线程
 	private boolean isThreadBinding = false;
-
+	//是否在调用规则后自动释放资源
 	private boolean autoReleaseAfterExecuteOnce = true;
 
 	private RuleExecutor() {
@@ -125,10 +125,16 @@ public class RuleExecutor {
 		threadRuleExecutor.remove();
 	}
 
+	/**
+	 * 初始规则调用，一般作为调用的入口
+	 */
 	public RuleResult execute(String ruleURI, RuleParam rParam){
 		return this.execute(ruleURI, rParam, false);
 	}
 	
+	/**
+	 * 规则中再次调用规则，由上下文调用
+	 */
 	RuleResult executeInner(String ruleURI, RuleParam rParam) {
 		return this.execute(ruleURI, rParam, true);
 	}
@@ -200,12 +206,18 @@ public class RuleExecutor {
 		return ruleResult;
 	}
 	
+	/**
+	 * 本地同步调用实现
+	 */
 	private RuleResult doExecute(BaseRule rule, RuleParam rParam, boolean isInnerInvoke) throws Exception{
 		if(logger.isDebugEnabled())
 			logger.debug("doExecute, rule="+rule);
 		return rule.handleExecuteInternal(rContext, rParam);
 	}
 	
+	/**
+	 * 本地异步调用实现
+	 */
 	private RuleResult doExecuteAsyn(final BaseRule rule, final RuleParam rParam) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteAsyn, rule="+rule);
@@ -221,6 +233,9 @@ public class RuleExecutor {
 		return RuleResult.create().success();
 	}
 	
+	/**
+	 * 远程同步调用实现
+	 */
 	private RuleResult doExecuteRemote(String serverURL, String remoteRuleURI, String contextParam, RuleParam rParam) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteRemote, ruleURI="+remoteRuleURI);
@@ -239,6 +254,9 @@ public class RuleExecutor {
 		return ruleResult;
 	}
 	
+	/**
+	 * 远程异步调用实现
+	 */
 	private RuleResult doExecuteRemoteAsyn(final String serverURL, final String remoteRuleURI, final String contextParam, final RuleParam rParam) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteRemoteAsyn, ruleURI="+remoteRuleURI);
@@ -260,6 +278,9 @@ public class RuleExecutor {
 		return RuleResult.create().success();
 	}
 	
+	/**
+	 * 调用开放规则
+	 */
 	private String post4OpenService(String url, String contextParam, String serviceKey, String rParamJson){
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("ruleURI", serviceKey);

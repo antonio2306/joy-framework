@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 /**
- * 
+ * 规则工具类
  * @author liyy
  * @date 2014-05-20
  */

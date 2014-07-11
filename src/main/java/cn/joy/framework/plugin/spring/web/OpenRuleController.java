@@ -21,7 +21,7 @@ import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.RouteManager;
 import cn.joy.framework.support.SecurityManager;
 /**
- * 通用开放规则调用控制器
+ * 通用开放规则调用控制器，负责中心服务器和各应用服务器之间的规则调用，同时负责中心服务器的配置获取服务
  * @author liyy
  * @date 2014-06-11
  */

@@ -3,7 +3,7 @@ package cn.joy.framework.exception;
 import cn.joy.framework.rule.RuleResult;
 
 /**
- * 规则执行异常
+ * 规则执行时异常
  * @author liyy
  * @date 2014-05-20
  */

@@ -6,7 +6,7 @@ import java.util.Locale;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.I18NKit;
 /**
- * 子错误
+ * 子错误定义，一个主错误中可包含若干个子错误
  * @author liyy
  * @date 2014-05-20
  */

@@ -3,7 +3,7 @@ package cn.joy.framework.rule;
 import cn.joy.framework.core.JoyBundle;
 
 /**
- * 业务规则执行上下问的构造参数
+ * 业务规则执行上下文的构造参数
  * @author liyy
  * @date 2014-06-16
  */

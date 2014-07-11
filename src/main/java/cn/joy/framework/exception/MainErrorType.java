@@ -1,6 +1,6 @@
 package cn.joy.framework.exception;
 /**
- * 主错误编码
+ * 主错误类型编码
  * @author liyy
  * @date 2014-05-20
  */

@@ -4,7 +4,11 @@ import java.util.Locale;
 import java.util.Properties;
 
 import cn.joy.framework.kits.StringKit;
-
+/**
+ * 服务器定义，加载服务器配置，支持一个中心服务器、多个应用服务器的部署结构
+ * @author liyy
+ * @date 2014-07-06
+ */
 public abstract class JoyServer {
 	private Properties serverVariables = new Properties();
 	

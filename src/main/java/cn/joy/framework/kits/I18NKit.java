@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import cn.joy.framework.core.JoyManager;
 /**
- * 国际化
+ * 国际化工具类
  * @author liyy
  * @date 2014-05-20
  */

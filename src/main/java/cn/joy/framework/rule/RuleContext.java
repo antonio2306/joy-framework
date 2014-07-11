@@ -11,13 +11,12 @@ import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 /**
- * 业务规则执行上下文
+ * 业务规则执行上下文，记录当前操作者的身份
  * @author liyy
  * @date 2014-05-20
  */
 public class RuleContext {
 	private static Logger logger = Logger.getLogger(RuleContext.class);
-	public static final Long UNKNOWN_COMPANYID = 0L;
 	public static final String UNKNOWN_LOGINID = "UNKNOWN";
 	public static final String NOLOGIN_LOGINID = "NO_LOGIN";
 	public static final String SYSTEM_LOGINID = "SYSTEM";
@@ -29,15 +28,13 @@ public class RuleContext {
 	
 	private RuleExecutor rExecutor;
 	
-	private boolean isMobileRequest;
-	
 	private String accessToken;
 	
+	//用户主帐号，代表用户的个人身份
 	private String loginId;
 	
+	//用户组织号，代表用户的组织身份
 	private String companyCode;
-	
-	//private IDataSet dataset;
 	
 	private RuleExtraData rExtra;
 	
@@ -49,7 +46,6 @@ public class RuleContext {
 		RuleContext rContext = new RuleContext();
 		rContext.loginId = StringKit.getString(loginId, TRANSPORT_SINGLE);
 		
-		//rContext.dataset = DataSet.getInstance();
 		rContext.rExtra = RuleExtraData.create();
 		if(logger.isDebugEnabled())
 			logger.debug("loginId="+rContext.loginId);
@@ -57,22 +53,17 @@ public class RuleContext {
 	}
 	
 	public static RuleContext create(HttpServletRequest request){
-		//if (request == null)
-		//	request = (HttpServletRequest) ThreadLocalBean.getInstance().getThreadAttribute("request");
-		
 		RuleContext rContext = new RuleContext();
 		rContext.request = request;
 
-		rContext.isMobileRequest = "true".equals(RuleKit.getStringParam(request, "mobile"));
-		rContext.accessToken = RuleKit.getStringParam(request, "mtn");
+		rContext.accessToken = RuleKit.getStringParam(request, JoyManager.getServer().getAccessTokenParam());
 		
-		rContext.loginId = RuleKit.getStringParam(request, "loginId");
+		rContext.loginId = RuleKit.getStringParam(request, JoyManager.getServer().getLoginIdParam());
 		if(StringKit.isEmpty(rContext.loginId))
 			throw new RuleException(SubErrorType.ISV_MISSING_PARAMETER, "loginId");
 		
 		rContext.companyCode = RuleKit.getStringParam(request, JoyManager.getServer().getCompanyCodeParam());
 		
-		//rContext.dataset = DataSet.getInstance();
 		rContext.rExtra = RuleExtraData.create();
 		if(logger.isDebugEnabled())
 			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode);
@@ -87,6 +78,9 @@ public class RuleContext {
 		this.rExecutor = rExecutor;
 	}
 	
+	/**
+	 * 规则中调用其它规则时，可以通过config指定在克隆的上下文中新的当前操作者身份
+	 */
 	void configAs(RuleInvokeConfig config) {
 		if(config!=null){
 			if(config.isChangePerson()){
@@ -103,6 +97,9 @@ public class RuleContext {
 		}
 	}
 	
+	/**
+	 * 远程HTTP调用时，将指定的操作者身份属性拼接为URL参数
+	 */
 	public String prepareRemoteContextParam() {
 		StringBuilder params = new StringBuilder();
 		params.append("&loginId=").append(loginId);
@@ -113,10 +110,16 @@ public class RuleContext {
 		return params.toString();
 	}
 	
+	/**
+	 * 规则中调用其它规则
+	 */
 	public RuleResult invokeRule(String ruleURI, RuleParam rParam) throws Exception{
 		return this.invokeRule(ruleURI, rParam, RuleInvokeConfig.create().setAsyn(false));
 	}
 	
+	/**
+	 * 规则中调用其它规则，支持config参数，用于指定新的操作者身份、是否异步调用等
+	 */
 	public RuleResult invokeRule(String ruleURI, RuleParam rParam, RuleInvokeConfig config) throws Exception{
 		if(StringKit.isEmpty(ruleURI))
 			return RuleResult.create().fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
@@ -151,7 +154,6 @@ public class RuleContext {
 		this.rExecutor = null;
 		this.loginId = null;
 		this.companyCode = null;
-		//this.dataset = null;
 		this.rExtra = null;
 	}
 	
@@ -171,10 +173,6 @@ public class RuleContext {
 		return loginId;
 	}
 
-	/*public IDataSet getDataset() {
-		return dataset;
-	}*/
-	
 	public RuleExtraData getExtra(){
 		return rExtra;
 	}

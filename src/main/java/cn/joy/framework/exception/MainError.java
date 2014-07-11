@@ -8,7 +8,7 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.I18NKit;
 import cn.joy.framework.kits.JsonKit;
 /**
- * 主错误
+ * 主错误定义
  * @author liyy
  * @date 2014-05-20
  */

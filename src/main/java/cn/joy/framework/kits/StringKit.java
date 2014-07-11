@@ -3,7 +3,11 @@ package cn.joy.framework.kits;
 import java.util.Collection;
 
 import org.apache.commons.lang.CharUtils;
-
+/**
+ * 字符串操作工具类
+ * @author liyy
+ * @date 2014-05-20
+ */
 public class StringKit {
 	public static boolean isEmpty(Object info) {
 		if (info == null)

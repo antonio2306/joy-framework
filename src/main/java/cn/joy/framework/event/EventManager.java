@@ -13,7 +13,11 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.log4j.Logger;
-
+/**
+ * 事件管理器，负责事件监听器的注册及事件的发布
+ * @author liyy
+ * @date 2014-07-06
+ */
 public class EventManager {
 	private static Logger logger = Logger.getLogger(EventManager.class);
 

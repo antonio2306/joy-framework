@@ -3,7 +3,7 @@ package cn.joy.framework.kits;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 /**
- * 
+ * Bean操作工具类
  * @author liyy
  * @date 2014-05-20
  */

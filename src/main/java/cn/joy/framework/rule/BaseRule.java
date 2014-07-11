@@ -18,7 +18,9 @@ import cn.joy.framework.exception.RuleException;
  */
 public abstract class BaseRule {
 	protected Logger logger = Logger.getLogger(BaseRule.class);
-	
+	/**
+	 * 规则内部方法转调
+	 */
 	RuleResult handleExecuteInternal(RuleContext rContext, RuleParam rParam) throws Exception{
 		String ruleURI = rParam.getString(RuleParam.KEY_RULE_URI);
 		int idx = ruleURI.indexOf("#");
@@ -43,6 +45,9 @@ public abstract class BaseRule {
 		return doInvokeActionMethod(method, rContext, rParam);
 	}
 	
+	/**
+	 * 方法调用包装，可在方法调用前后加入事务控制等
+	 */
 	protected RuleResult doInvokeActionMethod(final Method method, final RuleContext rContext, final RuleParam rParam) throws Exception{
 		final BaseRule rule = this;
 		final Object[] mParams = this.getActionMethodParam(rContext, rParam);
@@ -59,6 +64,9 @@ public abstract class BaseRule {
 		});
 	}
 
+	/**
+	 * 根据不同类型的规则，传递不同类型的参数
+	 */
 	protected Class[] getActionMethodParamClass(){
 		if(this.getClass().getSimpleName().endsWith("ControllerRule"))
 			return new Class[]{RuleContext.class, RuleParam.class, HttpServletRequest.class};
@@ -66,6 +74,9 @@ public abstract class BaseRule {
 			return new Class[]{RuleContext.class, RuleParam.class};
 	}
 	
+	/**
+	 * 根据不同类型的规则，传递不同类型的参数
+	 */
 	protected Object[] getActionMethodParam(RuleContext rContext, RuleParam rParam) {
 		if(this.getClass().getSimpleName().endsWith("ControllerRule"))
 			return new Object[]{rContext, rParam, rContext.getRequest()};

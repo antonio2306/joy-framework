@@ -1,7 +1,11 @@
 package cn.joy.framework.kits;
 
 import org.apache.commons.lang.math.NumberUtils;
-
+/**
+ * 数值操作工具类
+ * @author liyy
+ * @date 2014-05-20
+ */
 public class NumberKit {
 	public static boolean isNumber(String value) {
 		return NumberUtils.isNumber(value);

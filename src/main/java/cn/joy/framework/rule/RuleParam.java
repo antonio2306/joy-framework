@@ -18,9 +18,4 @@ public class RuleParam extends JoyBundle<RuleParam> {
 		return new RuleParam();
 	}
 	
-	public static void main(String[] args) {
-		RuleParam p = RuleParam.create().put("aaa", 123);
-		System.out.println(p.get("aaa"));
-		System.out.println(p.getString("aaa"));
-	}
 }

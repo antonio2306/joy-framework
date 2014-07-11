@@ -26,7 +26,7 @@ import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.JoyServer;
 
 /**
- * 业务规则管理器
+ * 框架管理器，负责启动时的初始化工作
  * @author liyy
  * @date 2014-05-20
  */

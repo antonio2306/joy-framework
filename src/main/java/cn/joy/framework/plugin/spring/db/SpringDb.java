@@ -5,7 +5,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import cn.joy.framework.exception.RuleException;
-
+/**
+ * 基于Spring、Hibernate的数据库定义
+ * @author liyy
+ * @date 2014-07-06
+ */
 public class SpringDb {
 	private Logger logger = Logger.getLogger(SpringDb.class);
 	private SessionFactory sessionFactory = null;

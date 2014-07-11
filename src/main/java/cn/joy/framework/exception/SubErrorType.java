@@ -2,7 +2,7 @@ package cn.joy.framework.exception;
 
 import java.util.EnumMap;
 /**
- * 子错误编码
+ * 子错误类型编码
  * @author liyy
  * @date 2014-05-20
  */

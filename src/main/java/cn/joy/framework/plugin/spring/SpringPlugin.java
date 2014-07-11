@@ -16,7 +16,11 @@ import cn.joy.framework.plugin.IRoutePlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
 import cn.joy.framework.plugin.spring.db.Db;
 import cn.joy.framework.rule.RuleResult;
-
+/**
+ * Spring插件，提供MVC、事务、路由接口的实现
+ * @author liyy
+ * @date 2014-07-06
+ */
 public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugin{
 	private static Logger logger = Logger.getLogger(SpringPlugin.class);
 	public static String MVC_OPEN_REQUEST_URL = "openservice.do";

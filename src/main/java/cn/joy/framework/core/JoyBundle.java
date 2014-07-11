@@ -7,7 +7,7 @@ import java.util.Set;
 
 import cn.joy.framework.kits.StringKit;
 /**
- * 
+ * 仿Android的Bundle，但对数据类型限制降低
  * @author liyy
  * @date 2014-05-20
  */

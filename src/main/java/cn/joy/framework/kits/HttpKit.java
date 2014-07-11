@@ -48,7 +48,11 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-
+/**
+ * Http操作工具类
+ * @author liyy
+ * @date 2014-05-20
+ */
 public class HttpKit{
 	private static Logger logger = Logger.getLogger(HttpKit.class);
 	

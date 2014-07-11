@@ -8,7 +8,11 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+/**
+ * Json操作工具类
+ * @author liyy
+ * @date 2014-05-20
+ */
 public class JsonKit {
 	private static final ObjectMapper mapper = new ObjectMapper();
 

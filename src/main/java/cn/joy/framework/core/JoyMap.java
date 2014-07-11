@@ -3,7 +3,7 @@ package cn.joy.framework.core;
 import java.util.HashMap;
 import java.util.Map;
 /**
- * 
+ * 扩展Map，支持链式操作
  * @author liyy
  * @date 2014-05-20
  */

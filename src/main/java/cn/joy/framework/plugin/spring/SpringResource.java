@@ -4,7 +4,11 @@ import cn.joy.framework.plugin.spring.db.RuleDao;
 import cn.joy.framework.plugin.spring.db.SpringDb;
 import cn.joy.framework.plugin.spring.support.RouteStore;
 import cn.joy.framework.support.SecurityManager;
-
+/**
+ * Spring资源注入
+ * @author liyy
+ * @date 2014-07-06
+ */
 public class SpringResource {
 	private static RuleDao ruleDao;
 	private static SpringDb mainDb;

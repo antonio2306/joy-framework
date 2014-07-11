@@ -11,7 +11,11 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
+/**
+ * Class操作工具类
+ * @author liyy
+ * @date 2014-07-05
+ */
 public class ClassKit {
 	/**
 	 * 取得某个接口下所有实现这个接口的类

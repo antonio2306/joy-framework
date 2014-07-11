@@ -23,7 +23,7 @@ import cn.joy.framework.rule.RuleExecutor;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
 /**
- * 通用业务规则接口调用控制器
+ * 通用业务规则接口调用控制器，负责客户端调用服务器提供的服务接口规则方法
  * @author liyy
  * @date 2014-06-12
  */

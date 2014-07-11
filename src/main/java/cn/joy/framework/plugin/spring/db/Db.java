@@ -13,7 +13,11 @@ import org.hibernate.Session;
 
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.plugin.spring.SpringResource;
-
+/**
+ * 数据库操作工具类
+ * @author liyy
+ * @date 2014-07-06
+ */
 public class Db {
 	private static Logger logger = Logger.getLogger(Db.class);
 	private static SpringDb mainDb = SpringResource.getMainDb();
