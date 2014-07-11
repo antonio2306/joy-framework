@@ -82,27 +82,33 @@ public class SpringDb {
 		if (logger.isDebugEnabled())
 			logger.debug("beginTransaction...");
 		Session session = getSession();
-		if (session != null) 
+		if (session != null){
 			session.beginTransaction();
 			threadLocal.set(session);
+			if (logger.isDebugEnabled())
+				logger.debug("beginTransaction do.");
+		}
 	}
 
 	public void endTransaction() {
 		if (logger.isDebugEnabled())
 			logger.debug("endTransaction...");
 		Session session = getThreadLocalSession();
-		if (session != null && session.isOpen())
+		if (session != null && session.isOpen()){
 			session.close();
+			if (logger.isDebugEnabled())
+				logger.debug("endTransaction do.");
+		}
 		threadLocal.remove();
 	}
 
 	public void commitAndEndTransaction() {
-		if (logger.isDebugEnabled())
-			logger.debug("commitAndEndTransaction...");
 		Session session = getThreadLocalSession();
 		if (session != null) {
 			try {
 				session.getTransaction().commit();
+				if (logger.isDebugEnabled())
+					logger.debug("commitAndEndTransaction do.");
 			} catch (Exception e) {
 				logger.error("", e);
 				session.getTransaction().rollback();
@@ -115,12 +121,12 @@ public class SpringDb {
 	}
 
 	public void rollbackAndEndTransaction() {
-		if (logger.isDebugEnabled())
-			logger.debug("rollbackAndEndTransaction...");
 		Session session = getThreadLocalSession();
 		if (session != null) {
 			try {
 				session.getTransaction().rollback();
+				if (logger.isDebugEnabled())
+					logger.debug("rollbackAndEndTransaction do.");
 			} catch (Exception e) {
 				logger.error("", e);
 			} finally {

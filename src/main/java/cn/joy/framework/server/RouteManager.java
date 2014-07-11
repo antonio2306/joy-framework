@@ -124,4 +124,12 @@ public class RouteManager {
 	public static String getFileServerURLByQyescode(String qyescode){
 		return getFileServerURLByTag(getServerTag(qyescode));
 	}
+
+	public static Map<String, String> getRoutes() {
+		return routes;
+	}
+
+	public static Map<String, String> getRoutes4File() {
+		return routes4File;
+	}
 }

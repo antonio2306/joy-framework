@@ -54,42 +54,27 @@ public abstract class JoyBundle<T> extends JoyMap<T, String, Object> {
 		return (T)this;
 	}
 	
-	public T putBoolean(String key, boolean value) {
+	public T putBoolean(String key, Boolean value) {
         mMap.put(key, value);
         return (T)this;
     }
 
-    public T putByte(String key, byte value) {
+    public T putInt(String key, Integer value) {
         mMap.put(key, value);
         return (T)this;
     }
 
-    public T putChar(String key, char value) {
+    public T putLong(String key, Long value) {
         mMap.put(key, value);
         return (T)this;
     }
 
-    public T putShort(String key, short value) {
+    public T putFloat(String key, Float value) {
         mMap.put(key, value);
         return (T)this;
     }
 
-    public T putInt(String key, int value) {
-        mMap.put(key, value);
-        return (T)this;
-    }
-
-    public T putLong(String key, long value) {
-        mMap.put(key, value);
-        return (T)this;
-    }
-
-    public T putFloat(String key, float value) {
-        mMap.put(key, value);
-        return (T)this;
-    }
-
-    public T putDouble(String key, double value) {
+    public T putDouble(String key, Double value) {
         mMap.put(key, value);
         return (T)this;
     }
