@@ -41,7 +41,8 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 	}
 
 	public String getOpenRequestPath(String action, String params, Map<String, String> datas){
-		return getRequestPath(MVC_OPEN_REQUEST_URL, action, params, datas);
+		String url = getRequestPath(MVC_OPEN_REQUEST_URL, action, params, datas);
+		return SpringResource.getSecurityManager().secureOpenRequestURL(url);
 	}
 	
 	public String getBusinessRequestPath(String action, String params, Map<String, String> datas){
@@ -66,8 +67,6 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 				logger.debug("doTransaction, ruleResult="+ruleResult.toJSON());
 			if(ruleResult.isSuccess())
 				Db.commitAndEndTransaction();
-			//else
-			//	Db.rollbackAndEndTransaction();
 			else
 				throw new RuleException(ruleResult);
 		} catch (Exception e) {
@@ -81,20 +80,10 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 	}
 
 	public String getServerURLByServerTag(String serverType, String serverTag) {
-		if(SpringResource.getRouteStore()==null){
-			if(logger.isDebugEnabled())
-				logger.debug("RouteStore not impl");
-			return "";
-		}
 		return SpringResource.getRouteStore().getServerURLByServerTag(serverType, serverTag);
 	}
 
 	public void storeServerURL(String serverType, String serverTag, String serverURL) {
-		if(SpringResource.getRouteStore()==null){
-			if(logger.isDebugEnabled())
-				logger.debug("RouteStore not impl");
-			return;
-		}
 		SpringResource.getRouteStore().storeServerURL(serverType, serverTag, serverURL);
 	}
 }

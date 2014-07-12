@@ -1,5 +1,7 @@
 package cn.joy.framework.plugin.spring.web;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,6 +13,7 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.spring.SpringResource;
 import cn.joy.framework.rule.RuleContext;
@@ -31,12 +34,10 @@ public class OpenRuleController extends MultiActionController {
 	@Override
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-		if(SpringResource.getSecurityManager()!=null){
-			RuleResult checkResult = SpringResource.getSecurityManager().checkOpenRequest(request);
-			if(!checkResult.isSuccess()){
-				HttpKit.writeResponse(response, checkResult.toJSON());
-				return null;
-			}
+		RuleResult checkResult = SpringResource.getSecurityManager().checkOpenRequest(request);
+		if(!checkResult.isSuccess()){
+			HttpKit.writeResponse(response, checkResult.toJSON());
+			return null;
 		}
 		return super.handleRequestInternal(request, response);
 	}

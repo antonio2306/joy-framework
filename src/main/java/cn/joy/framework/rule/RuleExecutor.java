@@ -129,17 +129,20 @@ public class RuleExecutor {
 	 * 初始规则调用，一般作为调用的入口
 	 */
 	public RuleResult execute(String ruleURI, RuleParam rParam){
-		return this.execute(ruleURI, rParam, false);
+		return this.executeRule(ruleURI, rParam, false);
 	}
 	
 	/**
 	 * 规则中再次调用规则，由上下文调用
 	 */
 	RuleResult executeInner(String ruleURI, RuleParam rParam) {
-		return this.execute(ruleURI, rParam, true);
+		return this.executeRule(ruleURI, rParam, true);
 	}
 
-	private RuleResult execute(String ruleURI, RuleParam rParam, boolean isInnerInvoke) {
+	/**
+	 * 根据是否远程、是否异步采用不同的方式调用规则
+	 */
+	private RuleResult executeRule(String ruleURI, RuleParam rParam, boolean isInnerInvoke) {
 		if(logger.isDebugEnabled())
 			logger.debug("执行规则【"+ruleURI+"】, params="+rParam);
 		if(rParam==null)
@@ -157,37 +160,29 @@ public class RuleExecutor {
 					if(serverInfo.startsWith("qc://")){
 						serverURL = RouteManager.getServerURLByQyescode(serverInfo.substring(5));
 					}else if(serverInfo.startsWith("http://") || serverInfo.startsWith("https://")){
-						
+						serverURL = serverInfo;
 					}else{
 						serverURL = RouteManager.getServerURLByQyescode(serverInfo);
 					}
 					
 					if(StringKit.isNotEmpty(serverURL)){
-						//TODO 如果serverUrl就是当前服务器的URL，则转为本地调用。。。
-						
 						if(logger.isDebugEnabled())
 							logger.debug("规则【"+ruleURI+"】的服务器地址："+serverURL);
-						String remoteRuleURI = ruleURI.substring(idx+1);
-						
-						if(this.isAsyn)
-							ruleResult = doExecuteRemoteAsyn(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam);
-						else
-							ruleResult = doExecuteRemote(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam);
+						//如果serverUrl就是当前服务器的URL，则转为本地调用
+						String localServerURL = RouteManager.getServerURLByTag(RouteManager.getServerTag());
+						if(serverURL.equals(localServerURL)){
+							if(logger.isDebugEnabled())
+								logger.debug("规则【"+ruleURI+"】转为本地调用");
+							executeLocalRule(ruleURI, rParam, isInnerInvoke);
+						}else{
+							executeRemoteRule(serverURL, ruleURI.substring(idx+1), rParam);
+						}
 					}else
 						ruleResult.fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
 				}else
 					ruleResult.fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
 			}else{
-				BaseRule rule = JoyManager.getRuleLoader().loadRule(ruleURI);
-				if (rule != null){
-					if(logger.isDebugEnabled())
-						logger.debug("规则【"+ruleURI+"】的类加载器："+rule.getClass().getClassLoader());
-					if(this.isAsyn)
-						ruleResult = doExecuteAsyn(rule, rParam.putString(RuleParam.KEY_RULE_URI, ruleURI));
-					else
-						ruleResult = doExecute(rule, rParam.putString(RuleParam.KEY_RULE_URI, ruleURI), isInnerInvoke);
-				}else
-					ruleResult.fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
+				executeLocalRule(ruleURI, rParam, isInnerInvoke);
 			}
 			
 			postExecute(ruleResult);
@@ -204,6 +199,26 @@ public class RuleExecutor {
 		if(logger.isDebugEnabled())
 			logger.debug("执行规则【"+ruleURI+"】, ruleResult="+ruleResult.toJSON());
 		return ruleResult;
+	}
+	
+	private RuleResult executeLocalRule(String ruleURI, RuleParam rParam, boolean isInnerInvoke) throws Exception{
+		BaseRule rule = JoyManager.getRuleLoader().loadRule(ruleURI);
+		if (rule != null){
+			if(logger.isDebugEnabled())
+				logger.debug("规则【"+ruleURI+"】的类加载器："+rule.getClass().getClassLoader());
+			if(this.isAsyn)
+				return doExecuteAsyn(rule, rParam.putString(RuleParam.KEY_RULE_URI, ruleURI));
+			else
+				return doExecute(rule, rParam.putString(RuleParam.KEY_RULE_URI, ruleURI), isInnerInvoke);
+		}else
+			return RuleResult.empty().fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
+	}
+	
+	private RuleResult executeRemoteRule(String serverURL, String remoteRuleURI, RuleParam rParam) throws Exception{
+		if(this.isAsyn)
+			return doExecuteRemoteAsyn(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam);
+		else
+			return doExecuteRemote(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam);
 	}
 	
 	/**

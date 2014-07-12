@@ -2,6 +2,8 @@ package cn.joy.framework.plugin.spring;
 
 import cn.joy.framework.plugin.spring.db.RuleDao;
 import cn.joy.framework.plugin.spring.db.SpringDb;
+import cn.joy.framework.plugin.spring.support.DefaultRouteStore;
+import cn.joy.framework.plugin.spring.support.DefaultSecurityManager;
 import cn.joy.framework.plugin.spring.support.RouteStore;
 import cn.joy.framework.support.SecurityManager;
 /**
@@ -16,6 +18,8 @@ public class SpringResource {
 	private static RouteStore routeStore;
 
 	public static SecurityManager getSecurityManager() {
+		if(securityManager==null)
+			securityManager = new DefaultSecurityManager();
 		return securityManager;
 	}
 
@@ -40,6 +44,8 @@ public class SpringResource {
 	}
 
 	public static RouteStore getRouteStore() {
+		if(routeStore==null)
+			routeStore = new DefaultRouteStore();
 		return routeStore;
 	}
 
