@@ -21,6 +21,7 @@ public class RuleException extends RuntimeException {
 	
 	public RuleException(Throwable thr){
 		super(thr);
+		this.failResult = RuleResult.create().fail(thr.getMessage());
 	}
 	
 	public RuleException(MainErrorType mainErrorType){

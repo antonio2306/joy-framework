@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.exception.SubError;
@@ -187,11 +188,19 @@ public class RuleExecutor {
 			
 			postExecute(ruleResult);
 		} catch (Exception e) {
-			logger.error("", e);
-			if(e instanceof RuleException)
-				throw (RuleException)e;
-			else
-				throw new RuleException(e);
+			if(e instanceof RuleException){
+				logger.error("RuleException: "+e.getMessage());
+				if(isInnerInvoke)
+					throw (RuleException)e;
+				else
+					ruleResult = ((RuleException)e).getFailResult();
+			}else{
+				logger.error("", e);
+				if(isInnerInvoke)
+					throw new RuleException(e);
+				else
+					ruleResult.fail(MainError.create(MainErrorType.PROGRAM_ERROR));
+			}
 		} finally {
 			if(!isInnerInvoke && autoReleaseAfterExecuteOnce)
 				release();
