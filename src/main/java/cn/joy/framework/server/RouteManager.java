@@ -87,7 +87,7 @@ public class RouteManager {
 	}
 
 	public static String getDefaultAppFileServerURL() {
-		String serverURL = routes4File.get("appFile");
+		String serverURL = routes4File.get("app");
 		if (serverURL == null) {
 			if (JoyManager.getServer() instanceof CenterServer) {
 				serverURL = JoyManager.getServer().getDefaultAppFileServerUrl();
@@ -97,7 +97,7 @@ public class RouteManager {
 						+ JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", "&key=get_default_app_file_url",
 								null));
 			}
-			routes4File.put("appFile", serverURL);
+			routes4File.put("app", serverURL);
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("routes4File: " + routes4File);
