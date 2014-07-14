@@ -2,9 +2,6 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
         "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="joyManager" class="cn.joy.framework.core.JoyManager" init-method="init">
-	</bean>
-	
 	<bean id="joyAbstractServiceDefinition"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
 		lazy-init="true" abstract="true">
@@ -56,5 +53,9 @@
 	
 	<!-- 用户定义服务器路由存储 -->
 	<bean id="routeStore" class="xxxxx">
+	</bean>
+	
+	<bean id="joyManager" class="cn.joy.framework.core.JoyManager" init-method="init" 
+		depends-on="routeStore">
 	</bean>
 </beans>

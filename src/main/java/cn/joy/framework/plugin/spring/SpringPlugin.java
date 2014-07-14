@@ -50,7 +50,7 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 	}
 
 	public void start(){
-		
+		SpringResource.getRouteStore().initRoute();
 	}
 	
 	public void stop(){

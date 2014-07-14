@@ -14,4 +14,8 @@ public class DefaultRouteStore implements RouteStore{
 		logger.warn("Empty Impl...");
 	}
 
+	public void initRoute() {
+		logger.warn("Empty Impl...");
+	}
+
 }

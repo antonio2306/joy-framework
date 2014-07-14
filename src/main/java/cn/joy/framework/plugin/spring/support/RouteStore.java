@@ -5,6 +5,8 @@ package cn.joy.framework.plugin.spring.support;
  * @date 2014-07-06
  */
 public interface RouteStore {
+	public void initRoute();
+	
 	public String getServerURLByServerTag(String serverType, String serverTag);
 
 	public void storeServerURL(String serverType, String serverTag, String serverURL);
