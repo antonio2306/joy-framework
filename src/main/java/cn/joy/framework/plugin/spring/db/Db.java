@@ -26,8 +26,8 @@ public class Db {
 		return mainDb.getSession();
 	}
 	
-	public static void beginTransaction() {
-		mainDb.beginTransaction();
+	public static boolean beginTransaction() {
+		return mainDb.beginTransaction();
 	}
 
 	public static void endTransaction() {

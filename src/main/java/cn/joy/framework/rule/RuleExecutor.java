@@ -173,16 +173,16 @@ public class RuleExecutor {
 						if(serverURL.equals(localServerURL)){
 							if(logger.isDebugEnabled())
 								logger.debug("规则【"+ruleURI+"】转为本地调用");
-							executeLocalRule(ruleURI, rParam, isInnerInvoke);
+							ruleResult = executeLocalRule(ruleURI.substring(idx+1), rParam, isInnerInvoke);
 						}else{
-							executeRemoteRule(serverURL, ruleURI.substring(idx+1), rParam);
+							ruleResult = executeRemoteRule(serverURL, ruleURI.substring(idx+1), rParam);
 						}
 					}else
 						ruleResult.fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
 				}else
 					ruleResult.fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
 			}else{
-				executeLocalRule(ruleURI, rParam, isInnerInvoke);
+				ruleResult = executeLocalRule(ruleURI, rParam, isInnerInvoke);
 			}
 			
 			postExecute(ruleResult);

@@ -59,22 +59,25 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 
 	public RuleResult doTransaction(JoyCallback callback) throws Exception{
 		RuleResult ruleResult = null;
+		boolean isNew = false;
 		try {
-			Db.beginTransaction();
+			isNew = Db.beginTransaction();
 			
 			ruleResult = callback.run();
 			if(logger.isDebugEnabled())
 				logger.debug("doTransaction, ruleResult="+ruleResult.toJSON());
-			if(ruleResult.isSuccess())
+			if(isNew && ruleResult.isSuccess())
 				Db.commitAndEndTransaction();
 			else
 				throw new RuleException(ruleResult);
 		} catch (Exception e) {
 			logger.error("", e);
-			Db.rollbackAndEndTransaction();
+			if(isNew)
+				Db.rollbackAndEndTransaction();
 			throw e;
 		} finally {
-			Db.endTransaction();
+			if(isNew)
+				Db.endTransaction();
 		}
 		return ruleResult;
 	}

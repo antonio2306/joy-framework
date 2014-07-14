@@ -45,6 +45,19 @@ public class RouteManager {
 		return serverURL;
 	}
 	
+	public static String getCenterFileServerURL(){
+		String serverURL = routes4File.get(CENTER_SERVER_TAG);
+		if(serverURL==null){
+			serverURL = JoyManager.getServer().getCenterFileServerUrl();
+			routes4File.put(CENTER_SERVER_TAG, serverURL);
+		}
+		if(logger.isDebugEnabled())
+			logger.debug("routes4File: "+routes4File);
+		return serverURL;
+	}
+	
+	
+	
 	public static String getDefaultAppServerURL(){
 		String serverURL = routes.get("app");
 		if(serverURL==null){

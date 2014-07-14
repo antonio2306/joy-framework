@@ -82,16 +82,19 @@ public class SpringDb {
 				session.getTransaction().rollback();
 	}
 
-	public void beginTransaction() {
+	public boolean beginTransaction() {
 		if (logger.isDebugEnabled())
 			logger.debug("beginTransaction...");
-		Session session = getSession();
-		if (session != null){
+		Session session = getThreadLocalSession();
+		if (session == null || !session.isOpen()){
+			session = sessionFactory.openSession();
 			session.beginTransaction();
 			threadLocal.set(session);
 			if (logger.isDebugEnabled())
 				logger.debug("beginTransaction do.");
+			return true;
 		}
+		return false;
 	}
 
 	public void endTransaction() {
