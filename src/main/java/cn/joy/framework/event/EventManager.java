@@ -46,21 +46,25 @@ public class EventManager {
             LinkedList<JoyEventListener> allListeners = new LinkedList<JoyEventListener>();
             if (eventListeners != null && eventListeners.size() > 0) {
                 for (JoyEventListener joyEventListener : eventListeners) {
-                	Type t = joyEventListener.getClass().getGenericSuperclass();
-                    if (t instanceof ParameterizedType) {
-                        Type[] p = ((ParameterizedType) t).getActualTypeArguments();
-                        System.out.print(p[0]);
-                        if (p[0].equals(eventType)) {
-                            allListeners.add(joyEventListener);
+                	Type[] ts = joyEventListener.getClass().getGenericInterfaces();
+                	for(Type t:ts){
+                		if (t instanceof ParameterizedType) {
+                            Type[] p = ((ParameterizedType) t).getActualTypeArguments();
+                            if (p[0].equals(eventType)) {
+                                allListeners.add(joyEventListener);
+                            }
                         }
-                    }
+                	}
                 }
                 sortJoyEventListener(allListeners);
             }
             ListenerRegistry listenerRegistry = new ListenerRegistry(allListeners);
             cachedEventListeners.put(eventType, listenerRegistry);
         }
-        return cachedEventListeners.get(eventType).getJoyEventListeners();
+        List listeners = cachedEventListeners.get(eventType).getJoyEventListeners();
+        if(logger.isDebugEnabled())
+    		logger.debug("publishEvent, event type="+event.getClass().getSimpleName()+", listener size="+listeners.size());
+        return listeners;
     }
 
     private static void sortJoyEventListener(List<JoyEventListener> JoyEventListeners) {
@@ -91,6 +95,10 @@ public class EventManager {
     }
     
     public static void publishEvent(final JoyEvent event) {
+    	if(event==null)
+    		return;
+    	if(logger.isDebugEnabled())
+    		logger.debug("publishEvent, event type="+event.getClass().getSimpleName());
 		try {
 			for (final JoyEventListener listener : getJoyEventListeners(event)) {
 				Executor executor = getExecutor();
