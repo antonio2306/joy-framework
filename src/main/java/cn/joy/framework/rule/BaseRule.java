@@ -1,5 +1,6 @@
 package cn.joy.framework.rule;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +55,15 @@ public abstract class BaseRule {
 		
 		return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
 			public RuleResult run(Object... params) throws Exception{
-				RuleResult ruleResult = (RuleResult)method.invoke(rule, mParams);
+				RuleResult ruleResult = null;
+				try {
+					ruleResult = (RuleResult)method.invoke(rule, mParams);
+				} catch (InvocationTargetException e) {
+					if(e.getTargetException() instanceof RuleException)
+						throw (RuleException)e.getTargetException();
+					else
+						throw e;
+				}
 				if(ruleResult==null)
 					ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
 				if(logger.isDebugEnabled())
