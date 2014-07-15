@@ -134,13 +134,24 @@ public class Db {
 	}
 
 	public static int executeUpdate(String hql, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db executeUpdate ==> " + hql);
 		int result = 0;
 		Session session = mainDb.getSession();
 		try {
 			mainDb.beginTransaction(session);
 			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+			}
+			if (logger.isDebugEnabled())
+				logger.debug("db executeUpdate ==> " + hql+", params=["+paramsInfo+"]");
+			
 			result = query.executeUpdate();
 			mainDb.commitAndEndTransaction(session);
 		} catch (Exception e) {
