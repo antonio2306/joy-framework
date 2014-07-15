@@ -27,19 +27,24 @@ public class Db {
 	}
 	
 	public static boolean beginTransaction() {
+		if(mainDb==null)
+			return false;
 		return mainDb.beginTransaction();
 	}
 
 	public static void endTransaction() {
-		mainDb.endTransaction();
+		if(mainDb!=null)
+			mainDb.endTransaction();
 	}
 
 	public static void commitAndEndTransaction() {
-		mainDb.commitAndEndTransaction();
+		if(mainDb!=null)
+			mainDb.commitAndEndTransaction();
 	}
 
 	public static void rollbackAndEndTransaction() {
-		mainDb.rollbackAndEndTransaction();
+		if(mainDb!=null)
+			mainDb.rollbackAndEndTransaction();
 	}
 
 	public static Object get(Class<?> clazz, Serializable pk) {

@@ -186,6 +186,9 @@ public class RuleExecutor {
 				ruleResult = executeLocalRule(ruleURI, rParam, isInnerInvoke);
 			}
 			
+			if(isInnerInvoke&&!ruleResult.isSuccess())
+				throw new RuleException(ruleResult);
+			
 			postExecute(ruleResult);
 		} catch (Exception e) {
 			if(e instanceof RuleException){
