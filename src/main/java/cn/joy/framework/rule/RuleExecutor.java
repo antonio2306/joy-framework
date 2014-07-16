@@ -63,6 +63,8 @@ public class RuleExecutor {
 			executor = new RuleExecutor();
 			executor.rContext = rContext;
 			executor.isAsyn = true;
+			//本地异步，不能提前释放资源，否则会导致RuleContext被提前清空
+			executor.autoReleaseAfterExecuteOnce = false;
 			rContext.bindExecutor(executor);
 		}else{
 			//本地同步
@@ -248,12 +250,18 @@ public class RuleExecutor {
 	private RuleResult doExecuteAsyn(final BaseRule rule, final RuleParam rParam) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteAsyn, rule="+rule);
+		if(logger.isDebugEnabled())
+			logger.debug("doExecuteAsyn, rContextInThread="+rContext.getLoginId());
 		new Thread(new Runnable(){
 			public void run() {
 				try {
+					if(logger.isDebugEnabled())
+						logger.debug("doExecuteAsyn, rContextInThread2="+rContext.getLoginId());
 					rule.handleExecuteInternal(rContext, rParam);
 				} catch (Exception e) {
 					logger.error("", e);
+				} finally{
+					release();
 				}
 			}
 		}).start();
@@ -326,6 +334,8 @@ public class RuleExecutor {
 
 	public void release() {
 		try {
+			if(logger.isDebugEnabled())
+				logger.debug("release... auto="+autoReleaseAfterExecuteOnce);
 			if(isThreadBinding){
 				threadRuleExecutor.remove();
 			}

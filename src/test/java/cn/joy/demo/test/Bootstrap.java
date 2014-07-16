@@ -6,6 +6,7 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.event.EventManager;
 import cn.joy.framework.rule.RuleContext;
 import cn.joy.framework.rule.RuleExecutor;
+import cn.joy.framework.rule.RuleInvokeConfig;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
 
@@ -15,13 +16,9 @@ public class Bootstrap {
 		JoyManager.init();
 		
 		RuleContext rContext = RuleContext.createSingle("user1");
-		User oldUser = new User();
-		oldUser.setName("用户");
-		User newUser = new User();
-		newUser.setName("用户A");
-		EventManager.publishEvent(new UserUpdateEvent(newUser, rContext).setOldUser(oldUser));
 		
-		RuleResult ruleResult = RuleExecutor.create(rContext).execute("user.userService#getUser", RuleParam.create());
+		RuleResult ruleResult = RuleExecutor.create(rContext).execute("user.userService#testAsyn", 
+				RuleParam.create());
 		System.out.println(ruleResult.isSuccess());
 		System.out.println(ruleResult.getMsg());
 	}

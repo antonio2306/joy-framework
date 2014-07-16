@@ -129,10 +129,10 @@ public class RuleContext {
 			isAsyn = config.isAsyn();
 		
 		if(isRemote){
-			return RuleExecutor.createRemote(this.cloneContext(), config).executeInner(ruleURI, rParam);
+			return RuleExecutor.createRemote(this.cloneContext(), config).execute(ruleURI, rParam);
 		}else{
 			if(isAsyn){
-				return RuleExecutor.create(this.cloneContext(), config).executeInner(ruleURI, rParam);
+				return RuleExecutor.create(this.cloneContext(), config).execute(ruleURI, rParam);
 			}else{
 				if(config!=null)
 					this.configAs(config);

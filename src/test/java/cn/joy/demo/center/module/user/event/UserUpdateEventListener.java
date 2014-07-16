@@ -22,7 +22,7 @@ public class UserUpdateEventListener implements JoyEventListener<UserUpdateEvent
 		}
 			
 		if(!newUser.getName().equals(oldUser.getName())){
-			System.out.println("user name change");
+			event.getRuleContext().putData("nameChange", true);
 		}
 	}
 
