@@ -15,6 +15,8 @@ public class RuleKit {
 	private static Logger logger = Logger.getLogger(RuleKit.class);
 	
 	private static String getParam(HttpServletRequest request, String key){
+		if(logger.isDebugEnabled())
+			logger.debug("get request param, key="+key+", value="+request.getParameter(key));
 		if("y".equals(request.getParameter("imr"))){
 			String mergeKey = request.getParameter("mk");
 			if(key.equals(mergeKey)){

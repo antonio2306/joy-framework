@@ -77,7 +77,7 @@ public class RouteManager {
 				serverURL = JoyManager.getServer().getDefaultAppServerUrl();
 			} else {
 				serverURL = HttpKit.get(getCenterServerURL() + "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", "&key=get_default_app_url", null));
+						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&key=get_default_app_url", null));
 			}
 			routes.put("app", serverURL);
 		}
@@ -94,7 +94,7 @@ public class RouteManager {
 			} else {
 				serverURL = HttpKit.get(getCenterServerURL()
 						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath("getConfig", "&key=get_default_app_file_url",
+						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&key=get_default_app_file_url",
 								null));
 			}
 			routes4File.put("app", serverURL);
@@ -107,6 +107,9 @@ public class RouteManager {
 	public static String getServerURLByTag(String serverTag) {
 		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用服务器
 			return getDefaultAppServerURL();
+		
+		if (CENTER_SERVER_TAG.equals(serverTag)) 
+			return getCenterServerURL();
 
 		String serverURL = routes.get(serverTag);
 		if (serverURL == null) {
@@ -115,9 +118,12 @@ public class RouteManager {
 			} else {
 				serverURL = HttpKit.get(getCenterServerURL()
 						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath("getConfig",
+						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
 								"&key=get_app_url&tag=" + serverTag, null));
-				JoyManager.getRoutePlugin().storeServerURL("app", serverTag, serverURL);
+				if(!serverURL.startsWith("http"))
+					serverURL = "";
+				else
+					JoyManager.getRoutePlugin().storeServerURL("app", serverTag, serverURL);
 			}
 			routes.put(serverTag, serverURL);
 		}
@@ -129,6 +135,9 @@ public class RouteManager {
 	public static String getFileServerURLByTag(String serverTag) {
 		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用文件服务器
 			return getDefaultAppFileServerURL();
+		
+		if (CENTER_SERVER_TAG.equals(serverTag)) 
+			return getCenterFileServerURL();
 
 		String serverURL = routes4File.get(serverTag);
 		if (serverURL == null) {
@@ -137,9 +146,12 @@ public class RouteManager {
 			} else {
 				serverURL = HttpKit.get(getCenterServerURL()
 						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath("getConfig",
+						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
 								"&key=get_app_file_url&tag=" + serverTag, null));
-				JoyManager.getRoutePlugin().storeServerURL("file", serverTag, serverURL);
+				if(!serverURL.startsWith("http"))
+					serverURL = "";
+				else
+					JoyManager.getRoutePlugin().storeServerURL("file", serverTag, serverURL);
 			}
 			routes4File.put(serverTag, serverURL);
 		}

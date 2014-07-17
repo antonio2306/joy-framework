@@ -15,7 +15,7 @@ public class DefaultSecurityManager implements SecurityManager{
 		return RuleResult.create().success();
 	}
 
-	public String secureOpenRequestURL(String requestURL) {
+	public String secureOpenRequestURL(HttpServletRequest request, String requestURL) {
 		logger.warn("Empty Impl...");
 		return requestURL;
 	}
@@ -23,6 +23,11 @@ public class DefaultSecurityManager implements SecurityManager{
 	public RuleResult checkBusinessRequest(HttpServletRequest request) {
 		logger.warn("Empty Impl...");
 		return RuleResult.create().success();
+	}
+
+	public String secureBusinessRequestURL(HttpServletRequest request, String requestURL) {
+		logger.warn("Empty Impl...");
+		return requestURL;
 	}
 
 }

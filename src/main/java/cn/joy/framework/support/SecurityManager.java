@@ -11,7 +11,9 @@ import cn.joy.framework.rule.RuleResult;
 public interface SecurityManager {
 	public RuleResult checkOpenRequest(HttpServletRequest request);
 	
-	public String secureOpenRequestURL(String requestURL);
+	public String secureOpenRequestURL(HttpServletRequest request, String requestURL);
 	
 	public RuleResult checkBusinessRequest(HttpServletRequest request);
+	
+	public String secureBusinessRequestURL(HttpServletRequest request, String requestURL);
 }

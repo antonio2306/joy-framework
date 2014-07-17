@@ -16,6 +16,8 @@ public class SpringResource {
 	private static SpringDb mainDb;
 	private static SecurityManager securityManager;
 	private static RouteStore routeStore;
+	public static String MVC_OPEN_REQUEST_URL = "openservice.do";
+	public static String MVC_BUSINESS_REQUEST_URL = "businesservice.do";
 
 	public static SecurityManager getSecurityManager() {
 		if(securityManager==null)
@@ -51,6 +53,14 @@ public class SpringResource {
 
 	public void setRouteStore(RouteStore routeStore) {
 		SpringResource.routeStore = routeStore;
+	}
+
+	public void setMVC_OPEN_REQUEST_URL(String mVC_OPEN_REQUEST_URL) {
+		SpringResource.MVC_OPEN_REQUEST_URL = mVC_OPEN_REQUEST_URL;
+	}
+
+	public void setMVC_BUSINESS_REQUEST_URL(String mVC_BUSINESS_REQUEST_URL) {
+		SpringResource.MVC_BUSINESS_REQUEST_URL = mVC_BUSINESS_REQUEST_URL;
 	}
 
 }

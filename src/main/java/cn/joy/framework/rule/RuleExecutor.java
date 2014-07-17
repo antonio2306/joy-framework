@@ -250,13 +250,9 @@ public class RuleExecutor {
 	private RuleResult doExecuteAsyn(final BaseRule rule, final RuleParam rParam) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteAsyn, rule="+rule);
-		if(logger.isDebugEnabled())
-			logger.debug("doExecuteAsyn, rContextInThread="+rContext.getLoginId());
 		new Thread(new Runnable(){
 			public void run() {
 				try {
-					if(logger.isDebugEnabled())
-						logger.debug("doExecuteAsyn, rContextInThread2="+rContext.getLoginId());
 					rule.handleExecuteInternal(rContext, rParam);
 				} catch (Exception e) {
 					logger.error("", e);
@@ -321,7 +317,7 @@ public class RuleExecutor {
 		params.put("ruleURI", serviceKey);
 		params.put("params", rParamJson);
 		
-		String serviceURL = url + "/" + JoyManager.getMVCPlugin().getOpenRequestPath("", contextParam, null);
+		String serviceURL = url + "/" + JoyManager.getMVCPlugin().getOpenRequestPath(null, "", contextParam, null);
 		return HttpKit.post(serviceURL, params);
 	}
 

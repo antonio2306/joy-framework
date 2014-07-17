@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyCallback;
@@ -23,8 +25,6 @@ import cn.joy.framework.rule.RuleResult;
  */
 public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugin{
 	private static Logger logger = Logger.getLogger(SpringPlugin.class);
-	public static String MVC_OPEN_REQUEST_URL = "openservice.do";
-	public static String MVC_BUSINESS_REQUEST_URL = "businesservice.do";
 	
 	private String getRequestPath(String baseURL, String action, String params, Map<String, String> datas){
 		String url = baseURL+"?action="+action+StringKit.getString(params);
@@ -40,13 +40,14 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 		return url;
 	}
 
-	public String getOpenRequestPath(String action, String params, Map<String, String> datas){
-		String url = getRequestPath(MVC_OPEN_REQUEST_URL, action, params, datas);
-		return SpringResource.getSecurityManager().secureOpenRequestURL(url);
+	public String getOpenRequestPath(HttpServletRequest request, String action, String params, Map<String, String> datas){
+		String url = getRequestPath(SpringResource.MVC_OPEN_REQUEST_URL, action, params, datas);
+		return SpringResource.getSecurityManager().secureOpenRequestURL(request, url);
 	}
 	
-	public String getBusinessRequestPath(String action, String params, Map<String, String> datas){
-		return getRequestPath(MVC_BUSINESS_REQUEST_URL, action, params, datas);
+	public String getBusinessRequestPath(HttpServletRequest request, String action, String params, Map<String, String> datas){
+		String url = getRequestPath(SpringResource.MVC_BUSINESS_REQUEST_URL, action, params, datas);
+		return SpringResource.getSecurityManager().secureBusinessRequestURL(request, url);
 	}
 
 	public void start(){

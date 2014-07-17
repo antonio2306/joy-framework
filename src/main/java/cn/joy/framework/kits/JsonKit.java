@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 /**
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @date 2014-05-20
  */
 public class JsonKit {
+	private static Logger logger = Logger.getLogger(JsonKit.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public static String object2Json(Object object) {
@@ -22,7 +25,7 @@ public class JsonKit {
 			if (object != null)
 				mapper.writeValue(writer, object);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return writer.toString();
 	}
@@ -33,7 +36,7 @@ public class JsonKit {
 			if (json != null && json.length() > 0)
 				object = mapper.readValue(json, klass);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return object;
 	}
@@ -44,7 +47,7 @@ public class JsonKit {
 			if (json != null && json.length() > 0)
 				m = mapper.readValue(json, Map.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return m;
 	}
@@ -55,7 +58,7 @@ public class JsonKit {
 			if (json != null && json.length() > 0)
 				m = mapper.readValue(json, List.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return m;
 	}
@@ -68,7 +71,7 @@ public class JsonKit {
 				m = (List) mapper.readValue(json, javaType);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return m;
 	}
@@ -81,7 +84,7 @@ public class JsonKit {
 				m = (Map) mapper.readValue(json, javaType);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return m;
 	}
@@ -97,10 +100,6 @@ public class JsonKit {
 		Map<String, TestBean> mst = json2MapBean(json, String.class, TestBean.class);
 		System.out.println(mst);
 		System.out.println(mst.get("t1").getName());
-		
-		String j = "[\"13213\",\"32234\"]";
-		List<String> l = (List<String>)json2Object(j, List.class);
-		System.out.println(l.size());
 	}
 
 	private static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
