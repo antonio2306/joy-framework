@@ -59,7 +59,7 @@ public class SpringDb {
 				} catch (Exception e) {
 					logger.error("", e);
 					session.getTransaction().rollback();
-					throw new RuleException(e);
+					throw new DbException(e);
 				} finally {
 					if(logger.isDebugEnabled())
 						logger.debug("close single session...");
@@ -76,6 +76,7 @@ public class SpringDb {
 					session.getTransaction().rollback();
 				} catch (Exception e) {
 					logger.error("", e);
+					throw new DbException(e);
 				} finally {
 					if(logger.isDebugEnabled())
 						logger.debug("close single session...");
@@ -122,7 +123,7 @@ public class SpringDb {
 			} catch (Exception e) {
 				logger.error("", e);
 				session.getTransaction().rollback();
-				throw new RuleException(e);
+				throw new DbException(e);
 			} finally {
 				session.close();
 				threadLocal.remove();
@@ -139,17 +140,12 @@ public class SpringDb {
 					logger.debug("rollbackAndEndTransaction do.");
 			} catch (Exception e) {
 				logger.error("", e);
+				throw new DbException(e);
 			} finally {
 				session.close();
 				threadLocal.remove();
 			}
 		}
-	}
-
-	public void rollback() {
-		Session session = getThreadLocalSession();
-		if (session != null)
-			session.getTransaction().rollback();
 	}
 
 	/* Hibernate4 移除了session.connection()方法

@@ -55,10 +55,10 @@ public class Db {
 			session = mainDb.getSession();
 			return session.get(clazz, pk);
 		} catch (Exception e) {
+			throw new DbException(e);
 		} finally{
 			mainDb.endTransaction(session);
 		}
-		return null;
 	}
 
 	public static <T> T get(String hql, Object... params) {
@@ -90,15 +90,14 @@ public class Db {
 				logger.debug("db unique ==> " + hql+", params=["+paramsInfo+"]");
 			return query.uniqueResult();
 		} catch (Exception e) {
+			throw new DbException(e);
 		} finally{
 			mainDb.endTransaction(session);
 		}
-		return null;
 	}
 
 	public static <T> List<T> list(String hql, Object... params) {
 		Session session = null;
-		List<T> list = null;
 		try {
 			session = mainDb.getSession();
 			Query query = session.createQuery(hql);
@@ -117,17 +116,17 @@ public class Db {
 			if (logger.isDebugEnabled())
 				logger.debug("db list ==> " + hql+", params=["+paramsInfo+"]");
 			
-			list = query.list();
+			List<T> list = query.list();
+			return list == null ? new ArrayList<T>() : list;
 		} catch (Exception e) {
+			throw new DbException(e);
 		} finally{
 			mainDb.endTransaction(session);
 		}
-		return list == null ? new ArrayList<T>() : list;
 	}
 
 	public static <T> List<T> page(String hql, int start, int count, Object... params) {
 		Session session = null;
-		List<T> list = null;
 		try {
 			session = mainDb.getSession();
 			Query query = session.createQuery(hql);
@@ -149,12 +148,13 @@ public class Db {
 			if (logger.isDebugEnabled())
 				logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count);
 			
-			list = query.setFirstResult(start).setMaxResults(count).list();
+			List<T> list = query.setFirstResult(start).setMaxResults(count).list();
+			return list == null ? new ArrayList<T>() : list;
 		} catch (Exception e) {
+			throw new DbException(e);
 		} finally{
 			mainDb.endTransaction(session);
 		}
-		return list == null ? new ArrayList<T>() : list;
 	}
 
 	public static Integer count(String hql, Object... params) {
@@ -189,6 +189,7 @@ public class Db {
 			mainDb.commitAndEndTransaction(session);
 		} catch (Exception e) {
 			mainDb.rollbackAndEndTransaction(session);
+			throw new DbException(e);
 		} finally {
 			mainDb.endTransaction(session);
 		}
@@ -205,6 +206,7 @@ public class Db {
 			mainDb.commitAndEndTransaction(session);
 		} catch (Exception e) {
 			mainDb.rollbackAndEndTransaction(session);
+			throw new DbException(e);
 		} finally {
 			mainDb.endTransaction(session);
 		}
