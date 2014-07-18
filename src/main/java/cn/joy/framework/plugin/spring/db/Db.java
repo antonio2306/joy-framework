@@ -50,8 +50,15 @@ public class Db {
 	public static Object get(Class<?> clazz, Serializable pk) {
 		if (logger.isDebugEnabled())
 			logger.debug("db get ==> class="+clazz.getSimpleName()+", pk=" + pk);
-		Session session = mainDb.getSession();
-		return session.get(clazz, pk);
+		Session session = null;
+		try {
+			session = mainDb.getSession();
+			return session.get(clazz, pk);
+		} catch (Exception e) {
+		} finally{
+			mainDb.endTransaction(session);
+		}
+		return null;
 	}
 
 	public static <T> T get(String hql, Object... params) {
@@ -64,68 +71,89 @@ public class Db {
 	}
 
 	public static Object unique(String hql, Object... params) {
-		Session session = mainDb.getSession();
-		Query query = session.createQuery(hql);
-		StringBuilder paramsInfo = null;
-		if (logger.isDebugEnabled())
-			paramsInfo = new StringBuilder();
-		if (params != null) {
-			for (int i = 0; i < params.length; i++){
-				if (logger.isDebugEnabled())
-					paramsInfo.append(params[i]).append(",");
-				query.setParameter(i, params[i]);
+		Session session = null;
+		try {
+			session = mainDb.getSession();
+			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
 			}
+			
+			if (logger.isDebugEnabled())
+				logger.debug("db unique ==> " + hql+", params=["+paramsInfo+"]");
+			return query.uniqueResult();
+		} catch (Exception e) {
+		} finally{
+			mainDb.endTransaction(session);
 		}
-		
-		if (logger.isDebugEnabled())
-			logger.debug("db unique ==> " + hql+", params=["+paramsInfo+"]");
-		return query.uniqueResult();
+		return null;
 	}
 
 	public static <T> List<T> list(String hql, Object... params) {
-		Session session = mainDb.getSession();
-		Query query = session.createQuery(hql);
-		StringBuilder paramsInfo = null;
-		if (logger.isDebugEnabled())
-			paramsInfo = new StringBuilder();
-		if (params != null) {
-			for (int i = 0; i < params.length; i++){
-				if (logger.isDebugEnabled())
-					paramsInfo.append(params[i]).append(",");
-				query.setParameter(i, params[i]);
+		Session session = null;
+		List<T> list = null;
+		try {
+			session = mainDb.getSession();
+			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+					
 			}
-				
+			
+			if (logger.isDebugEnabled())
+				logger.debug("db list ==> " + hql+", params=["+paramsInfo+"]");
+			
+			list = query.list();
+		} catch (Exception e) {
+		} finally{
+			mainDb.endTransaction(session);
 		}
-		
-		if (logger.isDebugEnabled())
-			logger.debug("db list ==> " + hql+", params=["+paramsInfo+"]");
-		
-		List<T> list = query.list();
 		return list == null ? new ArrayList<T>() : list;
 	}
 
 	public static <T> List<T> page(String hql, int start, int count, Object... params) {
-		Session session = mainDb.getSession();
-		Query query = session.createQuery(hql);
-		StringBuilder paramsInfo = null;
-		if (logger.isDebugEnabled())
-			paramsInfo = new StringBuilder();
-		if (params != null) {
-			for (int i = 0; i < params.length; i++){
-				if (logger.isDebugEnabled())
-					paramsInfo.append(params[i]).append(",");
-				query.setParameter(i, params[i]);
+		Session session = null;
+		List<T> list = null;
+		try {
+			session = mainDb.getSession();
+			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
 			}
+			if (start < 0)
+				start = 0;
+			if (count < 0)
+				count = 10;
+			
+			if (logger.isDebugEnabled())
+				logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count);
+			
+			list = query.setFirstResult(start).setMaxResults(count).list();
+		} catch (Exception e) {
+		} finally{
+			mainDb.endTransaction(session);
 		}
-		if (start < 0)
-			start = 0;
-		if (count < 0)
-			count = 10;
-		
-		if (logger.isDebugEnabled())
-			logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count);
-		
-		List<T> list = query.setFirstResult(start).setMaxResults(count).list();
 		return list == null ? new ArrayList<T>() : list;
 	}
 

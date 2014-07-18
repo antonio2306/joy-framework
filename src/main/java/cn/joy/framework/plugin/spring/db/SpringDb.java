@@ -31,6 +31,8 @@ public class SpringDb {
 		Session session = getThreadLocalSession();
 		if(session!=null)
 			return session;
+		if(logger.isDebugEnabled())
+			logger.debug("open single session...");
 		return sessionFactory.openSession();
 	}
 	
@@ -42,8 +44,11 @@ public class SpringDb {
 
 	void endTransaction(Session session) {
 		if(getThreadLocalSession()==null)
-			if (session != null && session.isOpen())
+			if (session != null && session.isOpen()){
+				if(logger.isDebugEnabled())
+					logger.debug("close single session...");
 				session.close();
+			}
 	}
 
 	void commitAndEndTransaction(Session session) {
@@ -56,6 +61,8 @@ public class SpringDb {
 					session.getTransaction().rollback();
 					throw new RuleException(e);
 				} finally {
+					if(logger.isDebugEnabled())
+						logger.debug("close single session...");
 					session.close();
 				}
 			}
@@ -70,16 +77,12 @@ public class SpringDb {
 				} catch (Exception e) {
 					logger.error("", e);
 				} finally {
+					if(logger.isDebugEnabled())
+						logger.debug("close single session...");
 					session.close();
 				}
 			}
 		}
-	}
-
-	void rollback(Session session) {
-		if(getThreadLocalSession()==null)
-			if (session != null)
-				session.getTransaction().rollback();
 	}
 
 	public boolean beginTransaction() {
