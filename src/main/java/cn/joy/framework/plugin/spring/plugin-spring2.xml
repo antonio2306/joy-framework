@@ -49,6 +49,10 @@
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	
+	<bean name="/webproxy.do" class="cn.joy.framework.plugin.spring.web.WebProxyController">
+		<property name="methodNameResolver" ref="methodNameResolver" />
+	</bean>
+	
 	<!-- 用户定义安全管理器，检查请求的安全性 -->
 	<bean id="securityManager" class="xxxxx">
 	</bean>

@@ -104,6 +104,9 @@ public class RuleExecutor {
 		executor.isRemote = true;
 		if(config!=null)
 			executor.isAsyn = config.isAsyn();
+		//远程异步，可能被转为本地异步，也不能提前释放资源，否则会导致RuleContext被提前清空
+		if(executor.isAsyn)
+			executor.autoReleaseAfterExecuteOnce = false;
 		rContext.bindExecutor(executor);
 		
 		if(config!=null)
@@ -303,6 +306,8 @@ public class RuleExecutor {
 						logger.debug("远程执行规则【"+remoteRuleURI+"】, reponseText="+reponseText);
 				} catch (Exception e) {
 					logger.error("", e);
+				} finally{
+					release();
 				}
 			}
 		}).start();

@@ -45,7 +45,7 @@ public class BusinessRuleController extends MultiActionController {
 		RuleResult checkResult = SpringResource.getSecurityManager().checkBusinessRequest(request);
 		if(!checkResult.isSuccess()){
 			Map<String, Object> checkResultContent = checkResult.getMapFromContent();
-			if(checkResultContent.containsKey("statusCode"))
+			if(checkResultContent!=null && checkResultContent.containsKey("statusCode"))
 				response.setStatus(NumberKit.getInteger(checkResultContent.get("statusCode"), 500));
 			
 			HttpKit.writeResponse(response, checkResult.getMsg());
