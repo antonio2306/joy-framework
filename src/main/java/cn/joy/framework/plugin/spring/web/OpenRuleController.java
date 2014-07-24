@@ -1,5 +1,6 @@
 package cn.joy.framework.plugin.spring.web;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,16 +14,13 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
-import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.spring.SpringResource;
-import cn.joy.framework.rule.RuleContext;
 import cn.joy.framework.rule.RuleExecutor;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
 import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.RouteManager;
-import cn.joy.framework.support.SecurityManager;
 /**
  * 通用开放规则调用控制器，负责中心服务器和各应用服务器之间的规则调用，同时负责中心服务器的配置获取服务
  * @author liyy
@@ -79,6 +77,11 @@ public class OpenRuleController extends MultiActionController {
 				content = RouteManager.getDefaultAppFileServerURL();
 			}else if("get_app_file_url".equals(key)){
 				content = RouteManager.getFileServerURLByTag(tag);
+			}else if("sync_route".equals(key)){
+				Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();
+				routeInfo.put("routes", RouteManager.getRoutes());
+				routeInfo.put("routes4File", RouteManager.getRoutes4File());
+				content = JsonKit.object2Json(routeInfo);
 			}
 		}
 		

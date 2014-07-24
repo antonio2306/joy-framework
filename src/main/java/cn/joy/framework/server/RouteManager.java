@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.StringKit;
 
@@ -34,6 +35,8 @@ public class RouteManager {
 	}
 
 	public static String getServerTag(String qyescode) {
+		if(qyescode==null || qyescode.equals("null"))
+			return "";
 		String tag = "";
 		for (int i = 0; i < qyescode.length(); i++) {
 			char c = qyescode.charAt(i);
@@ -44,13 +47,13 @@ public class RouteManager {
 		return tag;
 	}
 
-	public static String getServerTag() {
+	public static String getLocalServerTag() {
 		return JoyManager.getServer().getLocalServerTag();
 	}
 
 	public static String getCenterServerURL() {
 		String serverURL = routes.get(CENTER_SERVER_TAG);
-		if (serverURL == null) {
+		if (StringKit.isEmpty(serverURL)) {
 			serverURL = JoyManager.getServer().getCenterServerUrl();
 			routes.put(CENTER_SERVER_TAG, serverURL);
 		}
@@ -61,8 +64,11 @@ public class RouteManager {
 
 	public static String getCenterFileServerURL() {
 		String serverURL = routes4File.get(CENTER_SERVER_TAG);
-		if (serverURL == null) {
-			serverURL = JoyManager.getServer().getCenterFileServerUrl();
+		if (StringKit.isEmpty(serverURL)) {
+			//serverURL = JoyManager.getServer().getCenterFileServerUrl();
+			serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", CENTER_SERVER_TAG);
+			if (StringKit.isEmpty(serverURL))
+				throw new RuleException("Default Center File Server URL need init");
 			routes4File.put(CENTER_SERVER_TAG, serverURL);
 		}
 		if (logger.isDebugEnabled())
@@ -72,9 +78,12 @@ public class RouteManager {
 
 	public static String getDefaultAppServerURL() {
 		String serverURL = routes.get("app");
-		if (serverURL == null) {
+		if (StringKit.isEmpty(serverURL)) {
 			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getServer().getDefaultAppServerUrl();
+				//serverURL = JoyManager.getServer().getDefaultAppServerUrl();
+				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("app", "app");
+				if (StringKit.isEmpty(serverURL))
+					throw new RuleException("Default App Server URL need init");
 			} else {
 				serverURL = HttpKit.get(getCenterServerURL() + "/"
 						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&key=get_default_app_url", null));
@@ -88,9 +97,12 @@ public class RouteManager {
 
 	public static String getDefaultAppFileServerURL() {
 		String serverURL = routes4File.get("app");
-		if (serverURL == null) {
+		if (StringKit.isEmpty(serverURL)) {
 			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getServer().getDefaultAppFileServerUrl();
+				//serverURL = JoyManager.getServer().getDefaultAppFileServerUrl();
+				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", "app");
+				if (StringKit.isEmpty(serverURL))
+					throw new RuleException("Default App File Server URL need init");
 			} else {
 				serverURL = HttpKit.get(getCenterServerURL()
 						+ "/"
@@ -112,7 +124,7 @@ public class RouteManager {
 			return getCenterServerURL();
 
 		String serverURL = routes.get(serverTag);
-		if (serverURL == null) {
+		if (StringKit.isEmpty(serverURL)) {
 			if (JoyManager.getServer() instanceof CenterServer) {
 				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("app", serverTag);
 			} else {

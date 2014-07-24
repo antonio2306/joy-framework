@@ -5,10 +5,6 @@ app_default_module=user
 
 app_local_server_tag=center
 app_center_server_tag=center
-app_center_server_url=
-app_center_file_server_url=
-app_default_app_server_url=
-app_default_app_file_server_url=
 
 plugin_mvc=spring
 plugin_transaction=spring
