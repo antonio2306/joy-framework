@@ -58,8 +58,8 @@ public abstract class BaseRule {
 				RuleResult ruleResult = null;
 				try {
 					ruleResult = (RuleResult)method.invoke(rule, mParams);
-					if(logger.isDebugEnabled())
-						logger.debug("doTransactionCallback, method="+method+", result="+ruleResult.toJSON());
+					//if(logger.isDebugEnabled())
+					//	logger.debug("doTransactionCallback, method="+method+", result="+ruleResult.toJSON());
 				} catch (InvocationTargetException e) {
 					if(e.getTargetException() instanceof RuleException)
 						throw (RuleException)e.getTargetException();
@@ -69,7 +69,7 @@ public abstract class BaseRule {
 				if(ruleResult==null)
 					ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
 				if(logger.isDebugEnabled())
-					logger.debug("doInvokeActionMethod, method="+method+", result="+ruleResult.toJSON());
+					logger.debug("doInvokeActionMethod, method="+method+", result="+ruleResult.isSuccess());
 				return ruleResult;
 			}
 		});

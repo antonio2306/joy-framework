@@ -28,14 +28,19 @@ public class RouteManager {
 	public static List<String> getAllAppServerUrls(){
 		List<String> urls = new ArrayList<String>();
 		for(Entry<String, String> entry:routes.entrySet()){
-			if(!entry.getKey().equals(CENTER_SERVER_TAG))
-				urls.add(entry.getValue());
+			String key = entry.getKey();
+			String value = entry.getValue();
+			if(value.startsWith("http") && !urls.contains(value) &&!key.equals(CENTER_SERVER_TAG) 
+					&& !key.equals("null") && !key.equals("undefined"))
+				urls.add(value);
 		}
 		return urls;
 	}
 
 	public static String getServerTag(String qyescode) {
 		if(qyescode==null || qyescode.equals("null"))
+			return "";
+		if(qyescode.indexOf(".")!=-1)	//仅为项目兼容
 			return "";
 		String tag = "";
 		for (int i = 0; i < qyescode.length(); i++) {

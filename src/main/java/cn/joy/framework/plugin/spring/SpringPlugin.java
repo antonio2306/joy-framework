@@ -66,7 +66,7 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 			
 			ruleResult = callback.run();
 			if(logger.isDebugEnabled())
-				logger.debug("doTransaction, ruleResult="+ruleResult.toJSON());
+				logger.debug("doTransaction, result="+ruleResult.isSuccess());
 			if(ruleResult.isSuccess()){
 				if(isNew)
 					Db.commitAndEndTransaction();

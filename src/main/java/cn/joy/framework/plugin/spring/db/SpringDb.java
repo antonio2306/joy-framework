@@ -87,8 +87,8 @@ public class SpringDb {
 	}
 
 	public boolean beginTransaction() {
-		if (logger.isDebugEnabled())
-			logger.debug("beginTransaction...");
+		//if (logger.isDebugEnabled())
+		//	logger.debug("beginTransaction...");
 		Session session = getThreadLocalSession();
 		if (session == null || !session.isOpen()){
 			session = sessionFactory.openSession();
@@ -102,8 +102,8 @@ public class SpringDb {
 	}
 
 	public void endTransaction() {
-		if (logger.isDebugEnabled())
-			logger.debug("endTransaction...");
+		//if (logger.isDebugEnabled())
+		//	logger.debug("endTransaction...");
 		Session session = getThreadLocalSession();
 		if (session != null && session.isOpen()){
 			session.close();

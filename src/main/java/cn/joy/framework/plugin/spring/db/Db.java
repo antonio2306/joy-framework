@@ -113,11 +113,12 @@ public class Db {
 					
 			}
 			
-			if (logger.isDebugEnabled())
-				logger.debug("db list ==> " + hql+", params=["+paramsInfo+"]");
-			
 			List<T> list = query.list();
-			return list == null ? new ArrayList<T>() : list;
+			if(list==null)
+				list = new ArrayList<T>();
+			if (logger.isDebugEnabled())
+				logger.debug("db list ==> " + hql+", params=["+paramsInfo+"], size="+list.size());
+			return list;
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
@@ -197,8 +198,8 @@ public class Db {
 	}
 
 	public static void execute(DbCallback callback, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db execute ==> callback");
+		//if (logger.isDebugEnabled())
+		//	logger.debug("db execute ==> callback");
 		Session session = mainDb.getSession();
 		try {
 			mainDb.beginTransaction(session);
