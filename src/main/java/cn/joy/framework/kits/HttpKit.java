@@ -84,6 +84,9 @@ public class HttpKit{
 
 	        HttpConnectionParams.setTcpNoDelay(params, true);
 	        HttpConnectionParams.setSocketBufferSize(params, DEFAULT_SOCKET_BUFFER_SIZE);
+	        
+	        HttpConnectionParams.setConnectionTimeout(params, socketTimeout*1000);  
+	        HttpConnectionParams.setSoTimeout(params, socketTimeout*1000);  
 
 			HttpProtocolParams.setUseExpectContinue(params, true);
 			/*
