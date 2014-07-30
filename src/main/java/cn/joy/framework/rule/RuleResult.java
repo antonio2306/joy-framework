@@ -1,5 +1,6 @@
 package cn.joy.framework.rule;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,11 +106,6 @@ public class RuleResult {
 		return result;
 	}
 	
-	@JsonIgnore
-	public RuleExtraData getExtra(){
-		return rExtra;
-	}
-	
 	public RuleResult putContent(Object content){
 		rContent = content;
 		return this;
@@ -132,13 +128,13 @@ public class RuleResult {
 		return this;
 	}
 	
-	public RuleResult putData(String key, Object value){
+	public RuleResult putExtraData(String key, Object value){
 		rExtra.put(key, value);
 		return this;
 	}
 
 	@JsonIgnore
-	public Object getData(String key){
+	public Object getExtraData(String key){
 		return this.getExtra().get(key);
 	}
 
@@ -165,6 +161,10 @@ public class RuleResult {
 	
 	public Object getContent(){
 		return rContent;
+	}
+	
+	public Map<String, Object> getExtra(){
+		return rExtra.getDatas();
 	}
 	
 	public void setResult(boolean result) {
@@ -201,4 +201,5 @@ public class RuleResult {
 	public List<Map<String, Object>> getListMapFromContent(){
 		return (List<Map<String, Object>>)rContent;
 	}
+	
 }
