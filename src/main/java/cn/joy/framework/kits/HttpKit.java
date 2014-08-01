@@ -12,7 +12,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,7 +60,7 @@ public class HttpKit{
     private static final String ENCODING_GZIP = "gzip";
 
     private static int maxConnections = 10; //http请求最大并发连接数
-    private static int socketTimeout = 10; //超时时间，默认10秒
+    private static int socketTimeout = 20; //超时时间，默认20秒
     private static int maxRetries = 5;//错误尝试次数，错误异常表请在RetryHandler添加
     private static int httpThreadCount = 3;//http线程池数量
 
