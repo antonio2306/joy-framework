@@ -222,7 +222,7 @@ public class RuleExecutor {
 		BaseRule rule = JoyManager.getRuleLoader().loadRule(ruleURI);
 		if (rule != null){
 			if(logger.isDebugEnabled())
-				logger.debug("规则【"+ruleURI+"】的类加载器："+rule.getClass().getClassLoader());
+				logger.debug("规则【"+ruleURI+"】的类加载器："+rule.getClass().getClassLoader().getClass().getSimpleName());
 			if(this.isAsyn)
 				return doExecuteAsyn(rule, rParam.putString(RuleParam.KEY_RULE_URI, ruleURI));
 			else

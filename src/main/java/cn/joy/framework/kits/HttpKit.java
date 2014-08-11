@@ -139,6 +139,7 @@ public class HttpKit{
 	public static String handleResponse(HttpClient client, HttpRequestBase request) {
 		String responseText = "";
 		try {
+			request.setHeader("Connection", "close");
 			HttpResponse response = client.execute(request);
 			if (response != null) {
 				int code = response.getStatusLine().getStatusCode();

@@ -146,11 +146,12 @@ public class Db {
 			if (count < 0)
 				count = 10;
 			
-			if (logger.isDebugEnabled())
-				logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count);
-			
 			List<T> list = query.setFirstResult(start).setMaxResults(count).list();
-			return list == null ? new ArrayList<T>() : list;
+			if(list==null)
+				list = new ArrayList<T>();
+			if (logger.isDebugEnabled())
+				logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count+", size="+list.size());
+			return list;
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
