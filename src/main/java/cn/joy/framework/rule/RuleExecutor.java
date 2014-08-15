@@ -17,6 +17,8 @@ import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.server.RouteManager;
+import cn.joy.framework.task.JoyTask;
+import cn.joy.framework.task.TaskExecutor;
 /**
  * 业务规则执行器
  * @author liyy
@@ -253,7 +255,7 @@ public class RuleExecutor {
 	private RuleResult doExecuteAsyn(final BaseRule rule, final RuleParam rParam) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteAsyn, rule="+rule);
-		new Thread(new Runnable(){
+		TaskExecutor.execute(new JoyTask() {
 			public void run() {
 				try {
 					rule.handleExecuteInternal(rContext, rParam);
@@ -263,7 +265,7 @@ public class RuleExecutor {
 					release();
 				}
 			}
-		}).start();
+		});
 		return RuleResult.create().success();
 	}
 	
@@ -295,7 +297,7 @@ public class RuleExecutor {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteRemoteAsyn, ruleURI="+remoteRuleURI);
 		
-		new Thread(new Runnable(){
+		TaskExecutor.execute(new JoyTask() {
 			public void run() {
 				if(logger.isDebugEnabled())
 					logger.debug("远程执行规则【"+remoteRuleURI+"】, url="+serverURL+"/"+contextParam);
@@ -310,7 +312,7 @@ public class RuleExecutor {
 					release();
 				}
 			}
-		}).start();
+		});
 		return RuleResult.create().success();
 	}
 	

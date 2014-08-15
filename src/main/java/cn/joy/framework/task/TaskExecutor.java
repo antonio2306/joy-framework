@@ -1,6 +1,5 @@
 package cn.joy.framework.task;
 
-import java.util.ArrayDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -10,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskExecutor {
-	private static final int CORE_POOL_SIZE = 5;
+	private static final int CORE_POOL_SIZE = 10;
 	private static final int MAXIMUM_POOL_SIZE = 128;
 	private static final int KEEP_ALIVE = 1;
 

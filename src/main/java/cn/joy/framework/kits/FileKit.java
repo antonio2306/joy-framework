@@ -24,6 +24,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 public class FileKit {
 
@@ -51,27 +54,27 @@ public class FileKit {
 			}
 		}
 	}
-	
-	public static void copyFileByNIOBuffer(File source, File target) {  
+
+	public static void copyFileByNIOBuffer(File source, File target) {
 		FileInputStream fi = null;
 		FileOutputStream fo = null;
-	    FileChannel in = null;  
-	    FileChannel out = null;  
-	    try {  
-	    	fi = new FileInputStream(source);  
-	    	fo = new FileOutputStream(target);  
-	        in = fi.getChannel();  
-	        out = fo.getChannel();  
-	        ByteBuffer buffer = ByteBuffer.allocate(4096);  
-	        while (in.read(buffer) != -1) {  
-	            buffer.flip();  
-	            out.write(buffer);  
-	            buffer.clear();  
-	        }  
-	    } catch (IOException e) {  
-	        e.printStackTrace();  
-	    } finally {  
-	    	try {
+		FileChannel in = null;
+		FileChannel out = null;
+		try {
+			fi = new FileInputStream(source);
+			fo = new FileOutputStream(target);
+			in = fi.getChannel();
+			out = fo.getChannel();
+			ByteBuffer buffer = ByteBuffer.allocate(4096);
+			while (in.read(buffer) != -1) {
+				buffer.flip();
+				out.write(buffer);
+				buffer.clear();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
 				fi.close();
 				in.close();
 				fo.close();
@@ -79,32 +82,31 @@ public class FileKit {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-	    }  
-	}  
-	
-	public static void copyFile(File source, File target) {  
-	    InputStream fis = null;  
-	    OutputStream fos = null;  
-	    try {  
-	        fis = new BufferedInputStream(new FileInputStream(source));  
-	        fos = new BufferedOutputStream(new FileOutputStream(target));  
-	        byte[] buf = new byte[4096];  
-	        int i;  
-	        while ((i = fis.read(buf)) != -1) {  
-	            fos.write(buf, 0, i);  
-	        }  
-	    }  
-	    catch (Exception e) {  
-	        e.printStackTrace();  
-	    } finally {  
-	    	try {
-	    		fis.close();
-	    		fos.close();
+		}
+	}
+
+	public static void copyFile(File source, File target) {
+		InputStream fis = null;
+		OutputStream fos = null;
+		try {
+			fis = new BufferedInputStream(new FileInputStream(source));
+			fos = new BufferedOutputStream(new FileOutputStream(target));
+			byte[] buf = new byte[4096];
+			int i;
+			while ((i = fis.read(buf)) != -1) {
+				fos.write(buf, 0, i);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fis.close();
+				fos.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-	    }  
-	}  
+		}
+	}
 
 	public static boolean delete(String path) {
 		return delete(new File(path));
@@ -336,7 +338,7 @@ public class FileKit {
 		}
 		return sb.toString();
 	}
-	
+
 	public static void writeInfoToFile(String info, String filePath) {
 		FileOutputStream fos = null;
 		try {
@@ -378,7 +380,7 @@ public class FileKit {
 			return;
 		File tmpFile = new File(filePath + ".tmp");
 		file.renameTo(tmpFile);
-		
+
 		InputStream in = null;
 		OutputStream out = null;
 		Reader r = null;
@@ -409,4 +411,43 @@ public class FileKit {
 		tmpFile.delete();
 	}
 
+	public static void downloadFile(HttpServletResponse response, Map<String, Object> fileInfo) {
+		String contentType = StringKit.getString(fileInfo.get("contentType"), "application/x-msdownload");
+		response.setContentType(contentType); // response.setContentType("application/force-download");
+
+		Object fileObj = fileInfo.get("file");
+		if (fileObj instanceof File) {
+			BufferedInputStream bis = null;
+			OutputStream out = null;
+
+			try {
+				File file = (File) fileObj;
+				if (!file.exists())
+					return;
+				response.setContentLength((int) file.length());
+				response.setHeader("Content-Disposition",
+						"attachment;filename=" + StringKit.getString(fileInfo.get("displayName"), file.getName()));
+
+				bis = new BufferedInputStream(new FileInputStream(file));
+				out = response.getOutputStream();
+
+				int bytesRead = 0;
+				byte[] buffer = new byte[4096];
+				while ((bytesRead = bis.read(buffer, 0, 4096)) != -1) {
+					out.write(buffer, 0, bytesRead);
+				}
+				out.flush();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					out.close();
+					bis.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
 }
