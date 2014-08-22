@@ -30,7 +30,7 @@ public class RouteManager {
 		for(Entry<String, String> entry:routes.entrySet()){
 			String key = entry.getKey();
 			String value = entry.getValue();
-			if(value.startsWith("http") && !urls.contains(value) &&!key.equals(CENTER_SERVER_TAG) 
+			if(StringKit.isNotEmpty(value) && value.startsWith("http") && !urls.contains(value) &&!key.equals(CENTER_SERVER_TAG) 
 					&& !key.equals("null") && !key.equals("undefined"))
 				urls.add(value);
 		}

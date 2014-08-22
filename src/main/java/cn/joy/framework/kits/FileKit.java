@@ -338,11 +338,28 @@ public class FileKit {
 		}
 		return sb.toString();
 	}
+	
+	public static File createFile(String filePath){
+		File file = new File(filePath);
+		if(file.exists())
+			return file;
+		File dir = file.getParentFile();
+		if(dir.exists() || dir.mkdirs()){
+			try {
+				if(file.createNewFile())
+					return file;
+			} catch (IOException e) {
+				return null;
+			}
+		}
+		return null;
+	}
 
 	public static void writeInfoToFile(String info, String filePath) {
 		FileOutputStream fos = null;
 		try {
-			fos = new FileOutputStream(new File(filePath));
+			File file = createFile(filePath);
+			fos = new FileOutputStream(file);
 			fos.write(info.getBytes());
 			fos.flush();
 		} catch (Exception e) {
@@ -360,7 +377,8 @@ public class FileKit {
 		try {
 			if (charset == null || charset.length() == 0)
 				charset = "UTF-8";
-			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(filePath)), charset));
+			File file = createFile(filePath);
+			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
 			output.write(info);
 		} catch (Exception e) {
 		} finally {
