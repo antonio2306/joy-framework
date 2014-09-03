@@ -470,4 +470,9 @@ public class ValidateKit {
 			
 	}
 	
+	public static void main(String[] args) {
+		String d = "12/12/2012";
+		System.out.println(isDate(d));
+	}
+	
 }

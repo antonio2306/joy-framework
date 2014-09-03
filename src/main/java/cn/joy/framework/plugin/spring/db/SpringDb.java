@@ -1,6 +1,14 @@
 package cn.joy.framework.plugin.spring.db;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.log4j.Logger;
+import org.hibernate.CacheMode;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -159,4 +167,297 @@ public class SpringDb {
 		return con;
 	}*/
 
+	public Object get(Class<?> clazz, Serializable pk) {
+		if (logger.isDebugEnabled())
+			logger.debug("db get ==> class="+clazz.getSimpleName()+", pk=" + pk);
+		Session session = null;
+		try {
+			session = getSession();
+			return session.get(clazz, pk);
+		} catch (Exception e) {
+			throw new DbException(e);
+		} finally{
+			endTransaction(session);
+		}
+	}
+
+	public <T> T get(String hql, Object... params) {
+		if (logger.isDebugEnabled())
+			logger.debug("db get ==> " + hql);
+		List<T> list = list(hql, params);
+		if (list != null && list.size() > 0)
+			return list.get(0);
+		return null;
+	}
+
+	public Object unique(String hql, Object... params) {
+		Session session = null;
+		try {
+			session = getSession();
+			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+			}
+			
+			if (logger.isDebugEnabled())
+				logger.debug("db unique ==> " + hql+", params=["+paramsInfo+"]");
+			return query.uniqueResult();
+		} catch (Exception e) {
+			throw new DbException(e);
+		} finally{
+			endTransaction(session);
+		}
+	}
+
+	public <T> List<T> list(String hql, Object... params) {
+		Session session = null;
+		try {
+			session = getSession();
+			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+					
+			}
+			
+			List<T> list = query.list();
+			if(list==null)
+				list = new ArrayList<T>();
+			if (logger.isDebugEnabled())
+				logger.debug("db list ==> " + hql+", params=["+paramsInfo+"], size="+list.size());
+			return list;
+		} catch (Exception e) {
+			throw new DbException(e);
+		} finally{
+			endTransaction(session);
+		}
+	}
+
+	public <T> List<T> page(String hql, int start, int count, Object... params) {
+		Session session = null;
+		try {
+			session = getSession();
+			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+			}
+			if (start < 0)
+				start = 0;
+			if (count < 0)
+				count = 10;
+			
+			List<T> list = query.setFirstResult(start).setMaxResults(count).list();
+			if(list==null)
+				list = new ArrayList<T>();
+			if (logger.isDebugEnabled())
+				logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count+", size="+list.size());
+			return list;
+		} catch (Exception e) {
+			throw new DbException(e);
+		} finally{
+			endTransaction(session);
+		}
+	}
+
+	public Integer count(String hql, Object... params) {
+		if (logger.isDebugEnabled())
+			logger.debug("db count ==> " + hql);
+		Number count = (Number) unique(hql, params);
+		if (count == null)
+			return 0;
+		return count.intValue();
+	}
+
+	public int executeUpdate(String hql, Object... params) {
+		int result = 0;
+		Session session = getSession();
+		try {
+			beginTransaction(session);
+			Query query = session.createQuery(hql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+			}
+			if (logger.isDebugEnabled())
+				logger.debug("db executeUpdate ==> " + hql+", params=["+paramsInfo+"]");
+			
+			result = query.executeUpdate();
+			commitAndEndTransaction(session);
+		} catch (Exception e) {
+			rollbackAndEndTransaction(session);
+			throw new DbException(e);
+		} finally {
+			endTransaction(session);
+		}
+		return result;
+	}
+
+	public void execute(DbCallback callback, Object... params) {
+		//if (logger.isDebugEnabled())
+		//	logger.debug("db execute ==> callback");
+		Session session = getSession();
+		try {
+			beginTransaction(session);
+			callback.run(session, params);
+			commitAndEndTransaction(session);
+		} catch (Exception e) {
+			rollbackAndEndTransaction(session);
+			throw new DbException(e);
+		} finally {
+			endTransaction(session);
+		}
+	}
+	
+	private void setLastModifyTime(Object obj){
+		if( obj != null ){
+    		try{
+    			Class<?> clazz = obj.getClass();
+        		Class<?>[] paramTypes = {Date.class};
+        		Method method = clazz.getMethod("setLastmodifytime", paramTypes);
+        		Object[] objs = {new Date()};
+        		method.invoke( obj, objs );
+			}catch (Exception e){
+			}    		
+    	}
+	}
+
+	public void add(Object obj) {
+		if (logger.isDebugEnabled())
+			logger.debug("db add ==> " + obj);
+
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				setLastModifyTime(params[0]);
+				session.save(params[0]);
+			}
+		}, obj);
+	}
+
+	public <T> void addAll(List<T> list) {
+		if (logger.isDebugEnabled())
+			logger.debug("db addAll ==> " + list);
+
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				List<T> list = (List<T>) params[0];
+				if (list != null) {
+					session.setCacheMode(CacheMode.IGNORE);
+					for (int i = 0; i < list.size(); i++) {
+						T obj = list.get(i);
+						setLastModifyTime(obj);
+						session.save(obj);
+						if (i % 50 == 0) {
+							session.flush();
+							session.clear();
+						}
+					}
+					session.setCacheMode(CacheMode.NORMAL);
+				}
+			}
+		}, list);
+	}
+
+	public void update(Object obj) {
+		if (logger.isDebugEnabled())
+			logger.debug("db update ==> " + obj);
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				setLastModifyTime(params[0]);
+				session.update(params[0]);
+			}
+		}, obj);
+	}
+	
+	public <T> void updateAll(List<T> list) {
+		if (logger.isDebugEnabled())
+			logger.debug("db updateAll ==> " + list);
+
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				List<T> list = (List<T>) params[0];
+				if (list != null) {
+					if (list != null) {
+						for (T obj:list) {
+							setLastModifyTime(obj);
+							session.update(obj);
+						}
+					}
+				}
+			}
+		}, list);
+	}
+
+	public void saveOrUpdate(Object obj) {
+		if (logger.isDebugEnabled())
+			logger.debug("db saveOrUpdate ==> " + obj);
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				setLastModifyTime(params[0]);
+				session.saveOrUpdate(params[0]);
+			}
+		}, obj);
+	}
+
+	public void merge(Object obj) {
+		if (logger.isDebugEnabled())
+			logger.debug("db merge ==> " + obj);
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				setLastModifyTime(params[0]);
+				session.merge(params[0]);
+			}
+		}, obj);
+	}
+
+	public void delete(Object obj) {
+		if (logger.isDebugEnabled())
+			logger.debug("db delete ==> " + obj);
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				session.delete(params[0]);
+			}
+		}, obj);
+	}
+	
+	public <T> void deleteAll(List<T> list) {
+		if (logger.isDebugEnabled())
+			logger.debug("db deleteAll ==> " + list);
+
+		execute(new DbCallback() {
+			public void run(Session session, Object... params) throws Exception {
+				List<T> list = (List<T>) params[0];
+				if (list != null) {
+					for (T obj:list) {
+						session.delete(obj);
+					}
+				}
+			}
+		}, list);
+	}
 }

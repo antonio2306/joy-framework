@@ -1,5 +1,9 @@
 package cn.joy.framework.plugin.spring;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import cn.joy.framework.plugin.spring.db.DbException;
 import cn.joy.framework.plugin.spring.db.RuleDao;
 import cn.joy.framework.plugin.spring.db.SpringDb;
 import cn.joy.framework.plugin.spring.support.DefaultRouteStore;
@@ -18,6 +22,15 @@ public class SpringResource {
 	private static RouteStore routeStore;
 	public static String MVC_OPEN_REQUEST_URL = "openservice.do";
 	public static String MVC_BUSINESS_REQUEST_URL = "businesservice.do";
+	
+	private static Map<String, SpringDb> dbMap = new HashMap();
+	
+	public static SpringDb getDb(String dbName) {
+		SpringDb db = dbMap.get(dbName);
+		if(db==null)
+			throw new DbException("No DB with name "+dbName);
+		return db;
+	}
 
 	public static SecurityManager getSecurityManager() {
 		if(securityManager==null)
