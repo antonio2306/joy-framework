@@ -87,6 +87,14 @@ public class JoyManager {
 		
 		routePlugin = (IRoutePlugin)loadPlugin(server.getRoutePlugin());
 		
+		String optionalPlugins = server.getPlugins();
+		if(StringKit.isNotEmpty(optionalPlugins)){
+			String[] ops = optionalPlugins.split(",");
+			for(String op:ops){
+				loadOptionalPlugin(op);
+			}
+		}
+		
 		for(IPlugin plugin:plugins.values()){
 			plugin.start();
 		}
@@ -123,8 +131,24 @@ public class JoyManager {
 		if(plugin==null){
 			plugin = (IPlugin)BeanKit.getNewInstance("cn.joy.framework.plugin."+pluginName+"."
 					+StringKit.capitalize(pluginName)+"Plugin");
+			if(plugin==null)
+				throw new RuntimeException("No plugin with name "+pluginName);
 			plugins.put(pluginName, plugin);
 		}
 		return plugin; 
+	}
+	
+	private static void loadOptionalPlugin(String pluginName){
+		IPlugin plugin = plugins.get(pluginName);
+		if(plugin==null){
+			try {
+				plugin = (IPlugin)BeanKit.getNewInstance("cn.joy.framework.plugin."+pluginName+"."
+						+StringKit.capitalize(pluginName)+"Plugin");
+				if(plugin!=null)
+					plugins.put(pluginName, plugin);
+			} catch (Exception e) {
+				logger.info("No optional plugin with name "+pluginName);
+			}
+		}
 	}
 }
