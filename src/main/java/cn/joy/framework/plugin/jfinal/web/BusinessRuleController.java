@@ -95,5 +95,7 @@ public class BusinessRuleController extends Controller {
 			HttpKit.writeResponse(response, content);
 			RuleExecutor.clearCurrentExecutor();
 		}
+		
+		renderNull();
 	}
 }

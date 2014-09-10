@@ -84,6 +84,7 @@ public class OpenRuleController extends Controller {
 		}
 		
 		HttpKit.writeResponse(response, content);
+		renderNull();
 	}
 
 }

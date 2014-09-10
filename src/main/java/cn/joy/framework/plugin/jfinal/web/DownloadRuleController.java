@@ -66,6 +66,6 @@ public class DownloadRuleController extends Controller {
 			HttpKit.writeResponse(response, result.toJSON());
 		RuleExecutor.clearCurrentExecutor();
 		
-		return;
+		renderNull();
 	}
 }

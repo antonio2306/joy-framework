@@ -41,5 +41,7 @@ public class WebProxyController extends BusinessRuleController {
 				logger.debug("web proxy url="+url+", datas="+datas);
 			HttpKit.writeResponse(response, HttpKit.post(url, datas));
 		}
+		
+		renderNull();
 	}
 }
