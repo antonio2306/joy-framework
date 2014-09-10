@@ -34,7 +34,7 @@
 
 	<bean id="springResource" class="cn.joy.framework.plugin.spring.SpringResource">
 		<property name="MVC_OPEN_REQUEST_URL"><value>openservice.do</value></property>
-		<property name="MVC_BUSINESS_REQUEST_URL"><value>businesservice.do</value></property>
+		<property name="MVC_BUSINESS_REQUEST_URL"><value>businessservice.do</value></property>
 		<property name="ruleDao" ref="joyRuleDaoProxy" />
 		<property name="mainDb" ref="joySpringDb" />
 		<property name="securityManager" ref="securityManager" />

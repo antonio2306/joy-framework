@@ -21,7 +21,7 @@ public class SpringResource {
 	private static SecurityManager securityManager;
 	private static RouteStore routeStore;
 	public static String MVC_OPEN_REQUEST_URL = "openservice.do";
-	public static String MVC_BUSINESS_REQUEST_URL = "businesservice.do";
+	public static String MVC_BUSINESS_REQUEST_URL = "businessservice.do";
 	
 	private static Map<String, SpringDb> dbMap = new HashMap();
 	

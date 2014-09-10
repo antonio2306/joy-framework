@@ -126,6 +126,10 @@ public class JoyManager {
 		logger.info("JOY Framework run...");
 	}
 	
+	public static IPlugin getPlugin(String pluginName) throws Exception{
+		return plugins.get(pluginName); 
+	}
+	
 	private static IPlugin loadPlugin(String pluginName) throws Exception{
 		IPlugin plugin = plugins.get(pluginName);
 		if(plugin==null){
