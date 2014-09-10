@@ -59,7 +59,8 @@ public class HttpKit{
     private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
     private static final String ENCODING_GZIP = "gzip";
 
-    private static int maxConnections = 10; //http请求最大并发连接数
+    private static int maxConnections = 200; //http请求最大并发连接数
+    private static int maxConnectionsPerRoute = 20; //http请求最大并发连接数
     private static int socketTimeout = 20; //超时时间，默认20秒
     private static int maxRetries = 5;//错误尝试次数，错误异常表请在RetryHandler添加
     private static int httpThreadCount = 3;//http线程池数量
@@ -77,9 +78,9 @@ public class HttpKit{
 			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 			HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
 			
-			ConnManagerParams.setTimeout(params, socketTimeout*1000);
-	        ConnManagerParams.setMaxConnectionsPerRoute(params, new ConnPerRouteBean(maxConnections));
-	        ConnManagerParams.setMaxTotalConnections(params, 10);
+			//ConnManagerParams.setTimeout(params, socketTimeout*1000);
+	        //ConnManagerParams.setMaxConnectionsPerRoute(params, new ConnPerRouteBean(maxConnections));
+	        //ConnManagerParams.setMaxTotalConnections(params, 10);
 
 	        HttpConnectionParams.setTcpNoDelay(params, true);
 	        HttpConnectionParams.setSocketBufferSize(params, DEFAULT_SOCKET_BUFFER_SIZE);
@@ -95,13 +96,19 @@ public class HttpKit{
 			 * HttpConnectionParams.setSoTimeout(params, soTimeout * 1000);
 			 */
 
-			SchemeRegistry registry = new SchemeRegistry();
-			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-			registry.register(new Scheme("https", sf, 443));
+			SchemeRegistry schemeRegistry = new SchemeRegistry();  
+			schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));  
+			schemeRegistry.register(new Scheme("https", 443, sf));  
+			
+			ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(schemeRegistry);  
+			cm.setMaxTotal(maxConnections);  
+			cm.setDefaultMaxPerRoute(20);  
+			
+			// Increase max connections for localhost:80 to 50  
+			//HttpHost localhost = new HttpHost("locahost", 80);  
+			//cm.setMaxForRoute(new HttpRoute(localhost), 50);  
 
-			ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);
-
-			return new DefaultHttpClient(ccm, params);
+			return new DefaultHttpClient(cm, params);
 		} catch (Exception e) {
 			return new DefaultHttpClient();
 		}

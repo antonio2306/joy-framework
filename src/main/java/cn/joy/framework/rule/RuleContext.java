@@ -24,6 +24,8 @@ public class RuleContext {
 	public static final String TRANSPORT_SINGLE = "SINGLE";
 	public static final String NONE_LOGINID = "NONE";	 //有时不需要用户信息，如组织的操作
 	
+	public static final String LOGINID_IN_REQUEST = "LOGINID_IN_REQUEST";	 
+	
 	private HttpServletRequest request;
 	
 	private RuleExecutor rExecutor;
@@ -59,6 +61,8 @@ public class RuleContext {
 		rContext.accessToken = RuleKit.getStringParam(request, JoyManager.getServer().getAccessTokenParam());
 		
 		rContext.loginId = RuleKit.getStringParam(request, JoyManager.getServer().getLoginIdParam());
+		if(StringKit.isEmpty(rContext.loginId))
+			rContext.loginId = RuleKit.getStringAttribute(request, LOGINID_IN_REQUEST);
 		if(StringKit.isEmpty(rContext.loginId))
 			throw new RuleException(SubErrorType.ISV_MISSING_PARAMETER, "loginId");
 		

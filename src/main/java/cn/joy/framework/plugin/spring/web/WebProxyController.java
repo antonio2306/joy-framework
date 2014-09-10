@@ -16,7 +16,7 @@ import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.server.RouteManager;
 
-public class WebProxyController extends MultiActionController {
+public class WebProxyController extends BusinessRuleController {
 	private Logger logger = Logger.getLogger(WebProxyController.class);
 
 	public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -31,10 +31,16 @@ public class WebProxyController extends MultiActionController {
 			datas.put(entry.getKey(), entry.getValue()[0]);
 		}
 		
-		String url = RouteManager.getServerURLByQyescode(serverCode)+"/"+JoyManager.getMVCPlugin().getBusinessRequestPath(request, "", "", null);
-		if(logger.isDebugEnabled())
-			logger.debug("web proxy url="+url+", datas="+datas);
-		HttpKit.writeResponse(response, HttpKit.post(url, datas));
+		String serverURL = RouteManager.getServerURLByQyescode(serverCode);
+		String currentServerURL = RouteManager.getServerURLByTag(RouteManager.getLocalServerTag());
+		if(currentServerURL.equals(serverURL)){
+			return super.index(request, response);
+		}else{
+			String url = RouteManager.getServerURLByQyescode(serverCode)+"/"+JoyManager.getMVCPlugin().getBusinessRequestPath(request, "", "", null);
+			if(logger.isDebugEnabled())
+				logger.debug("web proxy url="+url+", datas="+datas);
+			HttpKit.writeResponse(response, HttpKit.post(url, datas));
+		}
 		
 		return null;
 	}
