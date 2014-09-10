@@ -211,9 +211,13 @@ public class HttpKit{
 		}
 	}
 	
-	public static void writeResponse(HttpServletResponse response, String content) throws IOException {
-		response.setCharacterEncoding("utf-8");
-		response.setContentType("text/plain");
-		response.getWriter().write(content);
+	public static void writeResponse(HttpServletResponse response, String content){
+		try {
+			response.setCharacterEncoding("utf-8");
+			response.setContentType("text/plain");
+			response.getWriter().write(content);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
