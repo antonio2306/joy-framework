@@ -127,7 +127,7 @@ public class RuleContext {
 	public RuleResult invokeRule(String ruleURI, RuleParam rParam, RuleInvokeConfig config) throws Exception{
 		if(StringKit.isEmpty(ruleURI))
 			return RuleResult.create().fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
-		boolean isRemote = ruleURI.indexOf("@")>0;
+		boolean isRemote = ruleURI.indexOf("@")>=0;
 		boolean isAsyn = false;
 		if(config!=null)
 			isAsyn = config.isAsyn();

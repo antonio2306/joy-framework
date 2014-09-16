@@ -1,17 +1,12 @@
 package cn.joy.framework.plugin.spring.db;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.hibernate.CacheMode;
-import org.hibernate.Query;
 import org.hibernate.Session;
 
-import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.spring.SpringResource;
 /**
@@ -91,6 +86,10 @@ public class Db {
 
 	public static int executeUpdate(String hql, Object... params) {
 		return use().executeUpdate(hql, params);
+	}
+	
+	public static int executeUpdate(String hql, Map<String, Object> namedParams, Object... params) {
+		return use().executeUpdate(hql, namedParams, params);
 	}
 
 	public static void execute(DbCallback callback, Object... params) {
