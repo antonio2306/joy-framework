@@ -3,16 +3,17 @@ package cn.joy.framework.plugin.spring.db;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
-import cn.joy.framework.exception.RuleException;
 /**
  * 基于Spring、Hibernate的数据库定义
  * @author liyy
@@ -287,8 +288,12 @@ public class SpringDb {
 			return 0;
 		return count.intValue();
 	}
+	
+	public int executeUpdate(String hql, Object... positionParams) {
+		return executeUpdate(hql, null, positionParams);
+	}
 
-	public int executeUpdate(String hql, Object... params) {
+	public int executeUpdate(String hql, Map<String, Object> namedParams, Object... positionParams) {
 		int result = 0;
 		Session session = getSession();
 		try {
@@ -297,15 +302,30 @@ public class SpringDb {
 			StringBuilder paramsInfo = null;
 			if (logger.isDebugEnabled())
 				paramsInfo = new StringBuilder();
-			if (params != null) {
-				for (int i = 0; i < params.length; i++){
+			if (positionParams != null) {
+				for (int i = 0; i < positionParams.length; i++){
 					if (logger.isDebugEnabled())
-						paramsInfo.append(params[i]).append(",");
-					query.setParameter(i, params[i]);
+						paramsInfo.append(positionParams[i]).append(",");
+					query.setParameter(i, positionParams[i]);
 				}
 			}
 			if (logger.isDebugEnabled())
 				logger.debug("db executeUpdate ==> " + hql+", params=["+paramsInfo+"]");
+			
+			if (namedParams != null) {
+				for (Entry<String, Object> entry:namedParams.entrySet()){
+					String name = entry.getKey();
+					Object value = entry.getValue();
+					if (logger.isDebugEnabled())
+						logger.debug("set named param["+name+"] = "+value);
+					if(value instanceof Collection)
+						query.setParameterList(name, (Collection)value);
+					else if(value instanceof Object[])
+						query.setParameterList(name, (Object[])value);
+					else
+						query.setParameter(name, value);
+				}
+			}
 			
 			result = query.executeUpdate();
 			commitAndEndTransaction(session);
