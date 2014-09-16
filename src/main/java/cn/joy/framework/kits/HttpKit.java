@@ -78,9 +78,9 @@ public class HttpKit{
 			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 			HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
 			
-			//ConnManagerParams.setTimeout(params, socketTimeout*1000);
-	        //ConnManagerParams.setMaxConnectionsPerRoute(params, new ConnPerRouteBean(maxConnections));
-	        //ConnManagerParams.setMaxTotalConnections(params, 10);
+			ConnManagerParams.setTimeout(params, socketTimeout*1000);
+	        ConnManagerParams.setMaxConnectionsPerRoute(params, new ConnPerRouteBean(maxConnectionsPerRoute));
+	        ConnManagerParams.setMaxTotalConnections(params, maxConnections);
 
 	        HttpConnectionParams.setTcpNoDelay(params, true);
 	        HttpConnectionParams.setSocketBufferSize(params, DEFAULT_SOCKET_BUFFER_SIZE);
@@ -96,19 +96,13 @@ public class HttpKit{
 			 * HttpConnectionParams.setSoTimeout(params, soTimeout * 1000);
 			 */
 
-			SchemeRegistry schemeRegistry = new SchemeRegistry();  
-			schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));  
-			schemeRegistry.register(new Scheme("https", 443, sf));  
-			
-			ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(schemeRegistry);  
-			cm.setMaxTotal(maxConnections);  
-			cm.setDefaultMaxPerRoute(20);  
-			
-			// Increase max connections for localhost:80 to 50  
-			//HttpHost localhost = new HttpHost("locahost", 80);  
-			//cm.setMaxForRoute(new HttpRoute(localhost), 50);  
+			SchemeRegistry registry = new SchemeRegistry();
+			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+			registry.register(new Scheme("https", sf, 443));
 
-			return new DefaultHttpClient(cm, params);
+			ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);
+
+			return new DefaultHttpClient(ccm, params);
 		} catch (Exception e) {
 			return new DefaultHttpClient();
 		}
