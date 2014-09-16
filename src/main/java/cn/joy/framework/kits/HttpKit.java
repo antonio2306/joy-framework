@@ -78,9 +78,9 @@ public class HttpKit{
 			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 			HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
 			
-			ConnManagerParams.setTimeout(params, socketTimeout*1000);
-	        ConnManagerParams.setMaxConnectionsPerRoute(params, new ConnPerRouteBean(maxConnectionsPerRoute));
-	        ConnManagerParams.setMaxTotalConnections(params, maxConnections);
+			//ConnManagerParams.setTimeout(params, socketTimeout*1000);
+	        //ConnManagerParams.setMaxConnectionsPerRoute(params, new ConnPerRouteBean(maxConnectionsPerRoute));
+	        //ConnManagerParams.setMaxTotalConnections(params, maxConnections);
 
 	        HttpConnectionParams.setTcpNoDelay(params, true);
 	        HttpConnectionParams.setSocketBufferSize(params, DEFAULT_SOCKET_BUFFER_SIZE);
@@ -97,12 +97,15 @@ public class HttpKit{
 			 */
 
 			SchemeRegistry registry = new SchemeRegistry();
+			//此处不能直接使用新的Scheme的构造方法，否则会有https的验证问题
 			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 			registry.register(new Scheme("https", sf, 443));
 
-			ClientConnectionManager ccm = new ThreadSafeClientConnManager(params, registry);
+			ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(registry);
+			cm.setMaxTotal(maxConnections);  
+			cm.setDefaultMaxPerRoute(maxConnectionsPerRoute); 
 
-			return new DefaultHttpClient(ccm, params);
+			return new DefaultHttpClient(cm, params);
 		} catch (Exception e) {
 			return new DefaultHttpClient();
 		}
