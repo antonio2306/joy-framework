@@ -5,7 +5,20 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class DateKit {
-	public static final String getDateTime(String aMask, Date aDate) {
+	public static String fillDateStr(String dateStr){
+		int count = StringKit.getOccurCount(dateStr, ":");
+		if(count==1)
+			dateStr += ":00";
+		else if(count==0){
+			if(dateStr.indexOf(" ")==-1)
+				dateStr += " 00:00:00";
+			else
+				dateStr += ":00:00";
+		}
+		return dateStr;
+	}
+	
+	public static String getDateTime(String aMask, Date aDate) {
 		if (aDate == null) {
 			return "";
 		} else {

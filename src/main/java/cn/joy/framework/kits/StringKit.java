@@ -51,6 +51,19 @@ public class StringKit {
 		return -1;
 	}
 	
+	public static int getOccurCount(String src, String find) {
+		if (src == null || src.length() == 0)
+			return 0;
+		int count = 0;
+		int index = -1;
+		int length = find.length();
+		while ((index = src.indexOf(find, index)) > -1) {
+			index += length;
+			count++;
+		}
+		return count;
+	}
+	
 	public static String joinCollection(Collection c, String delimiter){
 		String result = "";
 		StringBuilder s = new StringBuilder();
