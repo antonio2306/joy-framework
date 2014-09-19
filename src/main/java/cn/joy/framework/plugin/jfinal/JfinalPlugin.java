@@ -14,6 +14,8 @@ import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.exception.MainError;
+import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
@@ -50,17 +52,19 @@ public class JfinalPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 				public boolean run() throws SQLException {
 					try {
 						RuleResult txResult = callback.run();
-						if(txResult.isSuccess())
-							resultWrap.add(txResult);
-						else
-							return false;
+						if(logger.isDebugEnabled())
+							logger.debug("doTransaction, txResult="+txResult.toJSON());
+						resultWrap.add(txResult);
+						return txResult.isSuccess();
 					} catch (Exception e) {
 						logger.error("", e);
 						return false;
 					}
-					return true;
 				}
 			});
+			
+			if(resultWrap.size()==0)
+				return ruleResult.fail(MainError.create(MainErrorType.MISSING_RESULT));
 			
 			ruleResult = resultWrap.get(0);
 			if(logger.isDebugEnabled())

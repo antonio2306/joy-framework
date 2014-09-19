@@ -41,6 +41,7 @@ public class BusinessRuleController extends Controller {
 		
 		if(StringKit.isEmpty(service) || StringKit.isEmpty(action) ){
 			HttpKit.writeResponse(response, "CHECK PARAMETER _s OR _m FAIL");
+			renderNull();
 			return;
 		}
 		
@@ -51,6 +52,7 @@ public class BusinessRuleController extends Controller {
 				response.setStatus(NumberKit.getInteger(checkResultContent.get("statusCode"), 500));
 			
 			HttpKit.writeResponse(response, checkResult.getMsg());
+			renderNull();
 			return;
 		}
 		

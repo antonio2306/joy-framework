@@ -52,7 +52,7 @@ public class OpenRuleController extends Controller {
 			content = result.toJSON();
 		}
 		HttpKit.writeResponse(response, content);
-		return;
+		renderNull();
 	}
 	
 	public void getConfig(){
