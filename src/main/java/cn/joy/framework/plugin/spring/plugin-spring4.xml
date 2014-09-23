@@ -62,6 +62,9 @@
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	
+	<bean name="/downloadservice.do" class="cn.joy.framework.plugin.spring.web.DownloadRuleController">
+		<property name="methodNameResolver" ref="methodNameResolver" />
+	</bean>
 	<!-- 用户需要自定义安全管理器，检查请求的安全性 -->
 	<bean id="securityManager" class="cn.joy.framework.plugin.spring.support.DefaultSecurityManager">
 	</bean>
