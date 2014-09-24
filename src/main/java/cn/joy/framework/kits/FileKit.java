@@ -417,14 +417,10 @@ public class FileKit {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			try {
-				r.close();
-				in.close();
-				w.close();
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			try { if(r!=null) r.close(); } catch (IOException e) { e.printStackTrace(); }
+			try { if(in!=null) in.close(); } catch (IOException e) { e.printStackTrace(); }
+			try { if(w!=null) w.close(); } catch (IOException e) { e.printStackTrace(); }
+			try { if(out!=null) out.close(); } catch (IOException e) { e.printStackTrace(); }
 		}
 		tmpFile.delete();
 	}
@@ -458,12 +454,8 @@ public class FileKit {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				try {
-					out.close();
-					bis.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				try { if(out!=null) out.close(); } catch (IOException e) { e.printStackTrace(); }
+				try { if(bis!=null) bis.close(); } catch (IOException e) { e.printStackTrace(); }
 			}
 		}
 

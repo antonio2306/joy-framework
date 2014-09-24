@@ -24,6 +24,7 @@ public class RouteManager {
 	public static final String CENTER_SERVER_TAG = JoyManager.getServer().getCenterServerTag();
 	private static Map<String, String> routes = new HashMap<String, String>();
 	private static Map<String, String> routes4File = new HashMap<String, String>();
+	private static Map<String, String> routes4Report = new HashMap<String, String>();
 
 	public static List<String> getAllAppServerUrls(){
 		List<String> urls = new ArrayList<String>();
@@ -120,6 +121,26 @@ public class RouteManager {
 			logger.debug("routes4File: " + routes4File);
 		return serverURL;
 	}
+	
+	public static String getDefaultAppReportServerURL() {
+		String serverURL = routes4Report.get("report");
+		if (StringKit.isEmpty(serverURL)) {
+			if (JoyManager.getServer() instanceof CenterServer) {
+				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("report", "app");
+				if (StringKit.isEmpty(serverURL))
+					throw new RuleException("Default App Report Server URL need init");
+			} else {
+				serverURL = HttpKit.get(getCenterServerURL()
+						+ "/"
+						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&key=get_default_app_report_url",
+								null));
+			}
+			routes4Report.put("app", serverURL);
+		}
+		if (logger.isDebugEnabled())
+			logger.debug("routes4Report: " + routes4Report);
+		return serverURL;
+	}
 
 	public static String getServerURLByTag(String serverTag) {
 		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用服务器
@@ -176,6 +197,31 @@ public class RouteManager {
 			logger.debug("routes4File: " + routes4File);
 		return serverURL;
 	}
+	
+	public static String getReportServerURLByTag(String serverTag) {
+		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用文件服务器
+			return getDefaultAppReportServerURL();
+		
+		String serverURL = routes4Report.get(serverTag);
+		if (serverURL == null) {
+			if (JoyManager.getServer() instanceof CenterServer) {
+				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("report", serverTag);
+			} else {
+				serverURL = HttpKit.get(getCenterServerURL()
+						+ "/"
+						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
+								"&key=get_app_report_url&tag=" + serverTag, null));
+				if(!serverURL.startsWith("http"))
+					serverURL = "";
+				else
+					JoyManager.getRoutePlugin().storeServerURL("report", serverTag, serverURL);
+			}
+			routes4Report.put(serverTag, serverURL);
+		}
+		if (logger.isDebugEnabled())
+			logger.debug("routes4Report: " + routes4Report);
+		return serverURL;
+	}
 
 	public static String getServerURLByQyescode(String qyescode) {
 		return getServerURLByTag(getServerTag(qyescode));
@@ -184,6 +230,10 @@ public class RouteManager {
 	public static String getFileServerURLByQyescode(String qyescode) {
 		return getFileServerURLByTag(getServerTag(qyescode));
 	}
+	
+	public static String getReportServerURLByQyescode(String qyescode) {
+		return getReportServerURLByTag(getServerTag(qyescode));
+	}
 
 	public static Map<String, String> getRoutes() {
 		return routes;
@@ -191,5 +241,9 @@ public class RouteManager {
 
 	public static Map<String, String> getRoutes4File() {
 		return routes4File;
+	}
+	
+	public static Map<String, String> getRoutes4Report() {
+		return routes4Report;
 	}
 }

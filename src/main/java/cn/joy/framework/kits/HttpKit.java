@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -216,5 +217,14 @@ public class HttpKit{
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public static String encodeParam(String param){
+		try {
+			return URLEncoder.encode(param, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("", e);
+		}
+		return param;
 	}
 }

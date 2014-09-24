@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
@@ -89,6 +90,14 @@ public class BusinessRuleController extends MultiActionController {
 			HttpKit.writeResponse(response, JsonKit.object2Json(mergeResult));
 		}else{
 			RuleResult result = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
+			String toRender = (String)result.getExtraData("toRender");
+			if(StringKit.isNotEmpty(toRender)){
+				if(toRender.startsWith("redirect:"))
+					return new ModelAndView(new RedirectView(toRender.substring("redirect:".length())));
+				else if(toRender.startsWith("jsp:"))
+					return new ModelAndView(toRender.substring("jsp:".length()));
+			}
+			
 			content = result.toJSON();
 			HttpKit.writeResponse(response, content);
 			RuleExecutor.clearCurrentExecutor();

@@ -93,6 +93,17 @@ public class BusinessRuleController extends Controller {
 			HttpKit.writeResponse(response, JsonKit.object2Json(mergeResult));
 		}else{
 			RuleResult result = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
+			String toRender = (String)result.getExtraData("toRender");
+			if(StringKit.isNotEmpty(toRender)){
+				if(toRender.startsWith("redirect:")){
+					redirect(toRender.substring("redirect:".length()));
+					return;
+				}else if(toRender.startsWith("jsp:")){
+					renderJsp(toRender.substring("jsp:".length()));
+					return;
+				}
+			}
+			
 			content = result.toJSON();
 			HttpKit.writeResponse(response, content);
 			RuleExecutor.clearCurrentExecutor();

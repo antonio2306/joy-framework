@@ -49,6 +49,16 @@ public class OpenRuleController extends Controller {
 			}catch(RuleException e){
 				result = e.getFailResult();
 			}
+			String toRender = (String)result.getExtraData("toRender");
+			if(StringKit.isNotEmpty(toRender)){
+				if(toRender.startsWith("redirect:")){
+					redirect(toRender.substring("redirect:".length()));
+					return;
+				}else if(toRender.startsWith("jsp:")){
+					renderJsp(toRender.substring("jsp:".length()));
+					return;
+				}
+			}
 			content = result.toJSON();
 		}
 		HttpKit.writeResponse(response, content);
@@ -75,14 +85,21 @@ public class OpenRuleController extends Controller {
 				content = RouteManager.getDefaultAppFileServerURL();
 			}else if("get_app_file_url".equals(key)){
 				content = RouteManager.getFileServerURLByTag(tag);
+			}else if("get_default_app_report_url".equals(key)){
+				content = RouteManager.getDefaultAppReportServerURL();
+			}else if("get_app_report_url".equals(key)){
+				content = RouteManager.getReportServerURLByTag(tag);
 			}else if("sync_route".equals(key)){
 				Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();
 				routeInfo.put("routes", RouteManager.getRoutes());
-				routeInfo.put("routes4File", RouteManager.getRoutes4File());
+				routeInfo.put("routes4File", RouteManager.getRoutes4File()); 
+				routeInfo.put("routes4Report", RouteManager.getRoutes4Report()); 
 				content = JsonKit.object2Json(routeInfo);
 			}
 		}
 		
+		if(logger.isDebugEnabled())
+			logger.debug("getConfig, content="+content);
 		HttpKit.writeResponse(response, content);
 		renderNull();
 	}

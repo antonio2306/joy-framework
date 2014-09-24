@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
@@ -54,6 +55,13 @@ public class OpenRuleController extends MultiActionController {
 			}catch(RuleException e){
 				result = e.getFailResult();
 			}
+			String toRender = (String)result.getExtraData("toRender");
+			if(StringKit.isNotEmpty(toRender)){
+				if(toRender.startsWith("redirect:"))
+					return new ModelAndView(new RedirectView(toRender.substring("redirect:".length())));
+				else if(toRender.startsWith("jsp:"))
+					return new ModelAndView(toRender.substring("jsp:".length()));
+			}
 			content = result.toJSON();
 		}
 		HttpKit.writeResponse(response, content);
@@ -77,14 +85,21 @@ public class OpenRuleController extends MultiActionController {
 				content = RouteManager.getDefaultAppFileServerURL();
 			}else if("get_app_file_url".equals(key)){
 				content = RouteManager.getFileServerURLByTag(tag);
+			}else if("get_default_app_report_url".equals(key)){
+				content = RouteManager.getDefaultAppReportServerURL();
+			}else if("get_app_report_url".equals(key)){
+				content = RouteManager.getReportServerURLByTag(tag);
 			}else if("sync_route".equals(key)){
 				Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();
 				routeInfo.put("routes", RouteManager.getRoutes());
-				routeInfo.put("routes4File", RouteManager.getRoutes4File());
+				routeInfo.put("routes4File", RouteManager.getRoutes4File()); 
+				routeInfo.put("routes4Report", RouteManager.getRoutes4Report()); 
 				content = JsonKit.object2Json(routeInfo);
 			}
 		}
 		
+		if(logger.isDebugEnabled())
+			logger.debug("getConfig, content="+content);
 		HttpKit.writeResponse(response, content);
 		return null;
 	}
