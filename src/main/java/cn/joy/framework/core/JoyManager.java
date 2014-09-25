@@ -19,6 +19,7 @@ import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
 import cn.joy.framework.plugin.IPlugin;
 import cn.joy.framework.plugin.IRoutePlugin;
+import cn.joy.framework.plugin.ISchedulePlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
 import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
@@ -126,7 +127,7 @@ public class JoyManager {
 		logger.info("JOY Framework run...");
 	}
 	
-	public static IPlugin getPlugin(String pluginName) throws Exception{
+	public static IPlugin getPlugin(String pluginName){
 		return plugins.get(pluginName); 
 	}
 	
