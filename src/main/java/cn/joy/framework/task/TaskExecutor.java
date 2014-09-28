@@ -1,5 +1,6 @@
 package cn.joy.framework.task;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,9 +26,19 @@ public class TaskExecutor {
 
 	private static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
 			KEEP_ALIVE, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
+	
+	public static Executor getCustomExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, int blockingQueueSize){
+		return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, 
+				new ArrayBlockingQueue<Runnable>(blockingQueueSize));
+	}
 
 	public static void execute(JoyTask task) {
 		THREAD_POOL_EXECUTOR.execute(task);
 	}
 
+	public static void execute(Executor executor, JoyTask task) {
+		if(executor==null)
+			executor = THREAD_POOL_EXECUTOR;
+		executor.execute(task);
+	}
 }

@@ -68,11 +68,13 @@ public class ClassKit {
 	 * 从包package中获取所有的Class
 	 */
 	public static List<Class<?>> getClasses(String packageName) {
+		return getClasses(packageName, true);
+	}
+	
+	public static List<Class<?>> getClasses(String packageName, boolean recursive) {
 
 		// 第一个class类的集合
 		List<Class<?>> classes = new ArrayList<Class<?>>();
-		// 是否循环迭代
-		boolean recursive = true;
 		// 获取包的名字 并进行替换
 		String packageDirName = packageName.replace('.', '/');
 		// 定义一个枚举的集合 并进行循环来处理这个目录下的things

@@ -2,6 +2,7 @@ package cn.joy.framework.plugin.quartz;
 
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
@@ -16,6 +17,7 @@ import cn.joy.framework.plugin.ISchedulePlugin;
 import cn.joy.framework.task.ScheduleTask;
 
 public class QuartzPlugin implements ISchedulePlugin {
+	private Logger logger = Logger.getLogger(QuartzPlugin.class);
 	private Scheduler scheduler;
 
 	public void start() {
@@ -33,6 +35,8 @@ public class QuartzPlugin implements ISchedulePlugin {
 			StdSchedulerFactory schedFact = new StdSchedulerFactory(quartzProp);
 			scheduler = schedFact.getScheduler();
 			scheduler.start();
+			if(logger.isInfoEnabled())
+				logger.info("quartz plugin start success");
 		} catch (SchedulerException e) {
 			throw new RuntimeException("init scheduler fail.", e);
 		}

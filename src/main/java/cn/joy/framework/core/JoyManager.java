@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import cn.joy.framework.annotation.Module;
 import cn.joy.framework.event.EventManager;
 import cn.joy.framework.event.JoyEventListener;
 import cn.joy.framework.kits.BeanKit;
@@ -19,7 +20,6 @@ import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.IMVCPlugin;
 import cn.joy.framework.plugin.IPlugin;
 import cn.joy.framework.plugin.IRoutePlugin;
-import cn.joy.framework.plugin.ISchedulePlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
 import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
@@ -35,6 +35,7 @@ public class JoyManager {
 	private static Logger logger = Logger.getLogger(JoyManager.class);
 	private static Map<String, IPlugin> plugins = new HashMap();
 	private static List<String> modules = new ArrayList();
+	private static Map<String, JoyModule> moduleDefines = new HashMap();
 	
 	private static RuleLoader rLoader;
 	private static JoyServer server;
@@ -112,6 +113,18 @@ public class JoyManager {
 					if(logger.isInfoEnabled())
 						logger.info("found module: "+moduleName);
 					modules.add(moduleName);
+					
+					List moduleClasses = ClassKit.getClasses(server.getModulePackage()+"."+moduleName, false);
+					if(moduleClasses!=null){
+						for (Object md : moduleClasses) {
+							Class mdClass = (Class) md;
+							if(mdClass.getAnnotation(Module.class)==null)
+								continue;
+							moduleDefines.put(moduleName, JoyModule.create(mdClass));
+							if(logger.isInfoEnabled())
+								logger.info("create joy module: "+moduleName);
+						}
+					}
 					
 					String eventPackage = String.format(JoyManager.getServer().getEventPackagePattern(), moduleName);
 					List<Class> listeners = ClassKit.getAllClassByInterface(eventPackage, JoyEventListener.class);
