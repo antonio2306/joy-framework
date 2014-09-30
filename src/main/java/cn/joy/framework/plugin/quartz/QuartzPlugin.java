@@ -44,10 +44,10 @@ public class QuartzPlugin implements ISchedulePlugin {
 	
 	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron){
 		try {
-			JobDetail sendScannerJob = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroup).build(); 
+			JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroup).build(); 
 			CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(jobName+"Trigger", jobGroup)
 					.withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
-			scheduler.scheduleJob(sendScannerJob, trigger);
+			scheduler.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
 			throw new RuntimeException("schedule job fail.", e);
 		}
@@ -55,7 +55,7 @@ public class QuartzPlugin implements ISchedulePlugin {
 	
 	public void unschedule(String jobName, String jobGroup){
 		try {
-			scheduler.deleteJob(JobKey.jobKey(jobName, "test.scanner"));
+			scheduler.deleteJob(JobKey.jobKey(jobName, jobGroup));
 		} catch (SchedulerException e) {
 			throw new RuntimeException("unschedule job fail.", e);
 		}

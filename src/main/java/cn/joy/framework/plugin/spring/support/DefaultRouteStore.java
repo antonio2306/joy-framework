@@ -33,6 +33,8 @@ public class DefaultRouteStore implements RouteStore{
 				+ "/"
 				+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
 						"&key=sync_route", null));
+		if(logger.isDebugEnabled())
+			logger.debug("routeInfo="+routeInfo);
 		return JsonKit.json2Map(routeInfo);
 	}
 
