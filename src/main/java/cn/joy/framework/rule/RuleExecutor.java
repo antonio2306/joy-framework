@@ -181,6 +181,7 @@ public class RuleExecutor {
 						if(serverURL.equals(localServerURL)){
 							if(logger.isDebugEnabled())
 								logger.debug("规则【"+ruleURI+"】转为本地调用");
+							this.isRemote = false;
 							ruleResult = executeLocalRule(ruleURI.substring(idx+1), rParam, isInnerInvoke);
 						}else{
 							ruleResult = executeRemoteRule(serverURL, ruleURI.substring(idx+1), rParam);
