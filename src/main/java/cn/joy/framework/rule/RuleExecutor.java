@@ -166,11 +166,11 @@ public class RuleExecutor {
 					String serverURL = "";
 					String serverInfo = ruleURI.substring(0, idx);
 					if(serverInfo.startsWith("qc://")){
-						serverURL = RouteManager.getServerURLByQyescode(serverInfo.substring(5));
+						serverURL = RouteManager.getServerURLByCompanyCode(serverInfo.substring(5));
 					}else if(serverInfo.startsWith("http://") || serverInfo.startsWith("https://")){
 						serverURL = serverInfo;
 					}else{
-						serverURL = RouteManager.getServerURLByQyescode(serverInfo);
+						serverURL = RouteManager.getServerURLByCompanyCode(serverInfo);
 					}
 					
 					if(StringKit.isNotEmpty(serverURL)){

@@ -31,12 +31,12 @@ public class WebProxyController extends BusinessRuleController {
 			datas.put(entry.getKey(), entry.getValue()[0]);
 		}
 		
-		String serverURL = RouteManager.getServerURLByQyescode(serverCode);
+		String serverURL = RouteManager.getServerURLByCompanyCode(serverCode);
 		String currentServerURL = RouteManager.getServerURLByTag(RouteManager.getLocalServerTag());
 		if(currentServerURL.equals(serverURL)){
 			super.index();
 		}else{
-			String url = RouteManager.getServerURLByQyescode(serverCode)+"/"+JoyManager.getMVCPlugin().getBusinessRequestPath(request, "", "", null);
+			String url = RouteManager.getServerURLByCompanyCode(serverCode)+"/"+JoyManager.getMVCPlugin().getBusinessRequestPath(request, "", "", null);
 			if(logger.isDebugEnabled())
 				logger.debug("web proxy url="+url+", datas="+datas);
 			HttpKit.writeResponse(response, HttpKit.post(url, datas));

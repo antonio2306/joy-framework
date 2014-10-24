@@ -38,14 +38,14 @@ public class RouteManager {
 		return urls;
 	}
 
-	public static String getServerTag(String qyescode) {
-		if(qyescode==null || qyescode.equals("null"))
+	public static String getServerTag(String companyCode) {
+		if(companyCode==null || companyCode.equals("null"))
 			return "";
-		if(qyescode.indexOf(".")!=-1)	//仅为项目兼容
+		if(companyCode.indexOf(".")!=-1)	//仅为项目兼容
 			return "";
 		String tag = "";
-		for (int i = 0; i < qyescode.length(); i++) {
-			char c = qyescode.charAt(i);
+		for (int i = 0; i < companyCode.length(); i++) {
+			char c = companyCode.charAt(i);
 			if (c >= 48 && c <= 57)
 				break;
 			tag += c;
@@ -223,16 +223,16 @@ public class RouteManager {
 		return serverURL;
 	}
 
-	public static String getServerURLByQyescode(String qyescode) {
-		return getServerURLByTag(getServerTag(qyescode));
+	public static String getServerURLByCompanyCode(String companyCode) {
+		return getServerURLByTag(getServerTag(companyCode));
 	}
 
-	public static String getFileServerURLByQyescode(String qyescode) {
-		return getFileServerURLByTag(getServerTag(qyescode));
+	public static String getFileServerURLByCompanyCode(String companyCode) {
+		return getFileServerURLByTag(getServerTag(companyCode));
 	}
 	
-	public static String getReportServerURLByQyescode(String qyescode) {
-		return getReportServerURLByTag(getServerTag(qyescode));
+	public static String getReportServerURLByCompanyCode(String companyCode) {
+		return getReportServerURLByTag(getServerTag(companyCode));
 	}
 
 	public static Map<String, String> getRoutes() {

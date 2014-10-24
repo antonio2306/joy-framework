@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 /**
@@ -167,6 +168,35 @@ public class SpringDb {
 			// SessionFactoryUtils.getDataSource(getSessionFactory()).getConnection()
 		return con;
 	}*/
+	
+	public List<Object[]> query(String sql, Object... params) {
+		Session session = null;
+		try {
+			session = getSession();
+			SQLQuery query = session.createSQLQuery(sql);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+			}
+			
+			List<Object[]> list = query.list();
+			if(list==null)
+				list = new ArrayList<Object[]>();
+			if (logger.isDebugEnabled())
+				logger.debug("db list ==> " + sql+", params=["+paramsInfo+"], size="+list.size());
+			return list;
+		} catch (Exception e) {
+			throw new DbException(e);
+		} finally{
+			endTransaction(session);
+		}
+	}
 
 	public Object get(Class<?> clazz, Serializable pk) {
 		if (logger.isDebugEnabled())
