@@ -59,6 +59,10 @@ public class Db {
 		} catch (NullPointerException e) {
 		}
 	}
+	
+	public static List<Object[]> query(String sql, Object... params){
+		return use().query(sql, params);
+	}
 
 	public static Object get(Class<?> clazz, Serializable pk) {
 		return use().get(clazz, pk);
