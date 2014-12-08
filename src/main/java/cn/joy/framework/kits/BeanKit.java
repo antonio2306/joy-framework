@@ -2,6 +2,14 @@ package cn.joy.framework.kits;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.converters.DateConverter;
 /**
  * Bean操作工具类
  * @author liyy
@@ -10,7 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 public class BeanKit {
 	public static Object cloneBean(Object bean) {
 		try {
-			return org.apache.commons.beanutils.BeanUtils.cloneBean(bean);
+			return BeanUtils.cloneBean(bean);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -19,8 +27,7 @@ public class BeanKit {
 	
 	public static String getSimpleProperty(Object bean, String name) {
 		try {
-			return org.apache.commons.beanutils.BeanUtils.getSimpleProperty(
-					bean, name);
+			return BeanUtils.getSimpleProperty(bean, name);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
@@ -33,7 +40,7 @@ public class BeanKit {
 	
 	public static void setSimpleProperty(Object bean, String name, Object value) {
 		try {
-			org.apache.commons.beanutils.BeanUtils.setProperty(bean, name, value);
+			BeanUtils.setProperty(bean, name, value);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
@@ -94,4 +101,26 @@ public class BeanKit {
 		return result;
 	}
 
+	public static <T> T injectBeanFromRequest(HttpServletRequest request, Class<T> bean) {  
+        T t = null;  
+        try {  
+            t = bean.newInstance();  
+            Enumeration parameterNames = request.getParameterNames();  
+            DateConverter convert = new DateConverter();//写一个日期转换器  
+            String[] patterns = { "yyyyMMdd", "yyyyMMddHHmmss", "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss" };//限定日期的格式字符串数组  
+            convert.setPatterns(patterns);  
+            ConvertUtils.register(convert, Date.class);  
+            while (parameterNames.hasMoreElements()) {  
+                String name = (String) parameterNames.nextElement();  
+                String value = request.getParameter(name);  
+  
+                BeanUtils.setProperty(t, name, value);//使用BeanUtils来设置对象属性的值  
+  
+            }  
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }  
+        return t;  
+  
+    }  
 }
