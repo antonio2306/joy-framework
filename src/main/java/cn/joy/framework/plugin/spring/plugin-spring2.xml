@@ -41,19 +41,19 @@
 		<property name="routeStore" ref="routeStore" />
 	</bean>
 
-	<bean name="/openservice.do" class="cn.joy.framework.plugin.spring.web.OpenRuleController">
-		<property name="methodNameResolver" ref="methodNameResolver" />
-	</bean>
-
-	<bean name="/businessservice.do" class="cn.joy.framework.plugin.spring.web.BusinessRuleController">
-		<property name="methodNameResolver" ref="methodNameResolver" />
-	</bean>
-	
 	<bean name="/webproxy.do" class="cn.joy.framework.plugin.spring.web.WebProxyController">
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	
-	<bean name="/downloadservice.do" class="cn.joy.framework.plugin.spring.web.DownloadRuleController">
+	<bean name="/service/open" class="cn.joy.framework.plugin.spring.web.OpenRuleController">
+		<property name="methodNameResolver" ref="methodNameResolver" />
+	</bean>
+
+	<bean name="/service/business" class="cn.joy.framework.plugin.spring.web.BusinessRuleController">
+		<property name="methodNameResolver" ref="methodNameResolver" />
+	</bean>
+
+	<bean name="/service/download" class="cn.joy.framework.plugin.spring.web.DownloadRuleController">
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	

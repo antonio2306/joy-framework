@@ -23,9 +23,9 @@ public class AppConfig extends BaseConfig{
 	@Override
 	public void configRoute(Routes me) {
 		me.add("/", XxxController.class);
-		me.add("/open", OpenRuleController.class);
-		me.add("/business", BusinessRuleController.class);
-		me.add("/download", DownloadRuleController.class);
+		me.add("/service/open", OpenRuleController.class);
+		me.add("/service/business", BusinessRuleController.class);
+		me.add("/service/download", DownloadRuleController.class);
 		me.add("/webproxy", WebProxyController.class);
 	}
 
