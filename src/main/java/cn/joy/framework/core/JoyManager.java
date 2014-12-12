@@ -69,10 +69,12 @@ public class JoyManager {
 		Properties config = new Properties();
 		
 		boolean isCenterServer = true;
-		File configFile = new File(PathKit.getClassPath()+"/joy-center.cnf");
+		String classPath = PathKit.getClassPath();	//建议路径中不要含有空格等，否则需要decode
+		
+		File configFile = new File(classPath+"/joy-center.cnf");
 		
 		if(!configFile.exists()){
-			configFile = new File(PathKit.getClassPath()+"/joy-app.cnf");
+			configFile = new File(classPath+"/joy-app.cnf");
 			isCenterServer = false;
 		}
 		

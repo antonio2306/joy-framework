@@ -44,7 +44,7 @@ public class BaseConfig extends JFinalConfig{
 		try {
 			JoyManager.init();
 		} catch (Exception e) {
-			throw new RuntimeException("JOY start fail");
+			throw new RuntimeException("JOY start fail", e);
 		}
 	}
 }
