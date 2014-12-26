@@ -21,7 +21,6 @@ import cn.joy.framework.kits.StringKit;
  */
 public class RouteManager {
 	private static Logger logger = Logger.getLogger(RouteManager.class);
-	public static final String CENTER_SERVER_TAG = JoyManager.getServer().getCenterServerTag();
 	private static Map<String, String> routes = new HashMap<String, String>();
 	private static Map<String, String> routes4File = new HashMap<String, String>();
 	private static Map<String, String> routes4Report = new HashMap<String, String>();
@@ -31,7 +30,7 @@ public class RouteManager {
 		for(Entry<String, String> entry:routes.entrySet()){
 			String key = entry.getKey();
 			String value = entry.getValue();
-			if(StringKit.isNotEmpty(value) && value.startsWith("http") && !urls.contains(value) &&!key.equals(CENTER_SERVER_TAG) 
+			if(StringKit.isNotEmpty(value) && value.startsWith("http") && !urls.contains(value) &&!key.equals(JoyManager.getServer().getCenterServerTag()) 
 					&& !key.equals("null") && !key.equals("undefined"))
 				urls.add(value);
 		}
@@ -58,10 +57,10 @@ public class RouteManager {
 	}
 
 	public static String getCenterServerURL() {
-		String serverURL = routes.get(CENTER_SERVER_TAG);
+		String serverURL = routes.get(JoyManager.getServer().getCenterServerTag());
 		if (StringKit.isEmpty(serverURL)) {
 			serverURL = JoyManager.getServer().getCenterServerUrl();
-			routes.put(CENTER_SERVER_TAG, serverURL);
+			routes.put(JoyManager.getServer().getCenterServerTag(), serverURL);
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("routes: " + routes);
@@ -69,13 +68,13 @@ public class RouteManager {
 	}
 
 	public static String getCenterFileServerURL() {
-		String serverURL = routes4File.get(CENTER_SERVER_TAG);
+		String serverURL = routes4File.get(JoyManager.getServer().getCenterServerTag());
 		if (StringKit.isEmpty(serverURL)) {
 			//serverURL = JoyManager.getServer().getCenterFileServerUrl();
-			serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", CENTER_SERVER_TAG);
+			serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", JoyManager.getServer().getCenterServerTag());
 			if (StringKit.isEmpty(serverURL))
 				throw new RuleException("Default Center File Server URL need init");
-			routes4File.put(CENTER_SERVER_TAG, serverURL);
+			routes4File.put(JoyManager.getServer().getCenterServerTag(), serverURL);
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("routes4File: " + routes4File);
@@ -146,7 +145,7 @@ public class RouteManager {
 		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用服务器
 			return getDefaultAppServerURL();
 		
-		if (CENTER_SERVER_TAG.equals(serverTag)) 
+		if (JoyManager.getServer().getCenterServerTag().equals(serverTag)) 
 			return getCenterServerURL();
 
 		String serverURL = routes.get(serverTag);
@@ -174,7 +173,7 @@ public class RouteManager {
 		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用文件服务器
 			return getDefaultAppFileServerURL();
 		
-		if (CENTER_SERVER_TAG.equals(serverTag)) 
+		if (JoyManager.getServer().getCenterServerTag().equals(serverTag)) 
 			return getCenterFileServerURL();
 
 		String serverURL = routes4File.get(serverTag);
