@@ -36,12 +36,12 @@ public class JfinalPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 	public void stop() {
 	}
 
-	public String getServerURLByServerTag(String serverType, String serverTag) {
-		return JfinalResource.getRouteStore().getServerURLByServerTag(serverType, serverTag);
+	public String getServerURL(String routeKey) {
+		return JfinalResource.getRouteStore().getServerURL(routeKey);
 	}
 
-	public void storeServerURL(String serverType, String serverTag, String serverURL) {
-		JfinalResource.getRouteStore().storeServerURL(serverType, serverTag, serverURL);
+	public void storeServerURL(String routeKey, String serverURL) {
+		JfinalResource.getRouteStore().storeServerURL(routeKey, serverURL);
 	}
 	
 	public RuleResult doTransaction(final JoyCallback callback) throws Exception {

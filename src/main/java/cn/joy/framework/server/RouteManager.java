@@ -22,13 +22,13 @@ import cn.joy.framework.kits.StringKit;
 public class RouteManager {
 	private static Logger logger = Logger.getLogger(RouteManager.class);
 	private static Map<String, String> routes = new HashMap<String, String>();
-	private static Map<String, String> routes4File = new HashMap<String, String>();
-	private static Map<String, String> routes4Report = new HashMap<String, String>();
 
-	public static List<String> getAllAppServerUrls(){
+	public static List<String> getAllServerUrls(String serverType){
 		List<String> urls = new ArrayList<String>();
 		for(Entry<String, String> entry:routes.entrySet()){
 			String key = entry.getKey();
+			if(!key.startsWith(serverType+":"))
+				continue;
 			String value = entry.getValue();
 			if(StringKit.isNotEmpty(value) && value.startsWith("http") && !urls.contains(value) &&!key.equals(JoyManager.getServer().getCenterServerTag()) 
 					&& !key.equals("null") && !key.equals("undefined"))
@@ -55,194 +55,105 @@ public class RouteManager {
 	public static String getLocalServerTag() {
 		return JoyManager.getServer().getLocalServerTag();
 	}
+	
+	public static String getRouteKey(String serverType, String serverTag){
+		return serverType+":"+serverTag;
+	}
+	
+	public static boolean isCenterRouteKey(String routeKey){
+		return routeKey!=null && routeKey.startsWith("center:");
+	}
 
 	public static String getCenterServerURL() {
-		String serverURL = routes.get(JoyManager.getServer().getCenterServerTag());
+		return getCenterServerURLByKey(getRouteKey("center", JoyManager.getServer().getCenterServerTag()));
+	}
+	
+	public static String getCenterServerURL(String serverType) {
+		return getCenterServerURLByKey(getRouteKey(StringKit.getString(serverType, "center"), JoyManager.getServer().getCenterServerTag()));
+	}
+
+	public static String getCenterServerURLByKey(String routeKey) {
+		String serverURL = routes.get(routeKey);
 		if (StringKit.isEmpty(serverURL)) {
-			serverURL = JoyManager.getServer().getCenterServerUrl();
-			routes.put(JoyManager.getServer().getCenterServerTag(), serverURL);
+			if(getRouteKey("center", JoyManager.getServer().getCenterServerTag()).equals(routeKey)){
+				serverURL = JoyManager.getServer().getCenterServerUrl();
+			}else	
+				serverURL = JoyManager.getRoutePlugin().getServerURL(routeKey);
+			if (StringKit.isEmpty(serverURL))
+				throw new RuleException("Center Server URL for "+routeKey+" need init");
+			routes.put(routeKey, serverURL);
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("routes: " + routes);
 		return serverURL;
 	}
-
-	public static String getCenterFileServerURL() {
-		String serverURL = routes4File.get(JoyManager.getServer().getCenterServerTag());
-		if (StringKit.isEmpty(serverURL)) {
-			//serverURL = JoyManager.getServer().getCenterFileServerUrl();
-			serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", JoyManager.getServer().getCenterServerTag());
-			if (StringKit.isEmpty(serverURL))
-				throw new RuleException("Default Center File Server URL need init");
-			routes4File.put(JoyManager.getServer().getCenterServerTag(), serverURL);
-		}
-		if (logger.isDebugEnabled())
-			logger.debug("routes4File: " + routes4File);
-		return serverURL;
+	
+	public static String getAppServerURL() {
+		return getAppServerURLByKey(getRouteKey("app", "app"));
+	}
+	
+	public static String getAppServerURL(String serverType) {
+		return getAppServerURLByKey(getRouteKey(StringKit.getString(serverType, "app"), "app"));
+	}
+	
+	public static String getAppServerURL(String serverType, String serverTag) {
+		return getAppServerURLByKey(getRouteKey(StringKit.getString(serverType, "app"), StringKit.getString(serverTag, "app")));
 	}
 
-	public static String getDefaultAppServerURL() {
-		String serverURL = routes.get("app");
+	public static String getAppServerURLByKey(String routeKey) {
+		String serverURL = routes.get(routeKey);
 		if (StringKit.isEmpty(serverURL)) {
 			if (JoyManager.getServer() instanceof CenterServer) {
-				//serverURL = JoyManager.getServer().getDefaultAppServerUrl();
-				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("app", "app");
+				serverURL = JoyManager.getRoutePlugin().getServerURL(routeKey);
 				if (StringKit.isEmpty(serverURL))
-					throw new RuleException("Default App Server URL need init");
+					throw new RuleException("App Server URL for "+routeKey+" need init");
 			} else {
 				serverURL = HttpKit.get(getCenterServerURL() + "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&key=get_default_app_url", null));
+						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&_t=route&_k="+routeKey, null));
+				if(!serverURL.startsWith("http"))
+					serverURL = "";
+				else
+					JoyManager.getRoutePlugin().storeServerURL(routeKey, serverURL);
 			}
-			routes.put("app", serverURL);
+			routes.put(routeKey, serverURL);
 		}
 		if (logger.isDebugEnabled())
 			logger.debug("routes: " + routes);
 		return serverURL;
 	}
-
-	public static String getDefaultAppFileServerURL() {
-		String serverURL = routes4File.get("app");
-		if (StringKit.isEmpty(serverURL)) {
-			if (JoyManager.getServer() instanceof CenterServer) {
-				//serverURL = JoyManager.getServer().getDefaultAppFileServerUrl();
-				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", "app");
-				if (StringKit.isEmpty(serverURL))
-					throw new RuleException("Default App File Server URL need init");
-			} else {
-				serverURL = HttpKit.get(getCenterServerURL()
-						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&key=get_default_app_file_url",
-								null));
-			}
-			routes4File.put("app", serverURL);
-		}
-		if (logger.isDebugEnabled())
-			logger.debug("routes4File: " + routes4File);
-		return serverURL;
-	}
 	
-	public static String getDefaultAppReportServerURL() {
-		String serverURL = routes4Report.get("report");
-		if (StringKit.isEmpty(serverURL)) {
-			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("report", "app");
-				if (StringKit.isEmpty(serverURL))
-					throw new RuleException("Default App Report Server URL need init");
-			} else {
-				serverURL = HttpKit.get(getCenterServerURL()
-						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&key=get_default_app_report_url",
-								null));
-			}
-			routes4Report.put("app", serverURL);
-		}
-		if (logger.isDebugEnabled())
-			logger.debug("routes4Report: " + routes4Report);
-		return serverURL;
-	}
-
 	public static String getServerURLByTag(String serverTag) {
-		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用服务器
-			return getDefaultAppServerURL();
-		
 		if (JoyManager.getServer().getCenterServerTag().equals(serverTag)) 
 			return getCenterServerURL();
-
-		String serverURL = routes.get(serverTag);
-		if (StringKit.isEmpty(serverURL)) {
-			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("app", serverTag);
-			} else {
-				serverURL = HttpKit.get(getCenterServerURL()
-						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
-								"&key=get_app_url&tag=" + serverTag, null));
-				if(!serverURL.startsWith("http"))
-					serverURL = "";
-				else
-					JoyManager.getRoutePlugin().storeServerURL("app", serverTag, serverURL);
-			}
-			routes.put(serverTag, serverURL);
-		}
-		if (logger.isDebugEnabled())
-			logger.debug("routes: " + routes);
-		return serverURL;
-	}
-
-	public static String getFileServerURLByTag(String serverTag) {
-		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用文件服务器
-			return getDefaultAppFileServerURL();
 		
-		if (JoyManager.getServer().getCenterServerTag().equals(serverTag)) 
-			return getCenterFileServerURL();
-
-		String serverURL = routes4File.get(serverTag);
-		if (serverURL == null) {
-			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("file", serverTag);
-			} else {
-				serverURL = HttpKit.get(getCenterServerURL()
-						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
-								"&key=get_app_file_url&tag=" + serverTag, null));
-				if(!serverURL.startsWith("http"))
-					serverURL = "";
-				else
-					JoyManager.getRoutePlugin().storeServerURL("file", serverTag, serverURL);
-			}
-			routes4File.put(serverTag, serverURL);
-		}
-		if (logger.isDebugEnabled())
-			logger.debug("routes4File: " + routes4File);
-		return serverURL;
+		return getAppServerURL("app", serverTag);
 	}
 	
-	public static String getReportServerURLByTag(String serverTag) {
-		if (StringKit.isEmpty(serverTag)) // 空tag，则为默认应用文件服务器
-			return getDefaultAppReportServerURL();
-		
-		String serverURL = routes4Report.get(serverTag);
-		if (serverURL == null) {
-			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getRoutePlugin().getServerURLByServerTag("report", serverTag);
-			} else {
-				serverURL = HttpKit.get(getCenterServerURL()
-						+ "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
-								"&key=get_app_report_url&tag=" + serverTag, null));
-				if(!serverURL.startsWith("http"))
-					serverURL = "";
-				else
-					JoyManager.getRoutePlugin().storeServerURL("report", serverTag, serverURL);
-			}
-			routes4Report.put(serverTag, serverURL);
-		}
-		if (logger.isDebugEnabled())
-			logger.debug("routes4Report: " + routes4Report);
-		return serverURL;
+	public static String getServerURL(String serverType, String serverTag) {
+		return getServerURLByKey(getRouteKey(serverType, serverTag));
 	}
-
+	
 	public static String getServerURLByCompanyCode(String companyCode) {
 		return getServerURLByTag(getServerTag(companyCode));
 	}
 
-	public static String getFileServerURLByCompanyCode(String companyCode) {
-		return getFileServerURLByTag(getServerTag(companyCode));
+	public static String getServerURLByCompanyCode(String serverType, String companyCode) {
+		return getServerURL(serverType, getServerTag(companyCode));
 	}
 	
-	public static String getReportServerURLByCompanyCode(String companyCode) {
-		return getReportServerURLByTag(getServerTag(companyCode));
+	public static String getServerURLByKey(String routeKey) {
+		if (isCenterRouteKey(routeKey)) 
+			return getCenterServerURLByKey(routeKey);
+
+		return getAppServerURLByKey(routeKey);
 	}
 
 	public static Map<String, String> getRoutes() {
 		return routes;
 	}
-
-	public static Map<String, String> getRoutes4File() {
-		return routes4File;
-	}
 	
-	public static Map<String, String> getRoutes4Report() {
-		return routes4Report;
+	public static void setRoute(String routeKey, String serverURL){
+		routes.put(routeKey, serverURL);
 	}
+
 }

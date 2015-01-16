@@ -1,6 +1,5 @@
-package cn.joy.framework.plugin.spring.support;
+package cn.joy.framework.support;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -12,14 +11,13 @@ import cn.joy.framework.server.RouteManager;
 
 public class DefaultRouteStore implements RouteStore{
 	private Logger logger = Logger.getLogger(DefaultRouteStore.class);
-	protected Map<String, String> routes = new HashMap<String, String>();
 
-	public String getServerURLByServerTag(String serverType, String serverTag) {
+	public String getServerURL(String routeKey) {
 		logger.warn("Empty Impl...");
 		return "";
 	}
 
-	public void storeServerURL(String serverType, String serverTag, String serverURL) {
+	public void storeServerURL(String routeKey, String serverURL) {
 		logger.warn("Empty Impl...");
 	}
 

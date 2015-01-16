@@ -69,31 +69,18 @@ public class OpenRuleController extends Controller {
 		HttpServletRequest request = getRequest();
 		HttpServletResponse response = getResponse();
 		
-		String key = request.getParameter("key");
-		String tag = request.getParameter("tag");
+		String configType = request.getParameter("_t");
+		String configKey = request.getParameter("_k");
 		if(logger.isDebugEnabled())
-			logger.debug("getConfig, key="+key+", tag="+tag);
+			logger.debug("getConfig, type="+configType+", key="+configKey);
 		
 		String content = "";
-		//TODO 各种配置管理需要起来
 		if(JoyManager.getServer() instanceof CenterServer){
-			if("get_default_app_url".equals(key)){
-				content = RouteManager.getDefaultAppServerURL();
-			}else if("get_app_url".equals(key)){
-				content = RouteManager.getServerURLByTag(tag);
-			}else if("get_default_app_file_url".equals(key)){
-				content = RouteManager.getDefaultAppFileServerURL();
-			}else if("get_app_file_url".equals(key)){
-				content = RouteManager.getFileServerURLByTag(tag);
-			}else if("get_default_app_report_url".equals(key)){
-				content = RouteManager.getDefaultAppReportServerURL();
-			}else if("get_app_report_url".equals(key)){
-				content = RouteManager.getReportServerURLByTag(tag);
-			}else if("sync_route".equals(key)){
+			if("route".equals(configType)){
+				content = RouteManager.getServerURLByKey(configKey);
+			}else if("sync_route".equals(configKey)){
 				Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();
 				routeInfo.put("routes", RouteManager.getRoutes());
-				routeInfo.put("routes4File", RouteManager.getRoutes4File()); 
-				routeInfo.put("routes4Report", RouteManager.getRoutes4Report()); 
 				content = JsonKit.object2Json(routeInfo);
 			}
 		}

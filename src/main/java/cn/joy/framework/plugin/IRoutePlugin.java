@@ -5,7 +5,7 @@ package cn.joy.framework.plugin;
  * @date 2014-07-06
  */
 public interface IRoutePlugin extends IPlugin {
-	public String getServerURLByServerTag(String serverType, String serverTag);
+	public String getServerURL(String routeKey);
 	
-	public void storeServerURL(String serverType, String serverTag, String serverURL);
+	public void storeServerURL(String routeKey, String serverURL);
 }

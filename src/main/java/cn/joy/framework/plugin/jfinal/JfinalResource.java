@@ -1,8 +1,8 @@
 package cn.joy.framework.plugin.jfinal;
 
-import cn.joy.framework.plugin.spring.support.DefaultRouteStore;
-import cn.joy.framework.plugin.spring.support.DefaultSecurityManager;
-import cn.joy.framework.plugin.spring.support.RouteStore;
+import cn.joy.framework.support.DefaultRouteStore;
+import cn.joy.framework.support.DefaultSecurityManager;
+import cn.joy.framework.support.RouteStore;
 import cn.joy.framework.support.SecurityManager;
 /**
  * JFinal资源注入

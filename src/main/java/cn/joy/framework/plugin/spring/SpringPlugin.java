@@ -87,11 +87,11 @@ public class SpringPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 		return ruleResult;
 	}
 
-	public String getServerURLByServerTag(String serverType, String serverTag) {
-		return SpringResource.getRouteStore().getServerURLByServerTag(serverType, serverTag);
+	public String getServerURL(String routeKey) {
+		return SpringResource.getRouteStore().getServerURL(routeKey);
 	}
 
-	public void storeServerURL(String serverType, String serverTag, String serverURL) {
-		SpringResource.getRouteStore().storeServerURL(serverType, serverTag, serverURL);
+	public void storeServerURL(String routeKey, String serverURL) {
+		SpringResource.getRouteStore().storeServerURL(routeKey, serverURL);
 	}
 }
