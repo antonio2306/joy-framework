@@ -77,12 +77,13 @@ public class OpenRuleController extends MultiActionController {
 		String content = "";
 		if(JoyManager.getServer() instanceof CenterServer){
 			if("route".equals(configType)){
-				content = RouteManager.getServerURLByKey(configKey);
-			}else if("sync_route".equals(configKey)){
-				Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();
-				routeInfo.put("routes", RouteManager.getRoutes());
-				content = JsonKit.object2Json(routeInfo);
-			}
+				if("sync_route".equals(configKey)){
+					Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();
+					routeInfo.put("routes", RouteManager.getRoutes());
+					content = JsonKit.object2Json(routeInfo);
+				}else
+					content = RouteManager.getServerURLByKey(configKey);
+			} 
 		}
 		
 		if(logger.isDebugEnabled())

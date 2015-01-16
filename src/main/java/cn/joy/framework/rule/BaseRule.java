@@ -34,7 +34,7 @@ public abstract class BaseRule {
 
 		Method method = null;
 		try {
-			method = this.getClass().getDeclaredMethod(action, this.getActionMethodParamClass());
+			method = this.getClass().getMethod(action, this.getActionMethodParamClass());
 		} catch (SecurityException e) {
 			logger.error("", e);
 			return RuleResult.create().fail(MainError.create(MainErrorType.FORBIDDEN_REQUEST));

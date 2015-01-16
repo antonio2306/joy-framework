@@ -67,11 +67,11 @@
 	</bean>
 	
 	<!-- 用户需要自定义安全管理器，检查请求的安全性 -->
-	<bean id="securityManager" class="cn.joy.framework.plugin.spring.support.DefaultSecurityManager">
+	<bean id="securityManager" class="cn.joy.framework.support.DefaultSecurityManager">
 	</bean>
 	
 	<!-- 用户需要自定义服务器路由存储 -->
-	<bean id="routeStore" class="cn.joy.framework.plugin.spring.support.DefaultRouteStore">
+	<bean id="routeStore" class="cn.joy.framework.support.DefaultRouteStore">
 	</bean>
 	
 	<bean id="joyManager" class="cn.joy.framework.core.JoyManager" init-method="init" 
