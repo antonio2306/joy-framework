@@ -42,12 +42,8 @@
 	</bean>
 
 	<bean id="springResource" class="cn.joy.framework.plugin.spring.SpringResource">
-		<property name="MVC_OPEN_REQUEST_URL"><value>openservice.do</value></property>
-		<property name="MVC_BUSINESS_REQUEST_URL"><value>businessservice.do</value></property>
 		<property name="ruleDao" ref="joyRuleDaoProxy" />
 		<property name="mainDb" ref="joySpringDb" />
-		<property name="securityManager" ref="securityManager" />
-		<property name="routeStore" ref="routeStore" />
 	</bean>
 
 	<bean name="/webproxy.do" class="cn.joy.framework.plugin.spring.web.WebProxyController">
@@ -74,7 +70,8 @@
 	<bean id="routeStore" class="cn.joy.framework.support.DefaultRouteStore">
 	</bean>
 	
-	<bean id="joyManager" class="cn.joy.framework.core.JoyManager" init-method="init" 
-		depends-on="routeStore">
+	<bean id="joyManager" class="cn.joy.framework.core.JoyManager" init-method="init">
+		<property name="securityManager" ref="securityManager" />
+		<property name="routeStore" ref="routeStore" />
 	</bean>
 </beans>

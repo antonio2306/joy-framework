@@ -325,7 +325,7 @@ public class RuleExecutor {
 		params.put("ruleURI", serviceKey);
 		params.put("params", rParamJson);
 		
-		String serviceURL = url + "/" + JoyManager.getMVCPlugin().getOpenRequestPath(null, "", contextParam, null);
+		String serviceURL = JoyManager.getServer().getOpenRequestUrl(url, contextParam);
 		return HttpKit.post(serviceURL, params);
 	}
 

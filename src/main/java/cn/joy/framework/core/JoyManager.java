@@ -17,14 +17,16 @@ import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.PathKit;
 import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.plugin.IMVCPlugin;
 import cn.joy.framework.plugin.IPlugin;
-import cn.joy.framework.plugin.IRoutePlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
 import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
 import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.JoyServer;
+import cn.joy.framework.support.DefaultRouteStore;
+import cn.joy.framework.support.DefaultSecurityManager;
+import cn.joy.framework.support.RouteStore;
+import cn.joy.framework.support.SecurityManager;
 
 /**
  * 框架管理器，负责启动时的初始化工作
@@ -39,24 +41,36 @@ public class JoyManager {
 	
 	private static RuleLoader rLoader;
 	private static JoyServer server;
-	private static IMVCPlugin mvcPlugin;
 	private static ITransactionPlugin txPlugin;
-	private static IRoutePlugin routePlugin;
+	private static SecurityManager securityManager;
+	private static RouteStore routeStore;
+	
+	public static SecurityManager getSecurityManager() {
+		if(securityManager==null)
+			securityManager = new DefaultSecurityManager();
+		return securityManager;
+	}
+
+	public void setSecurityManager(SecurityManager securityManager) {
+		JoyManager.securityManager = securityManager;
+	}
+
+	public static RouteStore getRouteStore() {
+		if(routeStore==null)
+			routeStore = new DefaultRouteStore();
+		return routeStore;
+	}
+
+	public void setRouteStore(RouteStore routeStore) {
+		JoyManager.routeStore = routeStore;
+	}
 	
 	public static RuleLoader getRuleLoader() {
 		return rLoader;
 	}
 	
-	public static IMVCPlugin getMVCPlugin() {
-		return mvcPlugin;
-	}
-	
 	public static ITransactionPlugin getTransactionPlugin() {
 		return txPlugin;
-	}
-	
-	public static IRoutePlugin getRoutePlugin() {
-		return routePlugin;
 	}
 	
 	public static JoyServer getServer(){
@@ -85,11 +99,7 @@ public class JoyManager {
 		server = isCenterServer?new CenterServer():new AppServer();
 		server.init(config);
 		
-		mvcPlugin = (IMVCPlugin)loadPlugin(server.getMVCPlugin());
-		
 		txPlugin = (ITransactionPlugin)loadPlugin(server.getTransactionPlugin());
-		
-		routePlugin = (IRoutePlugin)loadPlugin(server.getRoutePlugin());
 		
 		String optionalPlugins = server.getPlugins();
 		if(StringKit.isNotEmpty(optionalPlugins)){
@@ -139,6 +149,7 @@ public class JoyManager {
 			}
 		}
 		
+		getRouteStore().initRoute();
 		logger.info("JOY Framework run...");
 	}
 	
