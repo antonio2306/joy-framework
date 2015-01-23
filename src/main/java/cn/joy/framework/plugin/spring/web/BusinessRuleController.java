@@ -1,9 +1,5 @@
 package cn.joy.framework.plugin.spring.web;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,17 +8,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 import org.springframework.web.servlet.view.RedirectView;
 
-import cn.joy.framework.exception.RuleException;
-import cn.joy.framework.kits.HttpKit;
-import cn.joy.framework.kits.JsonKit;
-import cn.joy.framework.kits.NumberKit;
-import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.plugin.spring.SpringResource;
-import cn.joy.framework.rule.RuleContext;
-import cn.joy.framework.rule.RuleExecutor;
-import cn.joy.framework.rule.RuleParam;
-import cn.joy.framework.rule.RuleResult;
+import cn.joy.framework.rule.RuleDispatcher;
 /**
  * 通用业务规则接口调用控制器，负责客户端调用服务器提供的服务接口规则方法
  * @author liyy
@@ -32,77 +19,15 @@ public class BusinessRuleController extends MultiActionController {
 	private Logger logger = Logger.getLogger(BusinessRuleController.class);
 	
 	public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String content = "";
-		String service = request.getParameter("_s");
-		String action = request.getParameter("_m");
-		if(logger.isDebugEnabled())
-			logger.debug("business controller rule invoke, service="+service+", action="+action);
+		String result = RuleDispatcher.dispatchBusinessRule(request, response);
 		
-		if(StringKit.isEmpty(service) || StringKit.isEmpty(action) ){
-			HttpKit.writeResponse(response, "CHECK PARAMETER _s OR _m FAIL");
-			return null;
+		if(StringKit.isNotEmpty(result)){
+			if(result.startsWith("redirect:"))
+				return new ModelAndView(new RedirectView(result.substring("redirect:".length())));
+			else if(result.startsWith("jsp:"))
+				return new ModelAndView(result.substring("jsp:".length()));
 		}
-		
-		RuleResult checkResult = SpringResource.getSecurityManager().checkBusinessRequest(request);
-		if(!checkResult.isSuccess()){
-			Map<String, Object> checkResultContent = checkResult.getMapFromContent();
-			if(checkResultContent!=null && checkResultContent.containsKey("statusCode"))
-				response.setStatus(NumberKit.getInteger(checkResultContent.get("statusCode"), 500));
 			
-			HttpKit.writeResponse(response, checkResult.getMsg());
-			return null;
-		}
-		
-		String ruleURI = service+"."+service+"Controller#"+action;
-		if(logger.isDebugEnabled())
-			logger.debug("business controller rule invoke, ruleURI="+ruleURI);
-		
-		RuleParam rParam = (RuleParam)JsonKit.json2Object(request.getParameter("params"), RuleParam.class);
-		if(rParam==null)
-			rParam = RuleParam.create();
-		
-		String isMergeRequest = RuleKit.getStringParam(request, "imr");
-		if(logger.isDebugEnabled())
-			logger.debug("isMergeRequest="+isMergeRequest);
-		if("y".equals(isMergeRequest)){
-			String mergeKey = RuleKit.getStringParam(request, "mk");
-			if(logger.isDebugEnabled())
-				logger.debug("mergeKey="+mergeKey+", keyValues="+RuleKit.getStringParam(request, mergeKey));
-			String[] keyValues = RuleKit.getStringParam(request, mergeKey).split(",");
-			Map<String, RuleResult> mergeResult = new HashMap<String, RuleResult>();
-			for(String kv:keyValues){
-				if(StringKit.isEmpty(kv))
-					continue;
-				request.setAttribute("MK_"+mergeKey, kv);
-				//执行分离，事务分离，合并结果
-				RuleResult result = null;
-				try{
-					result = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
-				}catch(RuleException e){
-					result = e.getFailResult();
-				}
-				//content = result.toJSON();
-				if(logger.isDebugEnabled())
-					logger.debug("kv="+kv+", content="+result.toJSON());
-				mergeResult.put(kv, result);
-				RuleExecutor.clearCurrentExecutor();
-			}
-			HttpKit.writeResponse(response, JsonKit.object2Json(mergeResult));
-		}else{
-			RuleResult result = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
-			String toRender = (String)result.getExtraData("toRender");
-			if(StringKit.isNotEmpty(toRender)){
-				if(toRender.startsWith("redirect:"))
-					return new ModelAndView(new RedirectView(toRender.substring("redirect:".length())));
-				else if(toRender.startsWith("jsp:"))
-					return new ModelAndView(toRender.substring("jsp:".length()));
-			}
-			
-			content = result.toJSON();
-			HttpKit.writeResponse(response, content);
-			RuleExecutor.clearCurrentExecutor();
-		}
-		
 		return null;
 	}
 }

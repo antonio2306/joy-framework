@@ -1,49 +1,30 @@
 package cn.joy.framework.plugin.jfinal;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyCallback;
-import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
-import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.plugin.IMVCPlugin;
-import cn.joy.framework.plugin.IRoutePlugin;
 import cn.joy.framework.plugin.ITransactionPlugin;
 import cn.joy.framework.rule.RuleResult;
 
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.IAtom;
 
-public class JfinalPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugin{
+public class JfinalPlugin implements ITransactionPlugin{
 	private static Logger logger = Logger.getLogger(JfinalPlugin.class);
 	
 	public void start() {
-		JfinalResource.getRouteStore().initRoute();
 	}
 
 	public void stop() {
 	}
 
-	public String getServerURL(String routeKey) {
-		return JfinalResource.getRouteStore().getServerURL(routeKey);
-	}
-
-	public void storeServerURL(String routeKey, String serverURL) {
-		JfinalResource.getRouteStore().storeServerURL(routeKey, serverURL);
-	}
-	
 	public RuleResult doTransaction(final JoyCallback callback) throws Exception {
 		RuleResult ruleResult = null;
 		final List<RuleResult> resultWrap = new ArrayList<RuleResult>();
@@ -83,30 +64,4 @@ public class JfinalPlugin implements IMVCPlugin, ITransactionPlugin, IRoutePlugi
 		return ruleResult;
 	}
 	
-	private String getRequestPath(String baseURL, String action, String params, Map<String, String> datas){
-		String url = baseURL+"/"+StringKit.getString(action, "index")+"?"+StringKit.getString(params);
-		if(datas!=null){
-			try {
-				for(Entry<String, String> entry:datas.entrySet()){
-					url += "&"+entry.getKey()+"="+URLEncoder.encode(entry.getValue(), JoyManager.getServer().getCharset());
-				}
-			} catch (UnsupportedEncodingException e) {
-				logger.error("", e);
-			}
-		}
-		return url;
-	}
-
-	public String getOpenRequestPath(HttpServletRequest request, String action, String params, Map<String, String> datas) {
-		String url = getRequestPath(JfinalResource.MVC_OPEN_REQUEST_URL, action, params, datas);
-		return JfinalResource.getSecurityManager().secureOpenRequestURL(request, url);
-	}
-
-	public String getBusinessRequestPath(HttpServletRequest request, String action, String params,
-			Map<String, String> datas) {
-		String url = getRequestPath(JfinalResource.MVC_BUSINESS_REQUEST_URL, action, params, datas);
-		return JfinalResource.getSecurityManager().secureBusinessRequestURL(request, url);
-	}
-
-
 }

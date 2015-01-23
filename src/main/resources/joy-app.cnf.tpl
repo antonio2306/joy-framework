@@ -7,10 +7,15 @@ app_local_server_tag=
 app_center_server_tag=center
 app_center_server_url=
 
-plugin_mvc=spring
 plugin_transaction=spring
-plugin_route=spring
+#plugins=xxx,yyy
 
 param_loginid=loginId
 param_companycode=companyCode
 param_accesstoken=accessToken
+
+url_open=service/open
+url_business=service/business
+url_download=service/download
+url_webproxy=service/webproxy
+url_config=service/open/config

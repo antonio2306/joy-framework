@@ -27,10 +27,9 @@ public class DefaultRouteStore implements RouteStore{
 	}
 	
 	protected Map<String, Map<String, String>> syncRouteInfo(){
-		String routeInfo = HttpKit.get(RouteManager.getCenterServerURL()
-				+ "/"
-				+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig",
-						"&_t=route&_k=sync_route", null));
+		String routeInfo = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(
+				RouteManager.getCenterServerURL(), "_t=route&_k=sync_route"));
+				
 		if(logger.isDebugEnabled())
 			logger.debug("routeInfo="+routeInfo);
 		return JsonKit.json2Map(routeInfo);

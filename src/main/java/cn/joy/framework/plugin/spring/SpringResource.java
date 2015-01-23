@@ -18,10 +18,6 @@ import cn.joy.framework.support.SecurityManager;
 public class SpringResource {
 	private static RuleDao ruleDao;
 	private static SpringDb mainDb;
-	private static SecurityManager securityManager;
-	private static RouteStore routeStore;
-	public static String MVC_OPEN_REQUEST_URL = "openservice.do";
-	public static String MVC_BUSINESS_REQUEST_URL = "businessservice.do";
 	
 	private static Map<String, SpringDb> dbMap = new HashMap();
 	
@@ -30,16 +26,6 @@ public class SpringResource {
 		if(db==null)
 			throw new DbException("No DB with name "+dbName);
 		return db;
-	}
-
-	public static SecurityManager getSecurityManager() {
-		if(securityManager==null)
-			securityManager = new DefaultSecurityManager();
-		return securityManager;
-	}
-
-	public void setSecurityManager(SecurityManager securityManager) {
-		SpringResource.securityManager = securityManager;
 	}
 
 	public static SpringDb getMainDb() {
@@ -56,24 +42,6 @@ public class SpringResource {
 
 	public void setRuleDao(RuleDao ruleDao) {
 		SpringResource.ruleDao = ruleDao;
-	}
-
-	public static RouteStore getRouteStore() {
-		if(routeStore==null)
-			routeStore = new DefaultRouteStore();
-		return routeStore;
-	}
-
-	public void setRouteStore(RouteStore routeStore) {
-		SpringResource.routeStore = routeStore;
-	}
-
-	public void setMVC_OPEN_REQUEST_URL(String mVC_OPEN_REQUEST_URL) {
-		SpringResource.MVC_OPEN_REQUEST_URL = mVC_OPEN_REQUEST_URL;
-	}
-
-	public void setMVC_BUSINESS_REQUEST_URL(String mVC_BUSINESS_REQUEST_URL) {
-		SpringResource.MVC_BUSINESS_REQUEST_URL = mVC_BUSINESS_REQUEST_URL;
 	}
 
 }

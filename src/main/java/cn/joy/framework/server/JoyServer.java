@@ -1,8 +1,15 @@
 package cn.joy.framework.server;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletRequest;
+
+import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.StringKit;
 /**
  * 服务器定义，加载服务器配置，支持一个中心服务器、多个应用服务器的部署结构
@@ -60,16 +67,8 @@ public abstract class JoyServer {
 		return this.getVariable("plugins", "");	//spring jfinal
 	}
 	
-	public String getMVCPlugin(){
-		return this.getVariable("plugin_mvc", "spring");	//jfinal
-	}
-	
 	public String getTransactionPlugin(){
 		return this.getVariable("plugin_transaction", "spring");	//jfinal
-	}
-	
-	public String getRoutePlugin(){
-		return this.getVariable("plugin_route", "spring");	
 	}
 	
 	public String getLoginIdParam(){
@@ -99,5 +98,33 @@ public abstract class JoyServer {
 
 	public String getDefaultModule() {
 		return this.getVariable("app_default_module");
+	}
+	
+	private String getRequestUrl(String serverURL, String serviceURL, String params, Map<String, String> datas){
+		String url = serverURL+"/"+serviceURL+"?"+StringKit.getString(params);
+		if(datas!=null){
+			try {
+				for(Entry<String, String> entry:datas.entrySet()){
+					url += "&"+entry.getKey()+"="+URLEncoder.encode(entry.getValue(), getCharset());
+				}
+			} catch (UnsupportedEncodingException e) {
+			}
+		}
+		return url;
+	}
+	
+	public String getOpenRequestUrl(String serverURL, String params){
+		String url = getRequestUrl(serverURL, getVariable("url_open"), params, null);
+		return JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
+	}
+	
+	public String getBusinessRequestUrl(HttpServletRequest request, String serverURL, String params){
+		String url = getRequestUrl(serverURL, getVariable("url_business"), params, null);
+		return JoyManager.getSecurityManager().secureBusinessRequestURL(request, url);
+	}
+	
+	public String getConfigRequestUrl(String serverURL, String params){
+		String url = getRequestUrl(serverURL, getVariable("url_config"), params, null);
+		return JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
 	}
 }

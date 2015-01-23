@@ -79,7 +79,7 @@ public class RouteManager {
 			if(getRouteKey("center", JoyManager.getServer().getCenterServerTag()).equals(routeKey)){
 				serverURL = JoyManager.getServer().getCenterServerUrl();
 			}else	
-				serverURL = JoyManager.getRoutePlugin().getServerURL(routeKey);
+				serverURL = JoyManager.getRouteStore().getServerURL(routeKey);
 			if (StringKit.isEmpty(serverURL))
 				throw new RuleException("Center Server URL for "+routeKey+" need init");
 			routes.put(routeKey, serverURL);
@@ -105,16 +105,15 @@ public class RouteManager {
 		String serverURL = routes.get(routeKey);
 		if (StringKit.isEmpty(serverURL)) {
 			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getRoutePlugin().getServerURL(routeKey);
+				serverURL = JoyManager.getRouteStore().getServerURL(routeKey);
 				if (StringKit.isEmpty(serverURL))
 					throw new RuleException("App Server URL for "+routeKey+" need init");
 			} else {
-				serverURL = HttpKit.get(getCenterServerURL() + "/"
-						+ JoyManager.getMVCPlugin().getOpenRequestPath(null, "getConfig", "&_t=route&_k="+routeKey, null));
+				serverURL = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(getCenterServerURL(), "_t=route&_k="+routeKey));
 				if(!serverURL.startsWith("http"))
 					serverURL = "";
 				else
-					JoyManager.getRoutePlugin().storeServerURL(routeKey, serverURL);
+					JoyManager.getRouteStore().storeServerURL(routeKey, serverURL);
 			}
 			routes.put(routeKey, serverURL);
 		}

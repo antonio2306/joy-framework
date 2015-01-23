@@ -5,8 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.HttpKit;
-import cn.joy.framework.plugin.jfinal.JfinalResource;
 import cn.joy.framework.rule.RuleResult;
 
 import com.jfinal.aop.Interceptor;
@@ -19,7 +19,7 @@ public class OpenRuleInterceptor implements Interceptor{
 		HttpServletRequest request = ai.getController().getRequest();
 		HttpServletResponse response = ai.getController().getResponse();
 		
-		RuleResult checkResult = JfinalResource.getSecurityManager().checkOpenRequest(request);
+		RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
 		//logger.debug("checkResult="+checkResult.toJSON());
 		if(!checkResult.isSuccess()){
 			HttpKit.writeResponse(response, checkResult.toJSON());
