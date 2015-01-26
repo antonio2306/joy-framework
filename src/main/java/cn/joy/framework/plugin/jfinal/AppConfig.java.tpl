@@ -1,15 +1,3 @@
-package cn.joy.framework.plugin.jfinal;
-
-import org.apache.log4j.Logger;
-
-import cn.joy.framework.core.JoyManager;
-
-import com.jfinal.config.Constants;
-import com.jfinal.config.Handlers;
-import com.jfinal.config.Interceptors;
-import com.jfinal.config.Plugins;
-import com.jfinal.config.Routes;
-
 public class AppConfig extends BaseConfig{
 	private static Logger logger = Logger.getLogger(DemoConfig.class);
 
@@ -17,7 +5,7 @@ public class AppConfig extends BaseConfig{
 	public void configConstant(Constants me) {
 		me.setDevMode(true);
 		me.setViewType(ViewType.JSP); 
-		loadPropertyFile("jdbc.properties");	
+		loadPropertyFile("xxx.properties");	
 	}
 
 	@Override
