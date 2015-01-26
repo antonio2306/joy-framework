@@ -54,6 +54,17 @@ public class RuleContext {
 		return rContext;
 	}
 	
+	public static RuleContext createSingle(String loginId, String companyCode){
+		RuleContext rContext = new RuleContext();
+		rContext.loginId = StringKit.getString(loginId, TRANSPORT_SINGLE);
+		rContext.companyCode = StringKit.getString(companyCode);
+		
+		rContext.rExtra = RuleExtraData.create();
+		if(logger.isDebugEnabled())
+			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode);
+		return rContext;
+	}
+	
 	public static RuleContext create(HttpServletRequest request){
 		RuleContext rContext = new RuleContext();
 		rContext.request = request;

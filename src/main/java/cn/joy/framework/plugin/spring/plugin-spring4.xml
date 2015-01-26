@@ -50,28 +50,22 @@
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	
-	<bean name="/service/open" class="cn.joy.framework.plugin.spring.web.OpenRuleController">
+	<bean name="/openservice.do" class="cn.joy.framework.plugin.spring.web.OpenRuleController">
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 
-	<bean name="/service/business" class="cn.joy.framework.plugin.spring.web.BusinessRuleController">
+	<bean name="/businessservice.do" class="cn.joy.framework.plugin.spring.web.BusinessRuleController">
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 
-	<bean name="/service/download" class="cn.joy.framework.plugin.spring.web.DownloadRuleController">
+	<bean name="/downloadservice.do" class="cn.joy.framework.plugin.spring.web.DownloadRuleController">
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	
-	<!-- 用户需要自定义安全管理器，检查请求的安全性 -->
-	<bean id="securityManager" class="cn.joy.framework.support.DefaultSecurityManager">
+	<bean name="/configservice.do" class="cn.joy.framework.plugin.spring.web.ConfigServiceController">
+		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	
-	<!-- 用户需要自定义服务器路由存储 -->
-	<bean id="routeStore" class="cn.joy.framework.support.DefaultRouteStore">
-	</bean>
-	
-	<bean id="joyManager" class="cn.joy.framework.core.JoyManager" init-method="init">
-		<property name="securityManager" ref="securityManager" />
-		<property name="routeStore" ref="routeStore" />
+	<bean id="appConfig" class="com.xxx.AppConfig" init-method="init">
 	</bean>
 </beans>

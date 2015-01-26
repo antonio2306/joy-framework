@@ -3,7 +3,6 @@ package cn.joy.framework.plugin.jfinal;
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.core.JoyResource;
 
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;
@@ -64,13 +63,14 @@ public class AppConfig extends BaseConfig{
 	public void afterJFinalStart() {
 		super.afterJFinalStart();
 		//用户需要自定义安全管理器，检查请求的安全性
-		JoyResource.setRouteStore(new DefaultRouteStore());
+		JoyManager.setRouteStore(new DefaultRouteStore());
 		//用户需要自定义服务器路由存储
-		JoyResource.setSecurityManager(new DefaultSecurityManager());
+		JoyManager.setSecurityManager(new DefaultSecurityManager());
 		
-		//用户可自定义开放服务主URL
-		JoyResource.MVC_OPEN_REQUEST_URL = "open";	
-		//用户可自定义业务服务主URL
-		JoyResource.MVC_BUSINESS_REQUEST_URL = "business";
+		try{
+			JoyManager.init();
+		} catch(Exception e){
+			throw new RuntimeException(e);
+		}
 	}
 }

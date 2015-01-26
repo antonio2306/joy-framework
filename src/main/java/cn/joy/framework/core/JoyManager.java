@@ -51,7 +51,7 @@ public class JoyManager {
 		return securityManager;
 	}
 
-	public void setSecurityManager(SecurityManager securityManager) {
+	public static void setSecurityManager(SecurityManager securityManager) {
 		JoyManager.securityManager = securityManager;
 	}
 
@@ -61,7 +61,7 @@ public class JoyManager {
 		return routeStore;
 	}
 
-	public void setRouteStore(RouteStore routeStore) {
+	public static void setRouteStore(RouteStore routeStore) {
 		JoyManager.routeStore = routeStore;
 	}
 	
