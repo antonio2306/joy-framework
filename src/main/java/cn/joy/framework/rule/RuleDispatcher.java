@@ -27,7 +27,19 @@ import cn.joy.framework.server.RouteManager;
 public class RuleDispatcher {
 	private static Logger logger = Logger.getLogger(RuleDispatcher.class);
 	
+	private static boolean checkOpenServiceToken(HttpServletRequest request, HttpServletResponse response){
+		RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
+		if(!checkResult.isSuccess()){
+			HttpKit.writeResponse(response, checkResult.toJSON());
+			return false;
+		}
+		return true;
+	}
+	
 	public static String dispatchOpenRule(HttpServletRequest request, HttpServletResponse response) {
+		if(!checkOpenServiceToken(request, response))
+			return null;
+		
 		String content = "";
 		String ruleURI = request.getParameter("ruleURI");
 		if(logger.isDebugEnabled())
@@ -48,6 +60,9 @@ public class RuleDispatcher {
 	}
 	
 	public static String dispatchConfigService(HttpServletRequest request, HttpServletResponse response) {
+		if(!checkOpenServiceToken(request, response))
+			return null;
+		
 		String configType = request.getParameter("_t");
 		String configKey = request.getParameter("_k");
 		if(logger.isDebugEnabled())

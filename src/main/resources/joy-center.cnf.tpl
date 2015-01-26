@@ -14,11 +14,9 @@ param_loginid=loginId
 param_companycode=companyCode
 param_accesstoken=accessToken
 
-url_open=service/open
-url_business=service/business
-url_download=service/download
-url_webproxy=service/webproxy
-url_config=service/open/config
+#url_open=rs/o
+#url_business=rs/b
+
 
 
 

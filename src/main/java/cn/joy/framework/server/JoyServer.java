@@ -113,18 +113,38 @@ public abstract class JoyServer {
 		return url;
 	}
 	
+	public String getUrlOpen(){
+		return getVariable("url_open", "rs/o");
+	}
+	
+	public String getUrlBusiness(){
+		return getVariable("url_business", "rs/b");
+	}
+	
+	public String getUrlConfig(){
+		return getVariable("url_config", "rs/c");
+	}
+	
+	public String getUrlDownload(){
+		return getVariable("url_download", "rs/d");
+	}
+	
+	public String getUrlWebProxy(){
+		return getVariable("url_webproxy", "rs/wp");
+	}
+	
 	public String getOpenRequestUrl(String serverURL, String params){
-		String url = getRequestUrl(serverURL, getVariable("url_open"), params, null);
+		String url = getRequestUrl(serverURL, getUrlOpen(), params, null);
 		return JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
 	}
 	
 	public String getBusinessRequestUrl(HttpServletRequest request, String serverURL, String params){
-		String url = getRequestUrl(serverURL, getVariable("url_business"), params, null);
+		String url = getRequestUrl(serverURL, getUrlBusiness(), params, null);
 		return JoyManager.getSecurityManager().secureBusinessRequestURL(request, url);
 	}
 	
 	public String getConfigRequestUrl(String serverURL, String params){
-		String url = getRequestUrl(serverURL, getVariable("url_config"), params, null);
+		String url = getRequestUrl(serverURL, getUrlConfig(), params, null);
 		return JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
 	}
 }

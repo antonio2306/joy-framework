@@ -39,6 +39,10 @@ public class ZipKit {
      * @throws IOException
      */
     public static String gzipUnCompress(String str) throws IOException {
+    	return gzipUnCompress(str, null);
+    }
+    
+    public static String gzipUnCompress(String str, String charset) throws IOException {
         if (null == str || str.length() <= 0) {
             return str;
         }
@@ -56,7 +60,9 @@ public class ZipKit {
             out.write(buffer, 0, n);
         }
         // 使用指定的 charsetName，通过解码字节将缓冲区内容转换为字符串
-        return out.toString("GBK");
+        if(charset!=null && charset.length()>0)
+        	return out.toString(charset);
+        return out.toString();
     }
     
     public static void main(String[] args) throws IOException {
@@ -78,7 +84,7 @@ public class ZipKit {
         float len1=ys.length();
         System.out.println("压缩后的字符串长度为----->" + len1);
 
-        String jy = gzipUnCompress(ys);
+        String jy = gzipUnCompress(ys, null);
         System.out.println("\n解压缩后的字符串为--->" + jy);
         System.out.println("解压缩后的字符串长度为--->"+jy.length());
         
