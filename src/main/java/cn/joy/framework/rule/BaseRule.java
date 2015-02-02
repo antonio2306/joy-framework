@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import cn.joy.framework.annotation.NoTransaction;
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.MainError;
@@ -53,26 +54,34 @@ public abstract class BaseRule {
 		final BaseRule rule = this;
 		final Object[] mParams = this.getActionMethodParam(rContext, rParam);
 		
-		return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
-			public RuleResult run(Object... params) throws Exception{
-				RuleResult ruleResult = null;
-				try {
-					ruleResult = (RuleResult)method.invoke(rule, mParams);
-					//if(logger.isDebugEnabled())
-					//	logger.debug("doTransactionCallback, method="+method+", result="+ruleResult.toJSON());
-				} catch (InvocationTargetException e) {
-					if(e.getTargetException() instanceof RuleException)
-						throw (RuleException)e.getTargetException();
-					else
-						throw e;
+		NoTransaction ntAnnotation = method.getAnnotation(NoTransaction.class);
+		if(ntAnnotation!=null){
+			return executeRuleMethod(method, rule, mParams);
+		}else
+			return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
+				public RuleResult run(Object... params) throws Exception{
+					return executeRuleMethod(method, rule, mParams);
 				}
-				if(ruleResult==null)
-					ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
-				if(logger.isDebugEnabled())
-					logger.debug("doInvokeActionMethod, method="+method+", result="+ruleResult.isSuccess());
-				return ruleResult;
-			}
-		});
+			});
+	}
+	
+	private RuleResult executeRuleMethod(final Method method, final BaseRule rule, final Object[] mParams) throws Exception{
+		RuleResult ruleResult = null;
+		try {
+			ruleResult = (RuleResult)method.invoke(rule, mParams);
+			//if(logger.isDebugEnabled())
+			//	logger.debug("doTransactionCallback, method="+method+", result="+ruleResult.toJSON());
+		} catch (InvocationTargetException e) {
+			if(e.getTargetException() instanceof RuleException)
+				throw (RuleException)e.getTargetException();
+			else
+				throw e;
+		}
+		if(ruleResult==null)
+			ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
+		if(logger.isDebugEnabled())
+			logger.debug("doInvokeActionMethod, method="+method+", result="+ruleResult.isSuccess());
+		return ruleResult;
 	}
 
 	/**
