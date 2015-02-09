@@ -51,6 +51,10 @@ public abstract class JoyServer {
 		return this.getVariable("app_event_package_pattern", getModulePackage()+".%1$s.event");
 	}
 	
+	public String getAppServerType(){
+		return this.getVariable("app_local_server_type", "app");
+	}
+	
 	public String getLocalServerTag(){
 		return this.getVariable("app_local_server_tag");
 	}

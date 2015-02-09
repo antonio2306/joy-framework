@@ -206,7 +206,7 @@ public class RuleDispatcher {
 		}
 		
 		String serverURL = RouteManager.getServerURLByCompanyCode(serverCode);
-		String currentServerURL = RouteManager.getServerURLByTag(RouteManager.getLocalServerTag());
+		String currentServerURL = RouteManager.getServerURL(JoyManager.getServer().getAppServerType(), RouteManager.getLocalServerTag());
 		if(currentServerURL.equals(serverURL)){
 			return dispatchBusinessRule(request, response);
 		}else{

@@ -177,7 +177,7 @@ public class RuleExecutor {
 						if(logger.isDebugEnabled())
 							logger.debug("规则【"+ruleURI+"】的服务器地址："+serverURL);
 						//如果serverUrl就是当前服务器的URL，则转为本地调用
-						String localServerURL = RouteManager.getServerURLByTag(RouteManager.getLocalServerTag());
+						String localServerURL = RouteManager.getServerURL(JoyManager.getServer().getAppServerType(), RouteManager.getLocalServerTag());
 						if(serverURL.equals(localServerURL)){
 							if(logger.isDebugEnabled())
 								logger.debug("规则【"+ruleURI+"】转为本地调用");
