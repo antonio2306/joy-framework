@@ -74,6 +74,10 @@ public class JoyManager {
 	}
 	
 	public static JoyServer getServer(){
+		if(server==null){
+			server = new AppServer();
+			server.setVariable("app_local_server_type", "none");
+		}
 		return server;
 	}
 
