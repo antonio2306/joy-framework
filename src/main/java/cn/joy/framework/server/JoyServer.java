@@ -121,6 +121,10 @@ public abstract class JoyServer {
 		return getVariable("url_open", "rs/o");
 	}
 	
+	public String getUrlAPI(){
+		return getVariable("url_api", "rs/a");
+	}
+	
 	public String getUrlBusiness(){
 		return getVariable("url_business", "rs/b");
 	}

@@ -23,6 +23,8 @@ import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
 import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.JoyServer;
+import cn.joy.framework.support.AppAuthManager;
+import cn.joy.framework.support.DefaultAppAuthManager;
 import cn.joy.framework.support.DefaultRouteStore;
 import cn.joy.framework.support.DefaultSecurityManager;
 import cn.joy.framework.support.RouteStore;
@@ -43,6 +45,7 @@ public class JoyManager {
 	private static JoyServer server;
 	private static ITransactionPlugin txPlugin;
 	private static SecurityManager securityManager;
+	private static AppAuthManager appAuthManager;
 	private static RouteStore routeStore;
 	
 	public static SecurityManager getSecurityManager() {
@@ -53,6 +56,16 @@ public class JoyManager {
 
 	public static void setSecurityManager(SecurityManager securityManager) {
 		JoyManager.securityManager = securityManager;
+	}
+	
+	public static AppAuthManager getAppAuthManager() {
+		if(appAuthManager==null)
+			appAuthManager = new DefaultAppAuthManager();
+		return appAuthManager;
+	}
+
+	public static void setAppAuthManager(AppAuthManager appAuthManager) {
+		JoyManager.appAuthManager = appAuthManager;
 	}
 
 	public static RouteStore getRouteStore() {

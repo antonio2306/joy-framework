@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.StringKit;
 
 public class RuleDispatcherFilter implements Filter{
@@ -38,6 +37,8 @@ public class RuleDispatcherFilter implements Filter{
 		servletPath = servletPath.substring(1);
 		if(servletPath.equals(JoyManager.getServer().getUrlOpen())){
 			RuleDispatcher.dispatchOpenRule(request, response);
+		}else if(servletPath.equals(JoyManager.getServer().getUrlAPI())){
+			RuleDispatcher.dispatchAPIRule(request, response);
 		}else if(servletPath.equals(JoyManager.getServer().getUrlConfig())){
 			RuleDispatcher.dispatchConfigService(request, response);
 		}else if(servletPath.equals(JoyManager.getServer().getUrlBusiness())){

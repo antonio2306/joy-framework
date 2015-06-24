@@ -14,8 +14,8 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,23 +25,17 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnManagerParams;
-import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -57,7 +51,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
@@ -269,4 +262,29 @@ public class HttpKit {
 		}
 		return param;
 	}
+	
+	public static Map<String, String> getParameterMap(HttpServletRequest request) {  
+	    // 参数Map  
+	    Map<String, String[]> params = request.getParameterMap();  
+	    // 返回值Map  
+	    Map<String, String> returnMap = new HashMap<String, String>();  
+	    String name = "";  
+	    String value = "";  
+	    for(Entry<String, String[]> entry:params.entrySet()){
+	    	name = (String) entry.getKey();  
+	    	String[] values = entry.getValue();  
+	    	if(null == values){  
+	            value = "";  
+	        }else if(values.length==1){
+	        	value = values[0];
+	        }else{
+	        	for(int i=0;i<values.length;i++){  
+	                value = values[i] + ",";  
+	            }  
+	            value = value.substring(0, value.length()-1);  
+	        }
+	    	 returnMap.put(name, value);  
+	    }
+	    return returnMap;  
+	}  
 }
