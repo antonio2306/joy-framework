@@ -37,7 +37,7 @@ public class RuleDispatcherFilter implements Filter{
 		servletPath = servletPath.substring(1);
 		if(servletPath.equals(JoyManager.getServer().getUrlOpen())){
 			RuleDispatcher.dispatchOpenRule(request, response);
-		}else if(servletPath.equals(JoyManager.getServer().getUrlAPI())){
+		}else if(servletPath.startsWith(JoyManager.getServer().getUrlAPI()+"/")){
 			RuleDispatcher.dispatchAPIRule(request, response);
 		}else if(servletPath.equals(JoyManager.getServer().getUrlConfig())){
 			RuleDispatcher.dispatchConfigService(request, response);

@@ -75,9 +75,12 @@ public class RuleDispatcher{
 		if(!checkAPIServiceSignature(request, response))
 			return null;
 
-		String requestURI = request.getRequestURI();
-		requestURI = requestURI.substring(requestURI.indexOf(JoyManager.getServer().getUrlAPI()) + 2);
-		String[] requestInfo = requestURI.split("/");
+		String servletPath = request.getServletPath();
+		servletPath = servletPath.substring(servletPath.indexOf(JoyManager.getServer().getUrlAPI()) 
+				+ JoyManager.getServer().getUrlAPI().length()+1);
+		if(logger.isDebugEnabled())
+			logger.debug("api rule invoke, uri=" + servletPath);
+		String[] requestInfo = servletPath.split("/");
 		String module, service, action;
 		if(requestInfo.length == 3){
 			module = requestInfo[0];
@@ -93,7 +96,7 @@ public class RuleDispatcher{
 		}
 		String ruleURI = String.format("%s.%sAPI#%s", module, service, action);
 		if(logger.isDebugEnabled())
-			logger.debug("api rule invoke, uri=" + ruleURI);
+			logger.debug("api rule invoke, ruleURI=" + ruleURI);
 
 		RuleParam rParam = RuleParam.create();
 		
@@ -115,11 +118,6 @@ public class RuleDispatcher{
 		return null;
 	}
 	
-	private static void signResult(HttpServletRequest request, RuleResult result){
-		//TODO
-		//result.putExtraData("_sign", signature);
-	}
-
 	public static String dispatchConfigService(HttpServletRequest request, HttpServletResponse response){
 		if(!checkOpenServiceToken(request, response))
 			return null;
@@ -169,7 +167,8 @@ public class RuleDispatcher{
 			return null;
 		}
 
-		String ruleURI = service + "." + service + "Controller#" + action;
+		int idx = service.lastIndexOf(".");
+		String ruleURI = service + "." + (idx==-1?service:service.substring(idx+1)) + "Controller#" + action;
 		if(logger.isDebugEnabled())
 			logger.debug("business controller rule invoke, ruleURI=" + ruleURI);
 
@@ -239,7 +238,8 @@ public class RuleDispatcher{
 			return null;
 		}
 
-		String ruleURI = service + "." + service + "Controller#" + action;
+		int idx = service.lastIndexOf(".");
+		String ruleURI = service + "." + (idx==-1?service:service.substring(idx+1)) + "Controller#" + action;
 		if(logger.isDebugEnabled())
 			logger.debug("download controller rule invoke, ruleURI=" + ruleURI);
 

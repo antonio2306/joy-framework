@@ -135,39 +135,51 @@ public class JoyManager {
 		File moduleBaseDir = new File(PathKit.getPackagePath(server.getModulePackage()));
 		logger.info("module base dir: "+moduleBaseDir);
 		if(moduleBaseDir.exists()){
-			File[] moduleDirs = moduleBaseDir.listFiles();
-			for(File moduleDir:moduleDirs){
-				if(moduleDir.isDirectory()){
-					String moduleName = moduleDir.getName();
-					if(logger.isInfoEnabled())
-						logger.info("found module: "+moduleName);
-					modules.add(moduleName);
-					
-					List moduleClasses = ClassKit.getClasses(server.getModulePackage()+"."+moduleName, false);
-					if(moduleClasses!=null){
-						for (Object md : moduleClasses) {
-							Class mdClass = (Class) md;
-							if(mdClass.getAnnotation(Module.class)==null)
-								continue;
-							moduleDefines.put(moduleName, JoyModule.create(mdClass));
-							if(logger.isInfoEnabled())
-								logger.info("create joy module: "+moduleName);
-						}
-					}
-					
-					String eventPackage = String.format(JoyManager.getServer().getEventPackagePattern(), moduleName);
-					List<Class> listeners = ClassKit.getAllClassByInterface(eventPackage, JoyEventListener.class);
-					for(Class listenerClass:listeners){
-						if(logger.isInfoEnabled())
-							logger.info("found module event listener: "+listenerClass);
-						EventManager.addListener((JoyEventListener)BeanKit.getNewInstance(listenerClass));
-					}
-				}
-			}
+			scanModules(moduleBaseDir, "");
 		}
 		
 		getRouteStore().initRoute();
 		logger.info("JOY Framework run...");
+	}
+	
+	private static void scanModules(File moduleBaseDir, String parentPath){
+		File[] moduleDirs = moduleBaseDir.listFiles();
+		for(File moduleDir:moduleDirs){
+			if(moduleDir.isDirectory()){
+				boolean isModule = false;
+				String moduleName = parentPath+moduleDir.getName();
+				List moduleClasses = ClassKit.getClasses(server.getModulePackage()+"."+moduleName, false);
+				if(moduleClasses!=null && moduleClasses.size()>0){
+					for (Object md : moduleClasses) {
+						Class mdClass = (Class) md;
+						if(mdClass.getAnnotation(Module.class)==null)
+							continue;
+						moduleDefines.put(moduleName, JoyModule.create(mdClass));
+						if(logger.isInfoEnabled())
+							logger.info("create joy module: "+moduleName);
+						isModule = true;
+						break;
+					}
+				}
+
+				if(!isModule){
+					scanModules(moduleDir, moduleName+".");
+					continue;
+				}
+				
+				if(logger.isInfoEnabled())
+					logger.info("found module: "+moduleName);
+				modules.add(moduleName);
+				
+				String eventPackage = String.format(JoyManager.getServer().getEventPackagePattern(), moduleName);
+				List<Class> listeners = ClassKit.getAllClassByInterface(eventPackage, JoyEventListener.class);
+				for(Class listenerClass:listeners){
+					if(logger.isInfoEnabled())
+						logger.info("found module event listener: "+listenerClass);
+					EventManager.addListener((JoyEventListener)BeanKit.getNewInstance(listenerClass));
+				}
+			}
+		}
 	}
 	
 	public static IPlugin getPlugin(String pluginName){

@@ -97,9 +97,9 @@ public class RuleLoader {
 			moduleName = JoyManager.getServer().getDefaultModule();
 			ruleName = ruleURI;
 		}else{
-			String[] ruleURIInfo = ruleURI.split("\\.");
-			moduleName = ruleURIInfo[0];
-			ruleName = ruleURIInfo[1];
+			int dotIdx = ruleURI.lastIndexOf(".");
+			moduleName = ruleURI.substring(0, dotIdx);
+			ruleName = ruleURI.substring(dotIdx+1);
 		}
 		
 		String fullRuleURI = String.format(JoyManager.getServer().getRuleURIPattern(), moduleName, StringKit.capitalize(ruleName));
