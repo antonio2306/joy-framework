@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 /**
@@ -18,6 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JsonKit {
 	private static Logger logger = Logger.getLogger(JsonKit.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
+	
+	static{
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}
 
 	public static String object2Json(Object object) {
 		StringWriter writer = new StringWriter();
