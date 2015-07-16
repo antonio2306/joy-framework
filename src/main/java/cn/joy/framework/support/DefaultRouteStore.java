@@ -8,6 +8,7 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.server.RouteManager;
+import cn.joy.framework.kits.StringKit;
 
 public class DefaultRouteStore implements RouteStore{
 	private Logger logger = Logger.getLogger(DefaultRouteStore.class);
@@ -27,12 +28,16 @@ public class DefaultRouteStore implements RouteStore{
 	}
 	
 	protected Map<String, Map<String, String>> syncRouteInfo(){
-		String routeInfo = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(
-				RouteManager.getCenterServerURL(), "_t=route&_k=sync_route"));
-				
-		if(logger.isDebugEnabled())
-			logger.debug("routeInfo="+routeInfo);
-		return JsonKit.json2Map(routeInfo);
+		String serverURL = RouteManager.getCenterServerURL();
+		if(StringKit.isNotEmpty(serverURL)){
+			String routeInfo = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(
+					RouteManager.getCenterServerURL(), "_t=route&_k=sync_route"));
+					
+			if(logger.isDebugEnabled())
+				logger.debug("routeInfo="+routeInfo);
+			return JsonKit.json2Map(routeInfo);
+		}
+		return null;
 	}
 
 }
