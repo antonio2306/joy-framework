@@ -15,6 +15,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpResponse;
@@ -286,4 +288,29 @@ public class HttpKit {
 		}
 		return param;
 	}
+	
+	public static Map<String, String> getParameterMap(HttpServletRequest request) {  
+	    // 参数Map  
+	    Map<String, String[]> params = request.getParameterMap();  
+	    // 返回值Map  
+	    Map<String, String> returnMap = new HashMap<String, String>();  
+	    String name = "";  
+	    String value = "";  
+	    for(Entry<String, String[]> entry:params.entrySet()){
+	    	name = (String) entry.getKey();  
+	    	String[] values = entry.getValue();  
+	    	if(null == values){  
+	            value = "";  
+	        }else if(values.length==1){
+	        	value = values[0];
+	        }else{
+	        	for(int i=0;i<values.length;i++){  
+	                value = values[i] + ",";  
+	            }  
+	            value = value.substring(0, value.length()-1);  
+	        }
+	    	 returnMap.put(name, value);  
+	    }
+	    return returnMap;  
+	}  
 }
