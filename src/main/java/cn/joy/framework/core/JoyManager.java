@@ -96,9 +96,12 @@ public class JoyManager {
 			isCenterServer = false;
 		}
 		
-		if(!configFile.exists())
-			throw new RuntimeException("No JOY config file exists!");
-		
+		if(!configFile.exists()){
+			//throw new RuntimeException("No JOY config file exists!");
+			//没有配置文件则不启用JOY框架
+			return;
+		}
+			
 		config.load(new FileInputStream(configFile));
 		server = isCenterServer?new CenterServer():new AppServer();
 		server.init(config);

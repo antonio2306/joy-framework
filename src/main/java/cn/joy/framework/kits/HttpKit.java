@@ -14,7 +14,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,25 +26,19 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnManagerParams;
-import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -57,10 +50,8 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-
 
 /**
  * Http操作工具类
@@ -127,6 +118,36 @@ public class HttpKit {
 			return new DefaultHttpClient();
 		}
 
+	}
+
+	public static String post(String url, String data) {
+		HttpClient httpClient = createHttpClient();
+		HttpPost httpPost = new HttpPost(url);
+
+		try {
+			StringEntity entity = new StringEntity(data);
+			httpPost.setEntity(entity);
+		} catch (UnsupportedEncodingException e) {
+			logger.error("", e);
+		}
+
+		return handleResponse(httpClient, httpPost);
+	}
+
+	public static String post(String url, String data, String contentType) {
+		HttpClient httpClient = createHttpClient();
+		HttpPost httpPost = new HttpPost(url);
+
+		try {
+			StringEntity entity = new StringEntity(data);
+			httpPost.setEntity(entity);
+			if ("xml".equals(contentType))
+				httpPost.setHeader("Content-Type", "text/xml;charset=UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("", e);
+		}
+
+		return handleResponse(httpClient, httpPost);
 	}
 
 	public static String post(String url, Map<String, Object> datas) {
@@ -219,8 +240,7 @@ public class HttpKit {
 
 		SSLContext sslContext = SSLContext.getInstance("TLS");
 
-		public SSLSocketFactoryEx(KeyStore truststore) throws NoSuchAlgorithmException, KeyManagementException,
-				KeyStoreException, UnrecoverableKeyException {
+		public SSLSocketFactoryEx(KeyStore truststore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
 			super(truststore);
 
 			TrustManager tm = new X509TrustManager() {
@@ -228,20 +248,17 @@ public class HttpKit {
 					return null;
 				}
 
-				public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws java.security.cert.CertificateException {
+				public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
 				}
 
-				public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws java.security.cert.CertificateException {
+				public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
 				}
 			};
 			sslContext.init(null, new TrustManager[] { tm }, null);
 		}
 
 		@Override
-		public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException,
-				UnknownHostException {
+		public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
 			return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
 		}
 

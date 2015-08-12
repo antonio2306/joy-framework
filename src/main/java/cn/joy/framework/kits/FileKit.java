@@ -371,6 +371,23 @@ public class FileKit {
 			}
 		}
 	}
+	
+	public static void writeInfoToFile(String info, String filePath, boolean isAppend) {
+		FileOutputStream fos = null;
+		try {
+			File file = createFile(filePath);
+			fos = new FileOutputStream(file, isAppend);
+			fos.write(info.getBytes());
+			fos.flush();
+		} catch (Exception e) {
+		} finally {
+			try {
+				fos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public static void writeInfoToFile(String info, String filePath, String charset) {
 		BufferedWriter output = null;
