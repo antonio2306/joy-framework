@@ -89,6 +89,9 @@ public class RuleDispatcher{
 		}else if(requestInfo.length == 2){
 			module = requestInfo[0];
 			service = module;
+			int idx = service.lastIndexOf(".");
+			if(idx!=-1)
+				service = service.substring(idx+1);
 			action = requestInfo[1];
 		}else{
 			HttpKit.writeResponse(response, "INVALID_API_URI");

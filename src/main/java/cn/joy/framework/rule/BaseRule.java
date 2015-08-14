@@ -88,7 +88,7 @@ public abstract class BaseRule {
 	 * 根据不同类型的规则，传递不同类型的参数
 	 */
 	protected Class[] getActionMethodParamClass(){
-		if(this.getClass().getSimpleName().endsWith("ControllerRule"))
+		if(!this.getClass().getSimpleName().endsWith("ServiceRule"))
 			return new Class[]{RuleContext.class, RuleParam.class, HttpServletRequest.class};
 		else
 			return new Class[]{RuleContext.class, RuleParam.class};
@@ -98,7 +98,7 @@ public abstract class BaseRule {
 	 * 根据不同类型的规则，传递不同类型的参数
 	 */
 	protected Object[] getActionMethodParam(RuleContext rContext, RuleParam rParam) {
-		if(this.getClass().getSimpleName().endsWith("ControllerRule"))
+		if(!this.getClass().getSimpleName().endsWith("ServiceRule"))
 			return new Object[]{rContext, rParam, rContext.getRequest()};
 		else
 			return new Object[]{rContext, rParam};

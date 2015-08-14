@@ -59,8 +59,10 @@ public class DefaultAppAuthManager extends AppAuthManager{
 	private String getAppKey(HttpServletRequest request){
 		String appId = request.getParameter(APPID_PARAM_NAME);
 		String appKey = appKeys.get(appId);
+		logger.debug("getAppKey, appId="+appId+", appKey="+appKey);
 		if(appKey == null){
 			appKey = this.getAppAuthInfoStore().getAppKey(appId);
+			logger.debug("getAppKey, appId="+appId+", appKey="+appKey);
 			if(StringKit.isEmpty(appKey)){
 				logger.warn("App Key for " + appId + " not found");
 				return "";
@@ -90,6 +92,7 @@ public class DefaultAppAuthManager extends AppAuthManager{
 	 */
 
 	private String getSign(Map<String, ?> params, String signKey){
+		logger.debug("params="+params+", signKey="+signKey);
 		if(StringKit.isEmpty(signKey))
 			return "";
 		List<String> keyList = new ArrayList<String>(params.keySet());
@@ -107,7 +110,9 @@ public class DefaultAppAuthManager extends AppAuthManager{
 		if(str.length() > 0)
 			str.deleteCharAt(str.length() - 1);
 		str.append("&key=").append(signKey);
-		String sign = EncryptKit.md5(str.toString()).toUpperCase();
+		String sign = EncryptKit.md5(str.toString()).toLowerCase();
+		logger.debug("sign="+sign);
 		return sign;
 	}
+	
 }
