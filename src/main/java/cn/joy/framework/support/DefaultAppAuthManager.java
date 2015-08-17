@@ -10,19 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
-import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.EncryptKit;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.StringKit;
+import cn.joy.framework.rule.RuleDispatcher;
 import cn.joy.framework.rule.RuleResult;
 
 public class DefaultAppAuthManager extends AppAuthManager{
 	private Logger logger = Logger.getLogger(DefaultAppAuthManager.class);
-	private final static String APPID_PARAM_NAME = "_appId";
-	private final static String SIGNATURE_PARAM_NAME = "_sign";
-	private final static String IGNORE_SIGNATURE_PARAM_NAME_PREFIX = "__";
 
 	private static Map<String, String> appKeys = new HashMap<String, String>();
 
@@ -30,20 +27,16 @@ public class DefaultAppAuthManager extends AppAuthManager{
 	public RuleResult checkAPIRequest(HttpServletRequest request){
 		RuleResult result = RuleResult.create();
 		
-		String appId = request.getParameter(APPID_PARAM_NAME);
-		if(StringKit.isEmpty(appId))
-			return result.fail(SubError.createMain(SubErrorType.ISV_MISSING_PARAMETER, APPID_PARAM_NAME));
-		
 		String appKey = getAppKey(request);
 		if(StringKit.isEmpty(appKey))
-			return result.fail(SubError.createMain(SubErrorType.ISV_INVALID_PARAMETER, APPID_PARAM_NAME));
+			return result.fail(SubError.createMain(SubErrorType.ISV_INVALID_PARAMETER, RuleDispatcher.APPID_PARAM_NAME));
 		
 		Map<String, String> params = HttpKit.getParameterMap(request);
-		String sign = params.get(SIGNATURE_PARAM_NAME);
+		String sign = params.get(RuleDispatcher.SIGNATURE_PARAM_NAME);
 		if(StringKit.isEmpty(sign))
-			return result.fail(SubError.createMain(SubErrorType.ISV_MISSING_PARAMETER, SIGNATURE_PARAM_NAME));
+			return result.fail(SubError.createMain(SubErrorType.ISV_MISSING_PARAMETER, RuleDispatcher.SIGNATURE_PARAM_NAME));
 		if(!sign.equals(getSign(params, appKey)))
-			return result.fail(SubError.createMain(SubErrorType.ISV_INVALID_PARAMETER, SIGNATURE_PARAM_NAME));
+			return result.fail(SubError.createMain(SubErrorType.ISV_INVALID_PARAMETER, RuleDispatcher.SIGNATURE_PARAM_NAME));
 		return result.success();
 	}
 
@@ -53,11 +46,11 @@ public class DefaultAppAuthManager extends AppAuthManager{
 		resultMap.put("result", StringKit.getString(result.isSuccess()));
 		resultMap.put("content", StringKit.getString(result.getContent()));
 		resultMap.put("msg", StringKit.getString(result.getMsg()));
-		result.putExtraData(SIGNATURE_PARAM_NAME, getSign(resultMap, getAppKey(request)));
+		result.putExtraData(RuleDispatcher.SIGNATURE_PARAM_NAME, getSign(resultMap, getAppKey(request)));
 	}
 
 	private String getAppKey(HttpServletRequest request){
-		String appId = request.getParameter(APPID_PARAM_NAME);
+		String appId = request.getParameter(RuleDispatcher.APPID_PARAM_NAME);
 		String appKey = appKeys.get(appId);
 		logger.debug("getAppKey, appId="+appId+", appKey="+appKey);
 		if(appKey == null){
@@ -101,7 +94,7 @@ public class DefaultAppAuthManager extends AppAuthManager{
 		StringBuilder str = new StringBuilder();
 		for(String key : keyList){
 			key = key.trim();
-			if(key.equals(SIGNATURE_PARAM_NAME) || key.startsWith(IGNORE_SIGNATURE_PARAM_NAME_PREFIX))
+			if(key.equals(RuleDispatcher.SIGNATURE_PARAM_NAME) || key.startsWith(RuleDispatcher.IGNORE_SIGNATURE_PARAM_NAME_PREFIX))
 				continue;
 			Object value = params.get(key);
 			if(StringKit.isNotEmpty(value))
@@ -115,4 +108,14 @@ public class DefaultAppAuthManager extends AppAuthManager{
 		return sign;
 	}
 	
+	public static void main(String[] args){
+		//http://xxxxxx/app/user/getUser?user=xx&code=1&state=0
+		Map<String, Object> m = new HashMap();
+		m.put("user", "xx");
+		m.put("code", "1");
+		m.put("state", "0");
+		
+		System.out.println(new DefaultAppAuthManager().getSign(m, "abc"));
+		System.out.println(cn.joy.framework.kits.EncryptKit.md5("code=1&state=0&user=xx&key=abc"));
+	}
 }
