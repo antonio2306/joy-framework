@@ -12,9 +12,12 @@ import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
+import cn.joy.framework.exception.SubError;
+import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.FileKit;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.LogKit;
 import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
@@ -29,6 +32,9 @@ import cn.joy.framework.server.RouteManager;
  */
 public class RuleDispatcher{
 	private static Logger logger = Logger.getLogger(RuleDispatcher.class);
+	public final static String APPID_PARAM_NAME = "_appId";
+	public final static String SIGNATURE_PARAM_NAME = "_sign";
+	public final static String IGNORE_SIGNATURE_PARAM_NAME_PREFIX = "__";
 
 	private static boolean checkOpenServiceToken(HttpServletRequest request, HttpServletResponse response){
 		RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
@@ -62,8 +68,12 @@ public class RuleDispatcher{
 		return null;
 	}
 	
-	private static boolean checkAPIServiceSignature(HttpServletRequest request, HttpServletResponse response){
-		RuleResult checkResult = JoyManager.getAppAuthManager().checkAPIRequest(request);
+	private static boolean checkAPIRequest(String appId, HttpServletRequest request, HttpServletResponse response){
+		RuleResult checkResult = null;
+		if(StringKit.isEmpty(appId))
+			checkResult = RuleResult.create().fail(SubError.createMain(SubErrorType.ISV_MISSING_PARAMETER, RuleDispatcher.APPID_PARAM_NAME));
+		else
+			checkResult = JoyManager.getAppAuthManager().checkAPIRequest(request);
 		if(!checkResult.isSuccess()){
 			HttpKit.writeResponse(response, checkResult.toJSON());
 			return false;
@@ -72,7 +82,21 @@ public class RuleDispatcher{
 	}
 
 	public static String dispatchAPIRule(HttpServletRequest request, HttpServletResponse response){
-		if(!checkAPIServiceSignature(request, response))
+		Long t1 = System.currentTimeMillis();
+		String appId = request.getParameter(APPID_PARAM_NAME);
+		String requestId = t1+String.format("%04d", Math.round(Math.random()*10000));
+		
+		RuleParam rParam = RuleParam.create();
+		Enumeration<String> paramNames = request.getParameterNames();
+		while(paramNames.hasMoreElements()){
+			String paramName = (String)paramNames.nextElement();
+			rParam.put(paramName, request.getParameter(paramName));
+		}
+		
+		Logger appLogger = LogKit.getDailyLogger(appId);
+		if(appLogger.isDebugEnabled())
+			appLogger.debug("调用API[appId="+appId+",reqId="+requestId+",start="+t1+"]，参数："+rParam);
+		if(!checkAPIRequest(appId, request, response))
 			return null;
 
 		String servletPath = request.getServletPath();
@@ -97,26 +121,25 @@ public class RuleDispatcher{
 			HttpKit.writeResponse(response, "INVALID_API_URI");
 			return null;
 		}
+		String loginId = request.getParameter("loginId");
+		if(StringKit.isEmpty(loginId))
+			request.setAttribute("loginId", RuleContext.NONE_LOGINID);
 		String ruleURI = String.format("%s.%sAPI#%s", module, service, action);
 		if(logger.isDebugEnabled())
 			logger.debug("api rule invoke, ruleURI=" + ruleURI);
 
-		RuleParam rParam = RuleParam.create();
-		
-		Enumeration<String> paramNames = request.getParameterNames();
-		while(paramNames.hasMoreElements()){
-			String paramName = (String)paramNames.nextElement();
-			rParam.put(paramName, request.getParameter(paramName));
-		}
-		
 		RuleResult result = null;
 		try{
 			result = RuleExecutor.create(request).execute(ruleURI, rParam);
 		} catch(RuleException e){
 			result = e.getFailResult();
 		}
+		
 		JoyManager.getAppAuthManager().signAPIResult(request, result);
 		String content = result.toJSON();
+		Long t2 = System.currentTimeMillis();
+		if(appLogger.isDebugEnabled())
+			appLogger.debug("调用API[appId="+appId+",reqId="+requestId+",end="+t2+",cost="+(t2-t1)/1000+"秒]，结果："+content);
 		HttpKit.writeResponse(response, content);
 		return null;
 	}
