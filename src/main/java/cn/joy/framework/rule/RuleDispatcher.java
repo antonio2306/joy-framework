@@ -140,7 +140,7 @@ public class RuleDispatcher{
 		Long t2 = System.currentTimeMillis();
 		if(appLogger.isDebugEnabled())
 			appLogger.debug("调用API[appId="+appId+",reqId="+requestId+",end="+t2+",cost="+(t2-t1)/1000.0+"秒]，结果："+content);
-		HttpKit.writeResponse(response, content);
+		HttpKit.writeResponse(response, content); 
 		return null;
 	}
 	
