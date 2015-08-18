@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
@@ -288,29 +289,60 @@ public class HttpKit {
 		}
 		return param;
 	}
-	
-	public static Map<String, String> getParameterMap(HttpServletRequest request) {  
-	    // 参数Map  
-	    Map<String, String[]> params = request.getParameterMap();  
-	    // 返回值Map  
-	    Map<String, String> returnMap = new HashMap<String, String>();  
-	    String name = "";  
-	    String value = "";  
-	    for(Entry<String, String[]> entry:params.entrySet()){
-	    	name = (String) entry.getKey();  
-	    	String[] values = entry.getValue();  
-	    	if(null == values){  
-	            value = "";  
-	        }else if(values.length==1){
-	        	value = values[0];
-	        }else{
-	        	for(int i=0;i<values.length;i++){  
-	                value = values[i] + ",";  
-	            }  
-	            value = value.substring(0, value.length()-1);  
-	        }
-	    	 returnMap.put(name, value);  
-	    }
-	    return returnMap;  
-	}  
+
+	public static Map<String, String> getParameterMap(HttpServletRequest request) {
+		// 参数Map
+		Map<String, String[]> params = request.getParameterMap();
+		// 返回值Map
+		Map<String, String> returnMap = new HashMap<String, String>();
+		String name = "";
+		String value = "";
+		for (Entry<String, String[]> entry : params.entrySet()) {
+			name = (String) entry.getKey();
+			String[] values = entry.getValue();
+			if (null == values) {
+				value = "";
+			} else if (values.length == 1) {
+				value = values[0];
+			} else {
+				for (int i = 0; i < values.length; i++) {
+					value = values[i] + ",";
+				}
+				value = value.substring(0, value.length() - 1);
+			}
+			returnMap.put(name, value);
+		}
+		return returnMap;
+	}
+
+	public static String getClientIP(HttpServletRequest request) {
+		String ipAddress = request.getHeader("X-Forwarded-For");
+		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+			ipAddress = request.getHeader("Proxy-Client-IP");
+		}
+		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+			ipAddress = request.getHeader("WL-Proxy-Client-IP");
+		}
+		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
+			ipAddress = request.getRemoteAddr();
+			if (ipAddress.equals("127.0.0.1") || ipAddress.equals("0:0:0:0:0:0:0:1")) {
+				// 根据网卡取本机配置的IP
+				InetAddress inet = null;
+				try {
+					inet = InetAddress.getLocalHost();
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+				ipAddress = inet.getHostAddress();
+			}
+		}
+		// 对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
+		if (ipAddress != null && ipAddress.length() > 15) { // "***.***.***.***".length()
+															// = 15
+			if (ipAddress.indexOf(",") > 0) {
+				ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
+			}
+		}
+		return ipAddress;
+	}
 }

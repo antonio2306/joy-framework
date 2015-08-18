@@ -84,6 +84,7 @@ public class RuleDispatcher{
 	public static String dispatchAPIRule(HttpServletRequest request, HttpServletResponse response){
 		Long t1 = System.currentTimeMillis();
 		String appId = request.getParameter(APPID_PARAM_NAME);
+		String clientIP = HttpKit.getClientIP(request);
 		String requestId = t1+String.format("%04d", Math.round(Math.random()*10000));
 		
 		RuleParam rParam = RuleParam.create();
@@ -93,17 +94,18 @@ public class RuleDispatcher{
 			rParam.put(paramName, request.getParameter(paramName));
 		}
 		
-		Logger appLogger = LogKit.getDailyLogger(appId);
-		if(appLogger.isDebugEnabled())
-			appLogger.debug("调用API[appId="+appId+",reqId="+requestId+",start="+t1+"]，参数："+rParam);
-		if(!checkAPIRequest(appId, request, response))
-			return null;
-
 		String servletPath = request.getServletPath();
 		servletPath = servletPath.substring(servletPath.indexOf(JoyManager.getServer().getUrlAPI()) 
 				+ JoyManager.getServer().getUrlAPI().length()+1);
 		if(logger.isDebugEnabled())
 			logger.debug("api rule invoke, uri=" + servletPath);
+		
+		Logger appLogger = LogKit.getDailyLogger(appId);
+		if(appLogger.isDebugEnabled())
+			appLogger.debug("调用API[path="+servletPath+",appId="+appId+",reqId="+requestId+",IP="+clientIP+",start="+t1+"]，参数："+rParam);
+		if(!checkAPIRequest(appId, request, response))
+			return null;
+	
 		String[] requestInfo = servletPath.split("/");
 		String module, service, action;
 		if(requestInfo.length == 3){
@@ -139,7 +141,7 @@ public class RuleDispatcher{
 		String content = result.toJSON();
 		Long t2 = System.currentTimeMillis();
 		if(appLogger.isDebugEnabled())
-			appLogger.debug("调用API[appId="+appId+",reqId="+requestId+",end="+t2+",cost="+(t2-t1)/1000.0+"秒]，结果："+content);
+			appLogger.debug("调用API[rule="+ruleURI+",appId="+appId+",reqId="+requestId+",IP="+clientIP+",end="+t2+",cost="+(t2-t1)/1000.0+"秒]，结果："+content);
 		HttpKit.writeResponse(response, content); 
 		return null;
 	}
