@@ -325,7 +325,7 @@ public class SpringDb {
 			}
 			if (start < 0)
 				start = 0;
-			if (count < 0)
+			if (count <= 0)
 				count = 10;
 			
 			List<T> list = query.setFirstResult(start).setMaxResults(count).list();
@@ -358,7 +358,7 @@ public class SpringDb {
 			}
 			if (start < 0)
 				start = 0;
-			if (count < 0)
+			if (count <= 0)
 				count = 10;
 			
 			List<Map> list = query.setFirstResult(start).setMaxResults(count).list();
