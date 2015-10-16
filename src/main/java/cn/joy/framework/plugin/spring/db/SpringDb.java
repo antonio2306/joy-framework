@@ -15,6 +15,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.Transformers;
 /**
  * 基于Spring、Hibernate的数据库定义
  * @author liyy
@@ -276,6 +277,36 @@ public class SpringDb {
 			endTransaction(session);
 		}
 	}
+	
+	public List<Map> listMap(String hql, Object... params) {
+		Session session = null;
+		try {
+			session = getSession();
+			Query query = session.createQuery(hql).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+					
+			}
+			
+			List<Map> list = query.list();
+			if(list==null)
+				list = new ArrayList<Map>();
+			if (logger.isDebugEnabled())
+				logger.debug("db listMap ==> " + hql+", params=["+paramsInfo+"], size="+list.size());
+			return list;
+		} catch (Exception e) {
+			throw new DbException(e);
+		} finally{
+			endTransaction(session);
+		}
+	}
 
 	public <T> List<T> page(String hql, int start, int count, Object... params) {
 		Session session = null;
@@ -302,6 +333,39 @@ public class SpringDb {
 				list = new ArrayList<T>();
 			if (logger.isDebugEnabled())
 				logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count+", size="+list.size());
+			return list;
+		} catch (Exception e) {
+			throw new DbException(e);
+		} finally{
+			endTransaction(session);
+		}
+	}
+	
+	public List<Map> pageMap(String hql, int start, int count, Object... params) {
+		Session session = null;
+		try {
+			session = getSession();
+			Query query = session.createQuery(hql).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+			StringBuilder paramsInfo = null;
+			if (logger.isDebugEnabled())
+				paramsInfo = new StringBuilder();
+			if (params != null) {
+				for (int i = 0; i < params.length; i++){
+					if (logger.isDebugEnabled())
+						paramsInfo.append(params[i]).append(",");
+					query.setParameter(i, params[i]);
+				}
+			}
+			if (start < 0)
+				start = 0;
+			if (count < 0)
+				count = 10;
+			
+			List<Map> list = query.setFirstResult(start).setMaxResults(count).list();
+			if(list==null)
+				list = new ArrayList<Map>();
+			if (logger.isDebugEnabled())
+				logger.debug("db pageMap ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count+", size="+list.size());
 			return list;
 		} catch (Exception e) {
 			throw new DbException(e);

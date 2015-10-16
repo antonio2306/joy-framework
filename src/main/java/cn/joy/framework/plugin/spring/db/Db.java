@@ -75,13 +75,21 @@ public class Db {
 	public static Object unique(String hql, Object... params) {
 		return use().unique(hql, params);
 	}
-
+	
 	public static <T> List<T> list(String hql, Object... params) {
 		return use().list(hql, params);
 	}
 
 	public static <T> List<T> page(String hql, int start, int count, Object... params) {
 		return use().page(hql, start, count, params);
+	}
+	
+	public static List<Map> listMap(String hql, Object... params) {
+		return use().listMap(hql, params);
+	}
+	
+	public static List<Map> pageMap(String hql, int start, int count, Object... params) {
+		return use().pageMap(hql, start, count, params);
 	}
 
 	public static Integer count(String hql, Object... params) {
