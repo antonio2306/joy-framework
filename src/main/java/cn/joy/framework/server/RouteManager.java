@@ -74,13 +74,18 @@ public class RouteManager {
 	}
 
 	public static String getCenterServerURLByKey(String routeKey) {
+		if("false".equals(JoyManager.getServer().getVariable("app_center_server_enable")))
+			return "";
 		String serverURL = routes.get(routeKey);
 		if (StringKit.isEmpty(serverURL)) {
 			try{
 				if(getRouteKey("center", JoyManager.getServer().getCenterServerTag()).equals(routeKey)){
 					serverURL = JoyManager.getServer().getCenterServerUrl();
-				}else	
+				}else{
 					serverURL = JoyManager.getRouteStore().getServerURL(routeKey);
+					if (StringKit.isEmpty(serverURL))
+						serverURL = JoyManager.getServer().getCenterServerUrl();
+				}
 				if (StringKit.isEmpty(serverURL))
 					throw new RuleException("Center Server URL for "+routeKey+" need init");
 				routes.put(routeKey, serverURL);

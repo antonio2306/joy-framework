@@ -5,6 +5,8 @@ app_default_module=user
 
 app_local_server_type=
 app_local_server_tag=
+
+app_center_server_enable=true
 app_center_server_tag=center
 app_center_server_url=
 
