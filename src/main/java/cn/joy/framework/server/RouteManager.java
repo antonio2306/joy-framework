@@ -119,11 +119,14 @@ public class RouteManager {
 				if (StringKit.isEmpty(serverURL))
 					throw new RuleException("App Server URL for "+routeKey+" need init");
 			} else {
-				serverURL = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(getCenterServerURL(), "_t=route&_k="+routeKey));
-				if(!serverURL.startsWith("http"))
-					serverURL = "";
-				else
-					JoyManager.getRouteStore().storeServerURL(routeKey, serverURL);
+				String centerURL = getCenterServerURL();
+				if(StringKit.isNotEmpty(centerURL)){
+					serverURL = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(centerURL, "_t=route&_k="+routeKey));
+					if(!serverURL.startsWith("http"))
+						serverURL = "";
+					else
+						JoyManager.getRouteStore().storeServerURL(routeKey, serverURL);
+				}
 			}
 			routes.put(routeKey, serverURL);
 		}

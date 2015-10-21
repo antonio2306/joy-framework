@@ -13,9 +13,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
+import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import sun.misc.BASE64Decoder;
@@ -40,8 +43,8 @@ public class EncryptKit {
 	/**
 	 * 生成MD5加密校验码
 	 */
-	public static String md5(String string) {
-		return encryptString(getEncrypt("MD5"), string);
+	public static String md5(String str) {
+		return encryptString(getEncrypt("MD5"), str);
 	}
 
 	/**
@@ -54,8 +57,8 @@ public class EncryptKit {
 	/**
 	 * 生成SHA1加密校验码
 	 */
-	public static String sha1(String string) {
-		return encryptString(getEncrypt("SHA1"), string);
+	public static String sha1(String str) {
+		return encryptString(getEncrypt("SHA1"), str);
 	}
 
 	/**
@@ -89,13 +92,34 @@ public class EncryptKit {
 		}
 		return sb.toString();
 	}
+	
+	/*public static String bytes2HexString(byte[] b) {  
+	    String ret = "";  
+	    for (int i = 0; i < b.length; i++) {  
+	      String hex = Integer.toHexString(b[i] & 0xFF);  
+	      if (hex.length() == 1) {  
+	    	  System.out.println(hex);
+	        hex = '0' + hex;  
+	      }  
+	      ret += hex.toUpperCase();  
+	    }  
+	    return ret;  
+	}*/
+	
+	/*private static byte uniteBytes(byte src0, byte src1) {  
+        byte _b0 = Byte.decode("0x" + new String(new byte[]{src0})).byteValue();  
+        _b0 = (byte)(_b0 << 4);  
+        byte _b1 = Byte.decode("0x" + new String(new byte[]{src1})).byteValue();  
+        byte ret = (byte)(_b0 ^ _b1);  
+        return ret;  
+	}  */
 
 	/**
 	 * 使用加密器对目标字符串进行加密
 	 */
-	private static String encryptString(MessageDigest digest, String string) {
+	private static String encryptString(MessageDigest digest, String str) {
 		try {
-			return bytesToHex(digest.digest(string.getBytes(JoyConstants.CHARSET_UTF8)));
+			return bytesToHex(digest.digest(str.getBytes(JoyConstants.CHARSET_UTF8)));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -192,8 +216,8 @@ public class EncryptKit {
 	/**
 	 * HMAC加密
 	 */
-	public static byte[] hmac(byte[] data, String key) throws Exception {
-		SecretKey secretKey = new SecretKeySpec(decryptBASE64(key), "HmacMD5");
+	public static byte[] hmac(byte[] data, String str) throws Exception {
+		SecretKey secretKey = new SecretKeySpec(decryptBASE64(str), "HmacMD5");
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
 		mac.init(secretKey);
 		return mac.doFinal(data);
@@ -202,34 +226,67 @@ public class EncryptKit {
 	/**
 	 * BASE64加密
 	 */
-	public static String encryptBASE64(byte[] key) throws Exception {
-		return (new BASE64Encoder()).encodeBuffer(key);
+	public static String encryptBASE64(byte[] str) throws Exception {
+		return (new BASE64Encoder()).encodeBuffer(str);
 	}
 
 	/**
 	 * BASE64解密
 	 */
-	public static byte[] decryptBASE64(String key) throws Exception {
-		return (new BASE64Decoder()).decodeBuffer(key);
+	public static byte[] decryptBASE64(String str) throws Exception {
+		return (new BASE64Decoder()).decodeBuffer(str);
 	}
-
+	
+	public static byte[] encryptDES(byte[] data, String key) throws Exception {
+		return DES(data, key.getBytes(), Cipher.ENCRYPT_MODE);
+	}
+	
+	public static byte[] decryptDES(byte[] data, String key) throws Exception {
+		return DES(data, key.getBytes(), Cipher.DECRYPT_MODE);
+	}
+	
+	private static byte[] DES(byte[] data, byte[] key, int mode){  
+	    byte[] result = null ;  
+	    try {  
+	        SecureRandom sr = new SecureRandom();    
+	        SecretKeyFactory keyFactory;  
+	        DESKeySpec dks = new DESKeySpec(key);  
+	        keyFactory = SecretKeyFactory.getInstance("DES");  
+	        SecretKey secretkey = keyFactory.generateSecret(dks);   
+	        //创建Cipher对象  
+	        //Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");    
+	        Cipher cipher = Cipher.getInstance("DES");    
+	        //初始化Cipher对象    
+	        cipher.init(mode, secretkey, sr);    
+	        //加解密  
+	        result = cipher.doFinal(data);   
+	    } catch (Exception e) {  
+	        e.printStackTrace();  
+	    }   
+	      
+	    return result;  
+	}  
+	
 	public static void main(String[] args) throws Exception {
 		String inputStr = "简单加密";
 		System.out.println("原文:\n" + inputStr);
 
 		byte[] inputData = inputStr.getBytes();
 		String code = encryptBASE64(inputData);
-
 		System.out.println("BASE64加密后:\n" + code);
 
 		byte[] output = decryptBASE64(code);
-
 		String outputStr = new String(output);
-
 		System.out.println("BASE64解密后:\n" + outputStr);
 
 		// 验证BASE64加密解密一致性
 		System.out.println(inputStr.equals(outputStr));
+		
+		byte[] desBytes = encryptDES(inputData, "abc12345");
+		System.out.println("DES加密后:\n" + new String(desBytes));
+		
+		output = decryptDES(desBytes, "abc12345");
+		System.out.println("DES解密后:\n" + new String(output));
 
 		// 验证MD5对于同一内容加密是否一致
 		System.out.println(new BigInteger(md5(inputData)).equals(new BigInteger(md5(inputData))));
