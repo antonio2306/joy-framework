@@ -249,6 +249,10 @@ public class SpringDb {
 	}
 
 	public <T> List<T> list(String hql, Object... params) {
+		return list(hql, null, params);
+	}
+	
+	public <T> List<T> list(String hql, Map<String, Object> namedParams, Object... params) {
 		Session session = null;
 		try {
 			session = getSession();
@@ -262,7 +266,21 @@ public class SpringDb {
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
-					
+			}
+			
+			if (namedParams != null) {
+				for (Entry<String, Object> entry:namedParams.entrySet()){
+					String name = entry.getKey();
+					Object value = entry.getValue();
+					if (logger.isDebugEnabled())
+						logger.debug("set named param["+name+"] = "+value);
+					if(value instanceof Collection)
+						query.setParameterList(name, (Collection)value);
+					else if(value instanceof Object[])
+						query.setParameterList(name, (Object[])value);
+					else
+						query.setParameter(name, value);
+				}
 			}
 			
 			List<T> list = query.list();
@@ -279,6 +297,10 @@ public class SpringDb {
 	}
 	
 	public List<Map> listMap(String hql, Object... params) {
+		return listMap(hql, null, params);
+	}
+	
+	public List<Map> listMap(String hql, Map<String, Object> namedParams, Object... params) {
 		Session session = null;
 		try {
 			session = getSession();
@@ -292,7 +314,21 @@ public class SpringDb {
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
-					
+			}
+			
+			if (namedParams != null) {
+				for (Entry<String, Object> entry:namedParams.entrySet()){
+					String name = entry.getKey();
+					Object value = entry.getValue();
+					if (logger.isDebugEnabled())
+						logger.debug("set named param["+name+"] = "+value);
+					if(value instanceof Collection)
+						query.setParameterList(name, (Collection)value);
+					else if(value instanceof Object[])
+						query.setParameterList(name, (Object[])value);
+					else
+						query.setParameter(name, value);
+				}
 			}
 			
 			List<Map> list = query.list();
@@ -309,6 +345,10 @@ public class SpringDb {
 	}
 
 	public <T> List<T> page(String hql, int start, int count, Object... params) {
+		return page(hql, start, count, null, params);
+	}
+	
+	public <T> List<T> page(String hql, int start, int count, Map<String, Object> namedParams, Object... params) {
 		Session session = null;
 		try {
 			session = getSession();
@@ -323,6 +363,22 @@ public class SpringDb {
 					query.setParameter(i, params[i]);
 				}
 			}
+			
+			if (namedParams != null) {
+				for (Entry<String, Object> entry:namedParams.entrySet()){
+					String name = entry.getKey();
+					Object value = entry.getValue();
+					if (logger.isDebugEnabled())
+						logger.debug("set named param["+name+"] = "+value);
+					if(value instanceof Collection)
+						query.setParameterList(name, (Collection)value);
+					else if(value instanceof Object[])
+						query.setParameterList(name, (Object[])value);
+					else
+						query.setParameter(name, value);
+				}
+			}
+			
 			if (start < 0)
 				start = 0;
 			if (count <= 0)
@@ -342,6 +398,10 @@ public class SpringDb {
 	}
 	
 	public List<Map> pageMap(String hql, int start, int count, Object... params) {
+		return pageMap(hql, start, count, null, params);
+	}
+	
+	public List<Map> pageMap(String hql, int start, int count, Map<String, Object> namedParams, Object... params) {
 		Session session = null;
 		try {
 			session = getSession();
@@ -356,6 +416,22 @@ public class SpringDb {
 					query.setParameter(i, params[i]);
 				}
 			}
+			
+			if (namedParams != null) {
+				for (Entry<String, Object> entry:namedParams.entrySet()){
+					String name = entry.getKey();
+					Object value = entry.getValue();
+					if (logger.isDebugEnabled())
+						logger.debug("set named param["+name+"] = "+value);
+					if(value instanceof Collection)
+						query.setParameterList(name, (Collection)value);
+					else if(value instanceof Object[])
+						query.setParameterList(name, (Object[])value);
+					else
+						query.setParameter(name, value);
+				}
+			}
+			
 			if (start < 0)
 				start = 0;
 			if (count <= 0)

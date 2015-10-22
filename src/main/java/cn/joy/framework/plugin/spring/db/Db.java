@@ -79,17 +79,33 @@ public class Db {
 	public static <T> List<T> list(String hql, Object... params) {
 		return use().list(hql, params);
 	}
+	
+	public static <T> List<T> list(String hql, Map<String, Object> namedParams, Object... params) {
+		return use().list(hql, namedParams, params);
+	}
 
 	public static <T> List<T> page(String hql, int start, int count, Object... params) {
 		return use().page(hql, start, count, params);
+	}
+	
+	public static <T> List<T> page(String hql, int start, int count, Map<String, Object> namedParams, Object... params) {
+		return use().page(hql, start, count, namedParams, params);
 	}
 	
 	public static List<Map> listMap(String hql, Object... params) {
 		return use().listMap(hql, params);
 	}
 	
+	public static List<Map> listMap(String hql, Map<String, Object> namedParams, Object... params) {
+		return use().listMap(hql, namedParams, params);
+	}
+	
 	public static List<Map> pageMap(String hql, int start, int count, Object... params) {
 		return use().pageMap(hql, start, count, params);
+	}
+	
+	public static List<Map> pageMap(String hql, int start, int count, Map<String, Object> namedParams, Object... params) {
+		return use().pageMap(hql, start, count, namedParams, params);
 	}
 
 	public static Integer count(String hql, Object... params) {
