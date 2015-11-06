@@ -71,6 +71,15 @@ public class RuleResult {
 	}
 	
 	public RuleResult fail(IErrorType errorType){
+		return fail(errorType, "");
+	}
+	
+	public RuleResult fail(IErrorType errorType, String extra){
+		if(StringKit.isNotEmpty(extra)){
+			this.putExtraData("errorSource", errorType+":"+extra);
+		}else{
+			this.putExtraData("errorSource", errorType.toString());
+		}
 		return fail(errorType.getErrorCode());
 	}
 	
