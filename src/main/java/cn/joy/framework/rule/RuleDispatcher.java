@@ -237,7 +237,30 @@ public class RuleDispatcher{
 			if(StringKit.isNotEmpty(toRender)){
 				return toRender;
 			}
-
+			
+			if(result.isSuccess()){
+				String[] mergeRequestRuleArr = StringKit.getString(request.getParameter("_mrr")).split(",");
+				for(String mergeRequestRule:mergeRequestRuleArr){
+					int methodFlagIdx = mergeRequestRule.indexOf("#");
+					if(methodFlagIdx>0){
+						service = mergeRequestRule.substring(0, methodFlagIdx);
+						action = mergeRequestRule.substring(methodFlagIdx+1);
+						idx = service.lastIndexOf(".");
+						ruleURI = service + "." + (idx==-1?service:service.substring(idx+1)) + "Controller#" + action;
+						if(logger.isDebugEnabled())
+							logger.debug("business controller rule invoke, mergeRequestRuleURI=" + ruleURI);
+						
+						RuleResult mergeRequestRuleResult = RuleExecutor.create(RuleContext.create(request)).execute(ruleURI, rParam);
+						if(!mergeRequestRuleResult.isSuccess()){
+							result = mergeRequestRuleResult;
+							break;
+						}else{
+							result.putExtraData(mergeRequestRule, mergeRequestRuleResult);
+						}
+					}
+				}
+			}
+			
 			content = result.toJSON();
 			HttpKit.writeResponse(response, content);
 			RuleExecutor.clearCurrentExecutor();
