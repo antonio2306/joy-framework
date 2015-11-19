@@ -12,7 +12,7 @@ public @interface Module {
 
 	public String desc() default "";
 
-	public String init() default "";
+	public String init() default "initModule";
 
 	public String[] depends() default {};
 }

@@ -93,6 +93,10 @@ public class JoyManager {
 		}
 		return server;
 	}
+	
+	public static JoyModule getModule(String name){
+		return moduleDefines.get(name);
+	}
 
 	public static void init() throws Exception{
 		logger.info("JOY Framework start...");

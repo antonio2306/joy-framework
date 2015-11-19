@@ -6,6 +6,8 @@ import org.apache.log4j.Logger;
 
 import cn.joy.framework.annotation.Module;
 import cn.joy.framework.kits.BeanKit;
+import cn.joy.framework.kits.Prop;
+import cn.joy.framework.kits.PropKit;
 import cn.joy.framework.kits.StringKit;
 
 public class JoyModule {
@@ -20,6 +22,14 @@ public class JoyModule {
 	private Object moduleObj;
 
 	private String moduleInitMethod;
+	
+	private Prop moduleConfig = null;
+	
+	public String getModuleProperty(String key){
+		if(moduleConfig!=null)
+			return moduleConfig.get(key);
+		return null;
+	}
 	
 	public static JoyModule create(Class moduleDefineClass){
 		Module moduleAnnotation = (Module) moduleDefineClass.getAnnotation(Module.class);
@@ -39,6 +49,13 @@ public class JoyModule {
 	}
 
 	public void init() {
+		try {
+			this.moduleConfig = PropKit.use(moduleDefineClass.getPackage().getName().replaceAll("\\.", "/")+"/"+moduleDefineClass.getSimpleName().toLowerCase()
+					.replace("module", "")+".properties");
+		} catch (Exception e) {
+			logger.warn(e.getMessage());
+		}
+		
 		if (moduleObj != null && StringKit.isNotEmpty(moduleInitMethod)) {
 			try {
 				Method initMethod = moduleDefineClass.getDeclaredMethod(moduleInitMethod);
