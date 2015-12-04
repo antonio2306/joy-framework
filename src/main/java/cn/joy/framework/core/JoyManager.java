@@ -155,17 +155,20 @@ public class JoyManager {
 		for(File moduleDir:moduleDirs){
 			if(moduleDir.isDirectory()){
 				boolean isModule = false;
+				boolean hasSubs = false;
 				String moduleName = parentPath+moduleDir.getName();
 				List moduleClasses = ClassKit.getClasses(server.getModulePackage()+"."+moduleName, false);
 				if(moduleClasses!=null && moduleClasses.size()>0){
 					for (Object md : moduleClasses) {
 						Class mdClass = (Class) md;
-						if(mdClass.getAnnotation(Module.class)==null)
+						Module moduleAnnotation = (Module) mdClass.getAnnotation(Module.class);
+						if(moduleAnnotation==null)
 							continue;
-						moduleDefines.put(moduleName, JoyModule.create(mdClass));
+						moduleDefines.put(moduleName, JoyModule.create(moduleName, mdClass));
 						if(logger.isInfoEnabled())
 							logger.info("create joy module: "+moduleName);
 						isModule = true;
+						hasSubs = moduleAnnotation.hasSubs();
 						break;
 					}
 				}
@@ -185,6 +188,10 @@ public class JoyManager {
 					if(logger.isInfoEnabled())
 						logger.info("found module event listener: "+listenerClass);
 					EventManager.addListener((JoyEventListener)BeanKit.getNewInstance(listenerClass));
+				}
+				
+				if(hasSubs){
+					scanModules(moduleDir, moduleName+".");
 				}
 			}
 		}

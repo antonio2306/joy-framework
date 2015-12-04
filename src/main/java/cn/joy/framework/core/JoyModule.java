@@ -1,28 +1,23 @@
 package cn.joy.framework.core;
 
-import java.lang.reflect.Method;
-
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.annotation.Module;
 import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.Prop;
 import cn.joy.framework.kits.PropKit;
-import cn.joy.framework.kits.StringKit;
 
-public class JoyModule {
+public abstract class JoyModule {
 	private static Logger logger = Logger.getLogger(JoyModule.class);
 	
+	private String key;
+	
 	private String name;
+	
+	private String code;
 
 	private String description;
 
-	private Class moduleDefineClass;
-	
-	private Object moduleObj;
-
-	private String moduleInitMethod;
-	
 	private Prop moduleConfig = null;
 	
 	public String getModuleProperty(String key){
@@ -31,17 +26,16 @@ public class JoyModule {
 		return null;
 	}
 	
-	public static JoyModule create(Class moduleDefineClass){
+	public static JoyModule create(String moduleKey, Class moduleDefineClass){
 		Module moduleAnnotation = (Module) moduleDefineClass.getAnnotation(Module.class);
 		if(moduleAnnotation==null)
 			throw new RuntimeException("Wrong Module Object");
 		
-		JoyModule joyModule = new JoyModule();
-		joyModule.moduleDefineClass = moduleDefineClass;
-		joyModule.moduleObj = BeanKit.getNewInstance(moduleDefineClass);
+		JoyModule joyModule = BeanKit.getNewInstance(moduleDefineClass);//new JoyModule();
+		joyModule.key = moduleKey;
 		joyModule.name = moduleAnnotation.name();
+		joyModule.code = moduleAnnotation.code();
 		joyModule.description = moduleAnnotation.desc();
-		joyModule.moduleInitMethod = moduleAnnotation.init();
 		
 		joyModule.init();
 		
@@ -50,26 +44,28 @@ public class JoyModule {
 
 	public void init() {
 		try {
-			this.moduleConfig = PropKit.use(moduleDefineClass.getPackage().getName().replaceAll("\\.", "/")+"/"+moduleDefineClass.getSimpleName().toLowerCase()
+			this.moduleConfig = PropKit.use(getClass().getPackage().getName().replaceAll("\\.", "/")+"/"+getClass().getSimpleName().toLowerCase()
 					.replace("module", "")+".properties");
 		} catch (Exception e) {
 			logger.warn(e.getMessage());
 		}
 		
-		if (moduleObj != null && StringKit.isNotEmpty(moduleInitMethod)) {
-			try {
-				Method initMethod = moduleDefineClass.getDeclaredMethod(moduleInitMethod);
-				if(initMethod!=null)
-					initMethod.invoke(moduleObj);
-			} catch (Exception e) {
-				logger.error("", e);
-			}
-		}
+		initModule();
 
+	}
+	
+	public abstract void initModule();
+	
+	public String getKey() {
+		return key;
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getCode() {
+		return code;
 	}
 
 	public String getDescription() {
