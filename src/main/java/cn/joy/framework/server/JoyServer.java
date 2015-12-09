@@ -21,6 +21,16 @@ public abstract class JoyServer {
 	
 	public void init(Properties config){
 		serverVariables = config;
+		
+		String envMode = this.getEnvMode();
+		if(!"product".equals(envMode)){
+			envMode = envMode+"_";
+			for(String propName:serverVariables.stringPropertyNames()){
+				if(propName.startsWith(envMode)){
+					serverVariables.setProperty(propName.substring(envMode.length()), serverVariables.getProperty(propName));
+				}
+			}
+		}
 	}
 	
 	public void setVariable(String key, String value){
@@ -89,6 +99,10 @@ public abstract class JoyServer {
 	
 	public String getCharset(){
 		return this.getVariable("app_charset", "UTF-8");
+	}
+	
+	public String getEnvMode(){
+		return this.getVariable("env_mode", "product");
 	}
 	
 	public Locale getLocale(){

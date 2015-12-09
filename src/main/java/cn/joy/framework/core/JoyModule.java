@@ -1,5 +1,7 @@
 package cn.joy.framework.core;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.annotation.Module;
@@ -44,8 +46,18 @@ public abstract class JoyModule {
 
 	public void init() {
 		try {
-			this.moduleConfig = PropKit.use(getClass().getPackage().getName().replaceAll("\\.", "/")+"/"+getClass().getSimpleName().toLowerCase()
-					.replace("module", "")+".properties");
+			String propFile = getClass().getSimpleName().toLowerCase().replace("module", "")+".properties";
+			this.moduleConfig = PropKit.use(getClass().getPackage().getName().replaceAll("\\.", "/")+"/"+propFile);
+			String envMode = JoyManager.getServer().getEnvMode();
+			if(moduleConfig!=null && !"product".equals(envMode)){
+				envMode = envMode+"_";
+				Properties prop = moduleConfig.getProperties();
+				for(String propName:prop.stringPropertyNames()){
+					if(propName.startsWith(envMode)){
+						prop.setProperty(propName.substring(envMode.length()), prop.getProperty(propName));
+					}
+				}
+			}
 		} catch (Exception e) {
 			logger.warn(e.getMessage());
 		}
