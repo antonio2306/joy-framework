@@ -316,8 +316,10 @@ public class RuleDispatcher{
 		for(Entry<String, String[]> entry : params.entrySet()){
 			datas.put(entry.getKey(), entry.getValue()[0]);
 		}
+		
+		String appServerType = StringKit.getString(request.getParameter("appServerType"), JoyManager.getServer().getAppServerType());
 
-		String serverURL = RouteManager.getServerURLByCompanyCode(serverCode);
+		String serverURL = RouteManager.getServerURL(appServerType, RouteManager.getServerTag(serverCode));
 		String currentServerURL = RouteManager.getServerURL(JoyManager.getServer().getAppServerType(),
 				RouteManager.getLocalServerTag());
 		if(currentServerURL.equals(serverURL)){

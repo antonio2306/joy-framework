@@ -62,8 +62,8 @@ public abstract class JoyModule {
 			logger.warn(e.getMessage());
 		}
 		
-		initModule();
-
+		if(!"false".equals(getModuleProperty("enable")))
+			initModule();
 	}
 	
 	public abstract void initModule();

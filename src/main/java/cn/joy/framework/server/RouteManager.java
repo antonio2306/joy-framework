@@ -57,7 +57,11 @@ public class RouteManager {
 	}
 	
 	public static String getRouteKey(String serverType, String serverTag){
-		serverTag = StringKit.getString(serverTag, "app");
+		if (JoyManager.getServer().getCenterServerTag().equals(serverTag)){
+			serverType = "center";
+		}else{
+			serverTag = StringKit.getString(serverTag, "app");
+		}
 		return serverType+":"+serverTag;
 	}
 	
