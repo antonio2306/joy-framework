@@ -33,6 +33,10 @@ public abstract class JoyServer {
 		}
 	}
 	
+	public void stop(){
+		
+	}
+	
 	public void setVariable(String key, String value){
 		serverVariables.setProperty(key, value);
 	}

@@ -150,6 +150,25 @@ public class JoyManager {
 		logger.info("JOY Framework run...");
 	}
 	
+	public static void destroy(){
+		logger.info("JOY Framework stop...");
+		
+		for(JoyModule module:moduleDefines.values()){
+			logger.info("destroy module "+module.getName()+"...");
+			module.destroy();
+		}
+		
+		for(IPlugin plugin:plugins.values()){
+			logger.info("stop plugin "+plugin.getClass().getName()+"...");
+			plugin.stop();
+		}
+		
+		txPlugin.stop();
+		
+		server.stop();
+		logger.info("JOY Framework shutdown...");
+	}
+	
 	private static void scanModules(File moduleBaseDir, String parentPath){
 		File[] moduleDirs = moduleBaseDir.listFiles();
 		for(File moduleDir:moduleDirs){

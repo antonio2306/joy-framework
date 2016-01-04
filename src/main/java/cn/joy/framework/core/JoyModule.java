@@ -66,7 +66,16 @@ public abstract class JoyModule {
 			initModule();
 	}
 	
+	public void destroy() {
+		if(!"false".equals(getModuleProperty("enable")))
+			destroyModule();
+	}
+	
 	public abstract void initModule();
+	
+	public void destroyModule(){
+		
+	}
 	
 	public String getKey() {
 		return key;
