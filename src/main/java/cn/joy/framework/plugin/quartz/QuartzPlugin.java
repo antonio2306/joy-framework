@@ -8,6 +8,7 @@ import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.ObjectAlreadyExistsException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerBuilder;
@@ -44,12 +45,24 @@ public class QuartzPlugin implements ISchedulePlugin {
 	
 	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron){
 		try {
+			if(scheduler.checkExists(JobKey.jobKey(jobName, jobGroup)))
+				return;
 			JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroup).build(); 
 			CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(jobName+"Trigger", jobGroup)
 					.withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
 			scheduler.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
 			throw new RuntimeException("schedule job fail.", e);
+		}
+	}
+	
+	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron){
+		try {
+			if(scheduler.checkExists(JobKey.jobKey(jobName, jobGroup)))
+				unschedule(jobName, jobGroup);
+			schedule(jobClass, jobName, jobGroup, cron);
+		} catch (SchedulerException e) {
+			throw new RuntimeException("reSchedule job fail.", e);
 		}
 	}
 	

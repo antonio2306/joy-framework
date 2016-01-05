@@ -7,4 +7,6 @@ public interface ISchedulePlugin extends IPlugin {
 
 	public void unschedule(String jobName, String jobGroup);
 	
+	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron);
+	
 }
