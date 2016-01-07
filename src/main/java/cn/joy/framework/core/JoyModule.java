@@ -45,6 +45,13 @@ public abstract class JoyModule {
 	}
 
 	public void init() {
+		loadConfig();
+		
+		if(!"false".equals(getModuleProperty("enable")))
+			initModule();
+	}
+	
+	public void loadConfig(){
 		try {
 			String propFile = getClass().getSimpleName().toLowerCase().replace("module", "")+".properties";
 			this.moduleConfig = PropKit.use(getClass().getPackage().getName().replaceAll("\\.", "/")+"/"+propFile);
@@ -61,9 +68,6 @@ public abstract class JoyModule {
 		} catch (Exception e) {
 			logger.warn(e.getMessage());
 		}
-		
-		if(!"false".equals(getModuleProperty("enable")))
-			initModule();
 	}
 	
 	public void destroy() {

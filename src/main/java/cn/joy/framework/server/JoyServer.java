@@ -97,6 +97,10 @@ public abstract class JoyServer {
 		return this.getVariable("param_companycode", "companyCode");
 	}
 	
+	public String getSceneKeyParam(){
+		return this.getVariable("param_scenekey", "sceneKey");
+	}
+	
 	public String getAccessTokenParam(){
 		return this.getVariable("param_accesstoken", "accessToken");
 	}
@@ -120,6 +124,10 @@ public abstract class JoyServer {
 
 	public String getDefaultModule() {
 		return this.getVariable("app_default_module");
+	}
+	
+	public String getDefaultSceneKey() {
+		return this.getVariable("app_default_scene_key");
 	}
 	
 	private String getRequestUrl(String serverURL, String serviceURL, String params, Map<String, String> datas){
