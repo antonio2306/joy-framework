@@ -84,7 +84,10 @@ public class RuleContext {
 			throw new RuleException(SubErrorType.ISV_MISSING_PARAMETER, "loginId");
 		
 		rContext.companyCode = RuleKit.getStringParam(request, JoyManager.getServer().getCompanyCodeParam());
-		rContext.sceneKey = RuleKit.getStringParam(request, JoyManager.getServer().getSceneKeyParam(), JoyManager.getServer().getDefaultSceneKey());
+		String sceneKey = RuleKit.getStringParam(request, JoyManager.getServer().getSceneKeyParam());
+		if(StringKit.isEmpty(sceneKey))
+			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());
+		rContext.sceneKey = StringKit.getString(sceneKey, JoyManager.getServer().getDefaultSceneKey());
 		if(rContext.sceneKey.endsWith("test"))
 			rContext.trimSceneKey = rContext.sceneKey.substring(0, rContext.sceneKey.length()-4);
 		else
