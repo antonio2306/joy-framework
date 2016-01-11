@@ -217,7 +217,10 @@ public class JoyManager {
 	}
 	
 	public static IPlugin getPlugin(String pluginName){
-		return plugins.get(pluginName); 
+		IPlugin plugin = plugins.get(pluginName); 
+		if(plugin!=null && Boolean.parseBoolean(System.getProperty("plugin."+pluginName+".enable", "true")))
+			return plugin;
+		return null;
 	}
 	
 	private static IPlugin loadPlugin(String pluginName) throws Exception{
