@@ -176,7 +176,7 @@ public class JoyManager {
 				boolean isModule = false;
 				boolean hasSubs = false;
 				String moduleName = parentPath+moduleDir.getName();
-				List moduleClasses = ClassKit.getClasses(server.getModulePackage()+"."+moduleName, false);
+				List moduleClasses = ClassKit.listClass(server.getModulePackage()+"."+moduleName, false);
 				if(moduleClasses!=null && moduleClasses.size()>0){
 					for (Object md : moduleClasses) {
 						Class mdClass = (Class) md;
@@ -202,7 +202,7 @@ public class JoyManager {
 				modules.add(moduleName);
 				
 				String eventPackage = String.format(JoyManager.getServer().getEventPackagePattern(), moduleName);
-				List<Class> listeners = ClassKit.getAllClassByInterface(eventPackage, JoyEventListener.class);
+				List<Class> listeners = ClassKit.listClassBySuper(eventPackage, JoyEventListener.class);
 				for(Class listenerClass:listeners){
 					if(logger.isInfoEnabled())
 						logger.info("found module event listener: "+listenerClass);
