@@ -33,7 +33,7 @@ public abstract class JoyModule {
 		if(moduleAnnotation==null)
 			throw new RuntimeException("Wrong Module Object");
 		
-		JoyModule joyModule = BeanKit.getNewInstance(moduleDefineClass);//new JoyModule();
+		JoyModule joyModule = (JoyModule)BeanKit.getNewInstance(moduleDefineClass);//new JoyModule();
 		joyModule.key = moduleKey;
 		joyModule.name = moduleAnnotation.name();
 		joyModule.code = moduleAnnotation.code();

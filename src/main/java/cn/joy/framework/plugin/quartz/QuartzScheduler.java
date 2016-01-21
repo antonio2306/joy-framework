@@ -1,7 +1,9 @@
 package cn.joy.framework.plugin.quartz;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
@@ -11,6 +13,7 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -58,14 +61,16 @@ public class QuartzScheduler {
 	
 	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas){
 		try {
-			if(scheduler.checkExists(JobKey.jobKey(jobName, jobGroup)))
-				return;
+			//if(scheduler.checkExists(JobKey.jobKey(jobName, jobGroup)))
+			//	return;
 			JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroup).build(); 
 			if(datas!=null)
 				job.getJobDataMap().putAll(datas);
 			CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(jobName+"Trigger", jobGroup)
 					.withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
-			scheduler.scheduleJob(job, trigger);
+			Set<Trigger> triggers = new HashSet<Trigger>();
+			triggers.add(trigger);
+			scheduler.scheduleJob(job, triggers, true);//.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
 			throw new RuntimeException("schedule job fail.", e);
 		}
