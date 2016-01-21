@@ -347,14 +347,21 @@ public class HttpKit {
 	}
 
 	public static Map<String, String> getParameterMap(HttpServletRequest request) {
+		return getParameterMap(request, null);
+	}
+	
+	public static Map<String, String> getParameterMap(HttpServletRequest request, String namePrefix) {
 		// 参数Map
 		Map<String, String[]> params = request.getParameterMap();
 		// 返回值Map
 		Map<String, String> returnMap = new HashMap<String, String>();
 		String name = "";
 		String value = "";
+		boolean filterByNamePrefix = StringKit.isNotEmpty(namePrefix);
 		for (Entry<String, String[]> entry : params.entrySet()) {
 			name = (String) entry.getKey();
+			if(filterByNamePrefix && !name.startsWith(namePrefix))
+				continue;
 			String[] values = entry.getValue();
 			if (null == values) {
 				value = "";
