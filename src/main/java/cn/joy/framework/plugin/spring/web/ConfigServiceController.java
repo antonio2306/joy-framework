@@ -13,7 +13,7 @@ import cn.joy.framework.rule.RuleResult;
 
 public class ConfigServiceController extends MultiActionController {
 	
-	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+	/*protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
 		if(!checkResult.isSuccess()){
@@ -21,7 +21,7 @@ public class ConfigServiceController extends MultiActionController {
 			return null;
 		}
 		return super.handleRequestInternal(request, response);
-	}
+	}*/
 	
 	public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		RuleDispatcher.dispatchConfigService(request, response);

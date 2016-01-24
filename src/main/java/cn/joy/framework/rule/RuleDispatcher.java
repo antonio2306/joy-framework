@@ -34,18 +34,18 @@ public class RuleDispatcher{
 	private static Logger logger = Logger.getLogger(RuleDispatcher.class);
 	public final static String APPID_PARAM_NAME = "_appId";
 
-	private static boolean checkOpenServiceToken(HttpServletRequest request, HttpServletResponse response){
+	/*private static boolean checkOpenServiceToken(HttpServletRequest request, HttpServletResponse response){
 		RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
 		if(!checkResult.isSuccess()){
 			HttpKit.writeResponse(response, checkResult.toJSON());
 			return false;
 		}
 		return true;
-	}
+	}*/
 
 	public static String dispatchOpenRule(HttpServletRequest request, HttpServletResponse response){
-		if(!checkOpenServiceToken(request, response))
-			return null;
+		//if(!checkOpenServiceToken(request, response))
+		//	return null;
 
 		String content = "";
 		String ruleURI = request.getParameter("ruleURI");
@@ -54,11 +54,31 @@ public class RuleDispatcher{
 
 		if(StringKit.isNotEmpty(ruleURI)){
 			RuleParam rParam = (RuleParam)JsonKit.json2Object(request.getParameter("params"), RuleParam.class);
-			RuleResult result = null;
-			try{
-				result = RuleExecutor.create(request).execute(ruleURI, rParam);
-			} catch(RuleException e){
-				result = e.getFailResult();
+			
+			String serverKey = "";
+			if(JoyManager.getServer() instanceof CenterServer)
+				serverKey = rParam.getString(RuleKit.SERVER_KEY_PARAM_NAME);
+			else
+				serverKey = RouteManager.getLocalRouteKey();
+			RuleResult result = RuleKit.checkSign(rParam, RouteManager.getServerProp(serverKey, "signKey"));
+			if(logger.isDebugEnabled())
+				logger.debug("open rule invoke check, result=" + result.isSuccess());
+			
+			if(result.isSuccess()){
+				try{
+					String serverProxy = rParam.getString(RuleKit.SERVER_PROXY_PARAM_NAME);
+					if(logger.isDebugEnabled())
+						logger.debug("serverProxy=" + serverProxy);
+					if(JoyManager.getServer() instanceof CenterServer && StringKit.isNotEmpty(serverProxy)){
+						rParam.remove(RuleKit.SERVER_PROXY_PARAM_NAME);
+						if(logger.isDebugEnabled())
+							logger.debug("proxy invoke " + ruleURI);
+						result = RuleExecutor.createRemote(RuleContext.create(request)).execute(serverProxy+"@"+ruleURI, rParam);
+					}else
+						result = RuleExecutor.create(request).execute(ruleURI, rParam);
+				} catch(RuleException e){
+					result = e.getFailResult();
+				}
 			}
 			content = result.toJSON();
 		}
@@ -145,8 +165,8 @@ public class RuleDispatcher{
 	}
 	
 	public static String dispatchConfigService(HttpServletRequest request, HttpServletResponse response){
-		if(!checkOpenServiceToken(request, response))
-			return null;
+		//if(!checkOpenServiceToken(request, response))
+		//	return null;
 
 		String configType = request.getParameter("_t");
 		String configKey = request.getParameter("_k");
@@ -155,12 +175,18 @@ public class RuleDispatcher{
 
 		String content = "";
 		if(JoyManager.getServer() instanceof CenterServer){
-			String serverKey = request.getParameter("_sk");
+			String serverKey = request.getParameter(RuleKit.SERVER_KEY_PARAM_NAME);
+			
 			boolean isPrivateMode = "private".equals(RouteManager.getServerProp(serverKey, "deployMode"));
 			if(isPrivateMode){
 				HttpKit.writeResponse(response, "Private");
 				return null;
 			}
+			
+			RuleResult result = RuleKit.checkSign(HttpKit.getParameterMap(request), RouteManager.getServerProp(serverKey, "signKey"));
+			if(logger.isDebugEnabled())
+				logger.debug("config invoke check, result=" + result.isSuccess());
+			
 			if("route".equals(configType)){
 				if("sync_route".equals(configKey)){
 					Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();

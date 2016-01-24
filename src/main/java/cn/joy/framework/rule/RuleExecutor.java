@@ -15,6 +15,7 @@ import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.server.RouteManager;
 import cn.joy.framework.task.JoyTask;
@@ -164,13 +165,23 @@ public class RuleExecutor {
 				int idx = ruleURI.indexOf("@");
 				if(idx!=-1){
 					String serverURL = "";
+					String serverKey = "";
 					String serverInfo = ruleURI.substring(0, idx);
 					if(serverInfo.startsWith("http://") || serverInfo.startsWith("https://")){
 						serverURL = serverInfo;
 					}else if(serverInfo.indexOf(":")>0){
 						serverURL = RouteManager.getServerURLByKey(serverInfo);
+						serverKey = serverInfo;
 					}else{
 						serverURL = RouteManager.getServerURLByCompanyCode(serverInfo);
+						serverKey = RouteManager.getRouteKey("", RouteManager.getServerTag(serverInfo));
+					}
+					
+					//私有部署，没有其它远程服务器的route信息，由网站中转调用
+					if(JoyManager.getServer().isPrivateMode() && StringKit.isEmpty(serverURL)){
+						serverURL = RouteManager.getCenterServerURL();
+						serverKey = RouteManager.getCenterRouteKey();
+						rParam.put(RuleKit.SERVER_PROXY_PARAM_NAME, serverInfo);
 					}
 					
 					if(StringKit.isNotEmpty(serverURL)){
@@ -184,7 +195,7 @@ public class RuleExecutor {
 							this.isRemote = false;
 							ruleResult = executeLocalRule(ruleURI.substring(idx+1), rParam, isInnerInvoke);
 						}else{
-							ruleResult = executeRemoteRule(serverURL, ruleURI.substring(idx+1), rParam);
+							ruleResult = executeRemoteRule(serverURL, ruleURI.substring(idx+1), rParam, serverKey);
 						}
 					}else
 						ruleResult.fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
@@ -234,11 +245,11 @@ public class RuleExecutor {
 			return RuleResult.empty().fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
 	}
 	
-	private RuleResult executeRemoteRule(String serverURL, String remoteRuleURI, RuleParam rParam) throws Exception{
+	private RuleResult executeRemoteRule(String serverURL, String remoteRuleURI, RuleParam rParam, String serverKey) throws Exception{
 		if(this.isAsyn)
-			return doExecuteRemoteAsyn(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam);
+			return doExecuteRemoteAsyn(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam, serverKey);
 		else
-			return doExecuteRemote(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam);
+			return doExecuteRemote(serverURL, remoteRuleURI, rContext.prepareRemoteContextParam(), rParam, serverKey);
 	}
 	
 	/**
@@ -273,14 +284,14 @@ public class RuleExecutor {
 	/**
 	 * 远程同步调用实现
 	 */
-	private RuleResult doExecuteRemote(String serverURL, String remoteRuleURI, String contextParam, RuleParam rParam) {
+	private RuleResult doExecuteRemote(String serverURL, String remoteRuleURI, String contextParam, RuleParam rParam, String serverKey) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteRemote, ruleURI="+remoteRuleURI);
 		if(logger.isDebugEnabled())
 			logger.debug("远程执行规则【"+remoteRuleURI+"】, url="+serverURL+"/"+contextParam);
 		
 		RuleResult ruleResult = RuleResult.create();
-		String reponseText = post4OpenService(serverURL, contextParam, remoteRuleURI, JsonKit.object2Json(rParam));
+		String reponseText = post4OpenService(serverURL, contextParam, remoteRuleURI, rParam, serverKey);
 		if(logger.isDebugEnabled())
 			logger.debug("远程执行规则【"+remoteRuleURI+"】, reponseText="+reponseText);
 		if(!StringKit.isEmpty(reponseText)){
@@ -294,7 +305,7 @@ public class RuleExecutor {
 	/**
 	 * 远程异步调用实现
 	 */
-	private RuleResult doExecuteRemoteAsyn(final String serverURL, final String remoteRuleURI, final String contextParam, final RuleParam rParam) {
+	private RuleResult doExecuteRemoteAsyn(final String serverURL, final String remoteRuleURI, final String contextParam, final RuleParam rParam, final String serverKey) {
 		if(logger.isDebugEnabled())
 			logger.debug("doExecuteRemoteAsyn, ruleURI="+remoteRuleURI);
 		
@@ -303,7 +314,7 @@ public class RuleExecutor {
 				if(logger.isDebugEnabled())
 					logger.debug("远程执行规则【"+remoteRuleURI+"】, url="+serverURL+"/"+contextParam);
 				
-				String reponseText = post4OpenService(serverURL, contextParam, remoteRuleURI, JsonKit.object2Json(rParam));
+				String reponseText = post4OpenService(serverURL, contextParam, remoteRuleURI, rParam, serverKey);
 				try {
 					if(logger.isDebugEnabled())
 						logger.debug("远程执行规则【"+remoteRuleURI+"】, reponseText="+reponseText);
@@ -320,10 +331,25 @@ public class RuleExecutor {
 	/**
 	 * 调用开放规则
 	 */
-	private String post4OpenService(String url, String contextParam, String serviceKey, String rParamJson){
+	private String post4OpenService(String url, String contextParam, String serviceKey, RuleParam rParam, String serverKey){
+		if(StringKit.isNotEmpty(serverKey)){
+			//调用center的service，需要提供调用者的serverKey，根据调用者的signKey签名
+			if(RouteManager.isCenterRouteKey(serverKey)){
+				String localServerKey = RouteManager.getLocalRouteKey();
+				String signKey = RouteManager.getServerProp(localServerKey, "signKey");
+				
+				rParam.put(RuleKit.SERVER_KEY_PARAM_NAME, localServerKey);
+				rParam.put(RuleKit.SIGNATURE_PARAM_NAME, RuleKit.getSign(rParam, signKey));
+			}else{
+				//调用app的service，根据被调用app的signKey签名
+				String signKey = RouteManager.getServerProp(serverKey, "signKey");
+				rParam.put(RuleKit.SIGNATURE_PARAM_NAME, RuleKit.getSign(rParam, signKey));
+			}
+		}
+		
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("ruleURI", serviceKey);
-		params.put("params", rParamJson);
+		params.put("params", JsonKit.object2Json(rParam));
 		
 		String serviceURL = JoyManager.getServer().getOpenRequestUrl(url, contextParam);
 		return HttpKit.post(serviceURL, params);

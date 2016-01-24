@@ -9,10 +9,6 @@ import cn.joy.framework.rule.RuleResult;
  * @date 2014-07-06
  */
 public interface SecurityManager {
-	public RuleResult checkOpenRequest(HttpServletRequest request);
-	
-	public String secureOpenRequestURL(HttpServletRequest request, String requestURL);
-	
 	public RuleResult checkBusinessRequest(HttpServletRequest request);
 	
 	public String secureBusinessRequestURL(HttpServletRequest request, String requestURL);

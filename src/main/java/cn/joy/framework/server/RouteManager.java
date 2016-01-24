@@ -58,6 +58,10 @@ public class RouteManager {
 		return JoyManager.getServer().getLocalServerTag();
 	}
 	
+	public static String getLocalRouteKey() {
+		return getRouteKey(JoyManager.getServer().getAppServerType(), JoyManager.getServer().getLocalServerTag());
+	}
+	
 	public static String getRouteKey(String serverType, String serverTag){
 		if (JoyManager.getServer().getCenterServerTag().equals(serverTag)){
 			serverType = "center";
@@ -69,6 +73,10 @@ public class RouteManager {
 	
 	public static boolean isCenterRouteKey(String routeKey){
 		return routeKey!=null && routeKey.startsWith("center:");
+	}
+	
+	public static String getCenterRouteKey() {
+		return getRouteKey("center", JoyManager.getServer().getCenterServerTag());
 	}
 
 	public static String getCenterServerURL() {

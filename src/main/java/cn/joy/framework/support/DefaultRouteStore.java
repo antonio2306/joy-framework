@@ -22,11 +22,6 @@ public class DefaultRouteStore implements RouteStore{
 		logger.warn("Empty Impl...");
 	}
 	
-	public boolean isPrivateMode(String routeKey) {
-		logger.warn("Empty Impl...");
-		return false;
-	}
-
 	public void initRoute() {
 		//同步路由数据，并加载到缓存
 		logger.warn("Empty Impl...");

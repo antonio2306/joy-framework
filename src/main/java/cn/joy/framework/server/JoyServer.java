@@ -177,7 +177,7 @@ public abstract class JoyServer {
 	
 	public String getOpenRequestUrl(String serverURL, String params){
 		String url = getRequestUrl(serverURL, getUrlOpen(), params, null);
-		return JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
+		return url;//JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
 	}
 	
 	public String getBusinessRequestUrl(HttpServletRequest request, String serverURL, String params){
@@ -187,6 +187,6 @@ public abstract class JoyServer {
 	
 	public String getConfigRequestUrl(String serverURL, String params){
 		String url = getRequestUrl(serverURL, getUrlConfig(), params, null);
-		return JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
+		return url;//JoyManager.getSecurityManager().secureOpenRequestURL(null, url);
 	}
 }

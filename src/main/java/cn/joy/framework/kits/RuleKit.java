@@ -23,6 +23,8 @@ import cn.joy.framework.rule.RuleResult;
 public class RuleKit {
 	private static Logger logger = Logger.getLogger(RuleKit.class);
 	public final static String SIGNATURE_PARAM_NAME = "_sign";
+	public final static String SERVER_KEY_PARAM_NAME = "_serverKey";
+	public final static String SERVER_PROXY_PARAM_NAME = "_serverProxy";
 	public final static String IGNORE_SIGNATURE_PARAM_NAME_PREFIX = "__";
 	
 	private static String getParam(HttpServletRequest request, String key){
@@ -162,7 +164,8 @@ public class RuleKit {
 	}
 	
 	public static String getSign(Map<String, ?> params, String signKey){
-		logger.debug("params="+params+", signKey="+signKey);
+		if(logger.isDebugEnabled())
+			logger.debug("params="+params+", signKey="+signKey);
 		if(StringKit.isEmpty(signKey))
 			return "";
 		List<String> keyList = new ArrayList<String>(params.keySet());
@@ -181,7 +184,8 @@ public class RuleKit {
 			str.deleteCharAt(str.length() - 1);
 		str.append("&key=").append(signKey);
 		String sign = EncryptKit.md5(str.toString()).toLowerCase();
-		logger.debug("sign="+sign);
+		if(logger.isDebugEnabled())
+			logger.debug("get sign="+sign);
 		return sign;
 	}
 	
@@ -193,6 +197,8 @@ public class RuleKit {
 		RuleResult result = RuleResult.create();
 		
 		Object sign = params.get(SIGNATURE_PARAM_NAME);
+		if(logger.isDebugEnabled())
+			logger.debug("check sign="+sign);
 		if(StringKit.isEmpty(sign))
 			return result.fail(SubError.createMain(SubErrorType.ISV_MISSING_PARAMETER, SIGNATURE_PARAM_NAME));
 		if(!sign.equals(RuleKit.getSign(params, signKey)))

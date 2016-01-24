@@ -19,12 +19,12 @@ public class OpenRuleInterceptor implements Interceptor{
 		HttpServletRequest request = ai.getController().getRequest();
 		HttpServletResponse response = ai.getController().getResponse();
 		
-		RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
+		/*RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
 		//logger.debug("checkResult="+checkResult.toJSON());
 		if(!checkResult.isSuccess()){
 			HttpKit.writeResponse(response, checkResult.toJSON());
 			ai.getController().renderNull();
-		}else
+		}else*/
 			ai.invoke();
 	}
 }
