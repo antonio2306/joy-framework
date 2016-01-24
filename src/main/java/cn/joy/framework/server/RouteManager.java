@@ -183,6 +183,10 @@ public class RouteManager {
 		routes.put(routeKey, serverURL);
 	}
 	
+	public static Map<String, Properties> getServerProps(){
+		return serverProps;
+	}
+	
 	public static String getServerProp(String routeKey, String propKey){
 		Properties serverProp = serverProps.get(routeKey);
 		if(serverProp!=null){
@@ -197,6 +201,6 @@ public class RouteManager {
 			serverProp = new Properties();
 			serverProps.put(routeKey, serverProp);
 		}
-		serverProp.put(propKey, propVal);
+		serverProp.put(propKey, StringKit.getString(propVal));
 	}
 }

@@ -27,7 +27,7 @@ public class DefaultRouteStore implements RouteStore{
 		logger.warn("Empty Impl...");
 	}
 	
-	protected Map<String, Map<String, String>> syncRouteInfo(){
+	protected Map<String, Map> syncRouteInfo(){
 		String serverURL = RouteManager.getCenterServerURL();
 		if(StringKit.isNotEmpty(serverURL)){
 			String routeInfo = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(

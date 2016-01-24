@@ -173,8 +173,14 @@ public class RuleExecutor {
 						serverURL = RouteManager.getServerURLByKey(serverInfo);
 						serverKey = serverInfo;
 					}else{
-						serverURL = RouteManager.getServerURLByCompanyCode(serverInfo);
-						serverKey = RouteManager.getRouteKey("", RouteManager.getServerTag(serverInfo));
+						String serverTag = RouteManager.getServerTag(serverInfo);
+						if(JoyManager.getServer().getCenterServerTag().equals(serverTag)){
+							serverURL = RouteManager.getCenterServerURL();
+							serverKey = RouteManager.getCenterRouteKey();
+						}else{
+							serverURL = RouteManager.getServerURLByTag(serverTag);
+							serverKey = RouteManager.getRouteKey("app", serverTag);
+						}
 					}
 					
 					//私有部署，没有其它远程服务器的route信息，由网站中转调用
@@ -332,6 +338,8 @@ public class RuleExecutor {
 	 * 调用开放规则
 	 */
 	private String post4OpenService(String url, String contextParam, String serviceKey, RuleParam rParam, String serverKey){
+		if(logger.isDebugEnabled())
+			logger.debug("post4OpenService, serviceKey="+serviceKey+", serverKey="+serverKey);
 		if(StringKit.isNotEmpty(serverKey)){
 			//调用center的service，需要提供调用者的serverKey，根据调用者的signKey签名
 			if(RouteManager.isCenterRouteKey(serverKey)){

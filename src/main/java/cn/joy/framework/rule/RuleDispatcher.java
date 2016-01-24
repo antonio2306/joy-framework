@@ -189,8 +189,9 @@ public class RuleDispatcher{
 			
 			if("route".equals(configType)){
 				if("sync_route".equals(configKey)){
-					Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();
+					Map<String, Map> routeInfo = new HashMap<String, Map>();
 					routeInfo.put("routes", RouteManager.getRoutes());
+					routeInfo.put("serverProps", RouteManager.getServerProps());
 					content = JsonKit.object2Json(routeInfo);
 				} else
 					content = RouteManager.getServerURLByKey(configKey);

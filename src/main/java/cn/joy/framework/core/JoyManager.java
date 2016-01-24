@@ -140,13 +140,14 @@ public class JoyManager {
 		
 		rLoader = RuleLoader.singleton();
 		
+		getRouteStore().initRoute();
+		
 		File moduleBaseDir = new File(PathKit.getPackagePath(server.getModulePackage()));
 		logger.info("module base dir: "+moduleBaseDir);
 		if(moduleBaseDir.exists()){
 			scanModules(moduleBaseDir, "");
 		}
 		
-		getRouteStore().initRoute();
 		logger.info("JOY Framework run...");
 	}
 	

@@ -20,7 +20,7 @@ public class ScheduleTaskTest {
 		
 		try {
 			System.out.println("主线程："+Thread.currentThread().getId());
-			Thread.sleep(30000);
+			Thread.sleep(6000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
