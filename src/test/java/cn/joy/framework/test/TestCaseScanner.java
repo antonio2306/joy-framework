@@ -15,7 +15,7 @@ public class TestCaseScanner {
 	public static Map<String, List<TestCaseScanner>> scan(String packageName) {
 		Map<String, List<TestCaseScanner>> cases = new HashMap();
 
-		List classes = ClassKit.getClasses(packageName);
+		List classes = ClassKit.listClass(packageName);
 		
 		Set<String> classSet = new HashSet<String>();
 

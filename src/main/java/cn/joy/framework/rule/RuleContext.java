@@ -38,6 +38,9 @@ public class RuleContext {
 	//用户组织号，代表用户的组织身份
 	private String companyCode;
 	
+	private String sceneKey;
+	private String trimSceneKey;	//trim 'test'
+	
 	private RuleExtraData rExtra;
 	
 	private RuleContext(){
@@ -45,23 +48,26 @@ public class RuleContext {
 	}
 	
 	public static RuleContext createSingle(String loginId){
-		RuleContext rContext = new RuleContext();
-		rContext.loginId = StringKit.getString(loginId, TRANSPORT_SINGLE);
-		
-		rContext.rExtra = RuleExtraData.create();
-		if(logger.isDebugEnabled())
-			logger.debug("loginId="+rContext.loginId);
-		return rContext;
+		return createSingle(loginId, "", "");
 	}
 	
 	public static RuleContext createSingle(String loginId, String companyCode){
+		return createSingle(loginId, companyCode, "");
+	}
+	
+	public static RuleContext createSingle(String loginId, String companyCode, String sceneKey){
 		RuleContext rContext = new RuleContext();
 		rContext.loginId = StringKit.getString(loginId, TRANSPORT_SINGLE);
 		rContext.companyCode = StringKit.getString(companyCode);
+		rContext.sceneKey = StringKit.getString(sceneKey, JoyManager.getServer().getDefaultSceneKey());
+		if(rContext.sceneKey.endsWith("test"))
+			rContext.trimSceneKey = rContext.sceneKey.substring(0, rContext.sceneKey.length()-4);
+		else
+			rContext.trimSceneKey = rContext.sceneKey;
 		
 		rContext.rExtra = RuleExtraData.create();
 		if(logger.isDebugEnabled())
-			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode);
+			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode+", sceneKey="+rContext.sceneKey);
 		return rContext;
 	}
 	
@@ -78,10 +84,18 @@ public class RuleContext {
 			throw new RuleException(SubErrorType.ISV_MISSING_PARAMETER, "loginId");
 		
 		rContext.companyCode = RuleKit.getStringParam(request, JoyManager.getServer().getCompanyCodeParam());
+		String sceneKey = RuleKit.getStringParam(request, JoyManager.getServer().getSceneKeyParam());
+		if(StringKit.isEmpty(sceneKey))
+			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());
+		rContext.sceneKey = StringKit.getString(sceneKey, JoyManager.getServer().getDefaultSceneKey());
+		if(rContext.sceneKey.endsWith("test"))
+			rContext.trimSceneKey = rContext.sceneKey.substring(0, rContext.sceneKey.length()-4);
+		else
+			rContext.trimSceneKey = rContext.sceneKey;
 		
 		rContext.rExtra = RuleExtraData.create();
 		if(logger.isDebugEnabled())
-			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode);
+			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode+", sceneKey="+rContext.sceneKey);
 		return rContext;
 	}
 	
@@ -117,9 +131,11 @@ public class RuleContext {
 	 */
 	public String prepareRemoteContextParam() {
 		StringBuilder params = new StringBuilder();
-		params.append("&loginId=").append(loginId);
+		params.append("&"+JoyManager.getServer().getLoginIdParam()+"=").append(loginId);
 		if(StringKit.isNotEmpty(companyCode))
 			params.append("&"+JoyManager.getServer().getCompanyCodeParam()+"=").append(companyCode);
+		if(StringKit.isNotEmpty(sceneKey))
+			params.append("&"+JoyManager.getServer().getSceneKeyParam()+"=").append(sceneKey);
 		if(logger.isDebugEnabled())
 			logger.debug("prepareRemoteContextParam, params="+params);
 		return params.toString();
@@ -161,6 +177,8 @@ public class RuleContext {
 		//复制需要保留的属性
 		context.loginId = this.loginId;
 		context.companyCode = this.companyCode;
+		context.sceneKey = this.sceneKey;
+		context.trimSceneKey = this.trimSceneKey;
 		return context;
 	}
 	
@@ -169,6 +187,8 @@ public class RuleContext {
 		this.rExecutor = null;
 		this.loginId = null;
 		this.companyCode = null;
+		this.sceneKey = null;
+		this.trimSceneKey = null;
 		this.rExtra = null;
 	}
 	
@@ -186,6 +206,14 @@ public class RuleContext {
 	
 	public String getLoginId() {
 		return loginId;
+	}
+	
+	public String getSceneKey() {
+		return sceneKey;
+	}
+	
+	public String getTrimSceneKey() {
+		return trimSceneKey;
 	}
 
 	public RuleExtraData getExtra(){

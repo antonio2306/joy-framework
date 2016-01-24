@@ -53,6 +53,6 @@
 		<property name="methodNameResolver" ref="methodNameResolver" />
 	</bean>
 	
-	<bean id="appConfig" class="com.xxx.AppConfig" init-method="init">
+	<bean id="appConfig" class="com.xxx.AppConfig" init-method="init" destroy-method="destroy">
 	</bean>
 </beans>

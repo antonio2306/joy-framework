@@ -16,19 +16,34 @@ public class ScheduleTaskTest {
 	
 	public void testSchedtask(){
 		ISchedulePlugin schedPlugin = (ISchedulePlugin)JoyManager.getPlugin("quartz");
-		schedPlugin.schedule(TestJob.class, "testJob", "test", "0/5 * * * * ?");
+		schedPlugin.schedule(TestJob.class, "testJob", "test", "0/3 * * * * ?");
 		
 		try {
 			System.out.println("主线程："+Thread.currentThread().getId());
-			Thread.sleep(12000);
+			Thread.sleep(30000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
 		schedPlugin.unschedule("testJob", "test");
-		
 		schedPlugin.stop();
 	}
+	
+	
+	/*public void testSchedtaskCluster(){
+		QuartzPlugin schedPlugin = (QuartzPlugin)JoyManager.getPlugin("quartz");
+		schedPlugin.use("testClusterScheduler", PropKit.use("quartz_cluster.properties").getProperties()).schedule(TestJob.class, "testJob", "testCluster", "0/3 * * * * ?");
+		
+		try {
+			System.out.println("主线程："+Thread.currentThread().getId());
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		schedPlugin.use("testClusterScheduler").unschedule("testJob", "testCluster");
+		schedPlugin.stop();
+	}*/
 	
 }
 

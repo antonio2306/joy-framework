@@ -1,7 +1,7 @@
-package cn.joy.framework.task;
+package cn.joy.framework.plugin.quartz;
 
 import org.quartz.Job;
 
 public interface ScheduleTask extends Job{
-
+	
 }

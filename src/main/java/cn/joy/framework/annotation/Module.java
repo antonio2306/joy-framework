@@ -12,7 +12,9 @@ public @interface Module {
 
 	public String desc() default "";
 
-	public String init() default "";
+	public String code() default "";
+	
+	public boolean hasSubs() default false;
 
 	public String[] depends() default {};
 }

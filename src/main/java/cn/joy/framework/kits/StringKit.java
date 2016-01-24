@@ -1,6 +1,10 @@
 package cn.joy.framework.kits;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharUtils;
 /**
@@ -161,6 +165,32 @@ public class StringKit {
             }  
         }
         return s.toString();
+	}
+	
+	public static boolean isTrue(Object obj){
+		String str = getString(obj);
+		return "true".equalsIgnoreCase(str) || "yes".equalsIgnoreCase(str) || "y".equalsIgnoreCase(str) || "1".equalsIgnoreCase(str);
+	}
+	
+	public static List<String> matchAll(String str, String regex){
+		List<String> matches = new ArrayList();
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(str);
+		while(matcher.find()){
+			for(int i=1;i<=matcher.groupCount();i++){
+				matches.add(matcher.group(i));
+			}
+		}
+		return matches;
+	}
+	
+	public static String matchOne(String str, String regex){
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(str);
+		if(matcher.find()){
+			return matcher.group(1);
+		}
+		return "";
 	}
 	
 }

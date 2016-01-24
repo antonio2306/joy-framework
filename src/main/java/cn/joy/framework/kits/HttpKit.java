@@ -41,6 +41,7 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
@@ -146,7 +147,29 @@ public class HttpKit {
 			httpPost.setEntity(entity);
 			if ("xml".equals(contentType))
 				httpPost.setHeader("Content-Type", "text/xml;charset=UTF-8");
+			else if(StringKit.isNotEmpty(contentType))
+				httpPost.setHeader("Content-Type", contentType);
 		} catch (UnsupportedEncodingException e) {
+			logger.error("", e);
+		}
+
+		return handleResponse(httpClient, httpPost);
+	}
+	
+	public static String post(String url, byte[] data, String contentType) {
+		HttpClient httpClient = createHttpClient();
+		HttpPost httpPost = new HttpPost(url);
+
+		try {
+			ByteArrayEntity entity = new ByteArrayEntity(data);
+			httpPost.setEntity(entity);
+			if ("xml".equals(contentType))
+				httpPost.setHeader("Content-Type", "text/xml;charset=UTF-8");
+			else if("file".equals(contentType))
+				httpPost.setHeader("Content-Type", "application/octet-stream");
+			else if(StringKit.isNotEmpty(contentType))
+				httpPost.setHeader("Content-Type", contentType);
+		} catch (Exception e) {
 			logger.error("", e);
 		}
 
@@ -210,6 +233,12 @@ public class HttpKit {
 		HttpGet httpGet = new HttpGet(url);
 		return handleResponse(httpClient, httpGet);
 	}
+	
+	public static byte[] getBytes(String url) {
+		HttpClient httpClient = createHttpClient();
+		HttpGet httpGet = new HttpGet(url);
+		return handleBytesResponse(httpClient, httpGet);
+	}
 
 	public static String handleResponse(HttpClient client, HttpRequestBase request) {
 		String responseText = "";
@@ -223,6 +252,33 @@ public class HttpKit {
 					EntityUtils.consume(response.getEntity());
 				} else
 					responseText = "statusCode:" + code;
+			}
+		} catch (SocketTimeoutException e) {
+			logger.error("", e);
+		} catch (ConnectException e) {
+			logger.error("", e);
+		} catch (UnknownHostException e) {
+			logger.error("", e);
+		} catch (Exception e) {
+			logger.error("", e);
+		} finally {
+			if (request != null)
+				request.abort();
+		}
+		return responseText;
+	}
+	
+	public static byte[] handleBytesResponse(HttpClient client, HttpRequestBase request) {
+		byte[] responseText = null;
+		try {
+			request.setHeader("Connection", "close");
+			HttpResponse response = client.execute(request);
+			if (response != null) {
+				int code = response.getStatusLine().getStatusCode();
+				if (code == 200) {
+					responseText = EntityUtils.toByteArray(response.getEntity());
+					EntityUtils.consume(response.getEntity());
+				}
 			}
 		} catch (SocketTimeoutException e) {
 			logger.error("", e);
@@ -291,14 +347,21 @@ public class HttpKit {
 	}
 
 	public static Map<String, String> getParameterMap(HttpServletRequest request) {
+		return getParameterMap(request, null);
+	}
+	
+	public static Map<String, String> getParameterMap(HttpServletRequest request, String namePrefix) {
 		// 参数Map
 		Map<String, String[]> params = request.getParameterMap();
 		// 返回值Map
 		Map<String, String> returnMap = new HashMap<String, String>();
 		String name = "";
 		String value = "";
+		boolean filterByNamePrefix = StringKit.isNotEmpty(namePrefix);
 		for (Entry<String, String[]> entry : params.entrySet()) {
 			name = (String) entry.getKey();
+			if(filterByNamePrefix && !name.startsWith(namePrefix))
+				continue;
 			String[] values = entry.getValue();
 			if (null == values) {
 				value = "";
@@ -343,5 +406,12 @@ public class HttpKit {
 				ip = ip.substring(0, index);
 		}
 		return ip;
+	}
+	
+	public static void setCORS(HttpServletResponse response){
+		response.setHeader("Access-Control-Allow-Origin", "*");
+	    response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+	    response.setHeader("Access-Control-Max-Age", "3600");
+	    response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
 	}
 }

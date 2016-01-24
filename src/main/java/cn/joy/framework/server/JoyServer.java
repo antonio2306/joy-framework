@@ -21,6 +21,20 @@ public abstract class JoyServer {
 	
 	public void init(Properties config){
 		serverVariables = config;
+		
+		String envMode = this.getEnvMode();
+		if(!"product".equals(envMode)){
+			envMode = envMode+"_";
+			for(String propName:serverVariables.stringPropertyNames()){
+				if(propName.startsWith(envMode)){
+					serverVariables.setProperty(propName.substring(envMode.length()), serverVariables.getProperty(propName));
+				}
+			}
+		}
+	}
+	
+	public void stop(){
+		
 	}
 	
 	public void setVariable(String key, String value){
@@ -83,12 +97,24 @@ public abstract class JoyServer {
 		return this.getVariable("param_companycode", "companyCode");
 	}
 	
+	public String getSceneKeyParam(){
+		return this.getVariable("param_scenekey", "sceneKey");
+	}
+	
+	public String getSessionSceneKeyParam(){
+		return this.getVariable("param_scenekeyinsession", "sceneKeyInSession");
+	}
+	
 	public String getAccessTokenParam(){
 		return this.getVariable("param_accesstoken", "accessToken");
 	}
 	
 	public String getCharset(){
 		return this.getVariable("app_charset", "UTF-8");
+	}
+	
+	public String getEnvMode(){
+		return this.getVariable("env_mode", "product");
 	}
 	
 	public Locale getLocale(){
@@ -102,6 +128,10 @@ public abstract class JoyServer {
 
 	public String getDefaultModule() {
 		return this.getVariable("app_default_module");
+	}
+	
+	public String getDefaultSceneKey() {
+		return this.getVariable("app_default_scene_key");
 	}
 	
 	private String getRequestUrl(String serverURL, String serviceURL, String params, Map<String, String> datas){

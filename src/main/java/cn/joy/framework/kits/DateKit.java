@@ -1,10 +1,25 @@
 package cn.joy.framework.kits;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.lang.time.DateUtils;
+
 public class DateKit {
+	private static String[] pattern = new String[]{"yyyy-MM","yyyyMM","yyyy/MM",   
+            "yyyyMMdd","yyyy-MM-dd","yyyy/MM/dd",   
+            "yyyyMMddHHmmss", "yyyy-MM-dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss"}; 
+	
+	public static Date parseDate(String dateStr){
+		try {
+			return DateUtils.parseDateStrictly(dateStr, pattern);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+	
 	public static String fillDateStr(String dateStr){
 		int count = StringKit.getOccurCount(dateStr, ":");
 		if(count==1)
