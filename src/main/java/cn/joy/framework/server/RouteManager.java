@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -22,6 +23,7 @@ import cn.joy.framework.kits.StringKit;
 public class RouteManager {
 	private static Logger logger = Logger.getLogger(RouteManager.class);
 	private static Map<String, String> routes = new HashMap<String, String>();
+	private static Map<String, Properties> serverProps = new HashMap<String, Properties>();
 
 	public static List<String> getAllServerUrls(String serverType){
 		List<String> urls = new ArrayList<String>();
@@ -168,5 +170,21 @@ public class RouteManager {
 	public static void setRoute(String routeKey, String serverURL){
 		routes.put(routeKey, serverURL);
 	}
+	
+	public static String getServerProp(String routeKey, String propKey){
+		Properties serverProp = serverProps.get(routeKey);
+		if(serverProp!=null){
+			return StringKit.getString(serverProp.get(propKey));
+		}
+		return "";
+	}
 
+	public static void setServerProp(String routeKey, String propKey, String propVal){
+		Properties serverProp = serverProps.get(routeKey);
+		if(serverProp==null){
+			serverProp = new Properties();
+			serverProps.put(routeKey, serverProp);
+		}
+		serverProp.put(propKey, propVal);
+	}
 }

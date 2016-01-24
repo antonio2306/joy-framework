@@ -10,4 +10,6 @@ public interface RouteStore {
 	public String getServerURL(String routeKey);
 
 	public void storeServerURL(String routeKey, String serverURL);
+	
+	public boolean isPrivateMode(String routeKey);
 }

@@ -141,6 +141,10 @@ public abstract class JoyServer {
 		return getVariable("url_webproxy", "rs/wp");
 	}
 	
+	public boolean isPrivateMode(){
+		return "private".equals(getVariable("deploy_mode"));
+	}
+	
 	public String getOpenRequestUrl(String serverURL, String params){
 		String url = getRequestUrl(serverURL, getUrlOpen(), params, null);
 		return JoyManager.getSecurityManager().secureOpenRequestURL(null, url);

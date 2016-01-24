@@ -19,6 +19,6 @@ public abstract class AppAuthManager{
 	}
 	
 	public abstract RuleResult checkAPIRequest(HttpServletRequest request);
-
-	public abstract void signAPIResult(HttpServletRequest request, RuleResult result);
+	
+	public abstract String getAppKey(HttpServletRequest request);
 }

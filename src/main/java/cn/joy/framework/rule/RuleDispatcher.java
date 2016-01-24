@@ -33,8 +33,6 @@ import cn.joy.framework.server.RouteManager;
 public class RuleDispatcher{
 	private static Logger logger = Logger.getLogger(RuleDispatcher.class);
 	public final static String APPID_PARAM_NAME = "_appId";
-	public final static String SIGNATURE_PARAM_NAME = "_sign";
-	public final static String IGNORE_SIGNATURE_PARAM_NAME_PREFIX = "__";
 
 	private static boolean checkOpenServiceToken(HttpServletRequest request, HttpServletResponse response){
 		RuleResult checkResult = JoyManager.getSecurityManager().checkOpenRequest(request);
@@ -137,7 +135,7 @@ public class RuleDispatcher{
 			result = e.getFailResult();
 		}
 		
-		JoyManager.getAppAuthManager().signAPIResult(request, result);
+		RuleKit.signResult(JoyManager.getAppAuthManager().getAppKey(request), result);
 		String content = result.toJSON();
 		Long t2 = System.currentTimeMillis();
 		if(appLogger.isDebugEnabled())
@@ -157,6 +155,12 @@ public class RuleDispatcher{
 
 		String content = "";
 		if(JoyManager.getServer() instanceof CenterServer){
+			String serverKey = request.getParameter("_sk");
+			boolean isPrivateMode = "private".equals(RouteManager.getServerProp(serverKey, "deployMode"));
+			if(isPrivateMode){
+				HttpKit.writeResponse(response, "Private");
+				return null;
+			}
 			if("route".equals(configType)){
 				if("sync_route".equals(configKey)){
 					Map<String, Map<String, String>> routeInfo = new HashMap<String, Map<String, String>>();

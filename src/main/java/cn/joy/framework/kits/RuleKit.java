@@ -1,10 +1,19 @@
 package cn.joy.framework.kits;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+
+import cn.joy.framework.exception.SubError;
+import cn.joy.framework.exception.SubErrorType;
+import cn.joy.framework.rule.RuleParam;
+import cn.joy.framework.rule.RuleResult;
 
 /**
  * 规则工具类
@@ -13,6 +22,8 @@ import org.apache.log4j.Logger;
  */
 public class RuleKit {
 	private static Logger logger = Logger.getLogger(RuleKit.class);
+	public final static String SIGNATURE_PARAM_NAME = "_sign";
+	public final static String IGNORE_SIGNATURE_PARAM_NAME_PREFIX = "__";
 	
 	private static String getParam(HttpServletRequest request, String key){
 		if(logger.isDebugEnabled())
@@ -144,5 +155,56 @@ public class RuleKit {
 		} catch (NumberFormatException e) {
 		}
 		return defaultValue;
+	}
+	
+	public static String getSign(RuleParam rParam, String signKey){
+		return getSign(rParam.getDatas(), signKey);
+	}
+	
+	public static String getSign(Map<String, ?> params, String signKey){
+		logger.debug("params="+params+", signKey="+signKey);
+		if(StringKit.isEmpty(signKey))
+			return "";
+		List<String> keyList = new ArrayList<String>(params.keySet());
+		Collections.sort(keyList);
+
+		StringBuilder str = new StringBuilder();
+		for(String key : keyList){
+			key = key.trim();
+			if(key.equals(SIGNATURE_PARAM_NAME) || key.startsWith(IGNORE_SIGNATURE_PARAM_NAME_PREFIX))
+				continue;
+			Object value = params.get(key);
+			if(StringKit.isNotEmpty(value))
+				str.append(key).append("=").append(value.toString().trim()).append("&");
+		}
+		if(str.length() > 0)
+			str.deleteCharAt(str.length() - 1);
+		str.append("&key=").append(signKey);
+		String sign = EncryptKit.md5(str.toString()).toLowerCase();
+		logger.debug("sign="+sign);
+		return sign;
+	}
+	
+	public static RuleResult checkSign(RuleParam rParam, String signKey){
+		return checkSign(rParam.getDatas(), signKey);
+	}
+	
+	public static RuleResult checkSign(Map<String, ?> params, String signKey){
+		RuleResult result = RuleResult.create();
+		
+		Object sign = params.get(SIGNATURE_PARAM_NAME);
+		if(StringKit.isEmpty(sign))
+			return result.fail(SubError.createMain(SubErrorType.ISV_MISSING_PARAMETER, SIGNATURE_PARAM_NAME));
+		if(!sign.equals(RuleKit.getSign(params, signKey)))
+			return result.fail(SubError.createMain(SubErrorType.ISV_INVALID_PARAMETER, SIGNATURE_PARAM_NAME));
+		return result.success();
+	}
+	
+	public static void signResult(String signKey, RuleResult result){
+		Map<String, String> resultMap = new HashMap<String, String>();
+		resultMap.put("result", StringKit.getString(result.isSuccess()));
+		resultMap.put("content", StringKit.getString(result.getContent()));
+		resultMap.put("msg", StringKit.getString(result.getMsg()));
+		result.putExtraData(SIGNATURE_PARAM_NAME, getSign(resultMap, signKey));
 	}
 }
