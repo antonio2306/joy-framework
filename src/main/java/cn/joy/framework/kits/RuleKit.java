@@ -177,7 +177,7 @@ public class RuleKit {
 			if(key.equals(SIGNATURE_PARAM_NAME) || key.startsWith(IGNORE_SIGNATURE_PARAM_NAME_PREFIX))
 				continue;
 			Object value = params.get(key);
-			if(StringKit.isNotEmpty(value))
+			if(StringKit.isNotEmpty(value) && ClassKit.isJavaClass(value.getClass()))
 				str.append(key).append("=").append(value.toString().trim()).append("&");
 		}
 		if(str.length() > 0)

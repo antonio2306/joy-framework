@@ -21,6 +21,10 @@ public class ClassKit {
 		return Thread.currentThread().getContextClassLoader();
 	}
 	
+	public static boolean isJavaClass(Class<?> clz) {
+		return clz != null && clz.getClassLoader() == null;
+	}
+	
 	public static Class getClass(String clazz){
 		ClassLoader loader = getClassLoader();
 		if (loader != null) {

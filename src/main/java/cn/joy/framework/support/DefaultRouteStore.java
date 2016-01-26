@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.server.RouteManager;
 import cn.joy.framework.kits.StringKit;
 
@@ -31,7 +32,7 @@ public class DefaultRouteStore implements RouteStore{
 		String serverURL = RouteManager.getCenterServerURL();
 		if(StringKit.isNotEmpty(serverURL)){
 			String routeInfo = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(
-					RouteManager.getCenterServerURL(), "_t=route&_k=sync_route"));
+					RouteManager.getCenterServerURL(), "_t=route&_k=sync_route&"+RuleKit.SERVER_KEY_PARAM_NAME+"="+RouteManager.getLocalRouteKey()));
 					
 			if(logger.isDebugEnabled())
 				logger.debug("routeInfo="+routeInfo);
