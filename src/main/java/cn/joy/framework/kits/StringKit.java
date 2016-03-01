@@ -36,6 +36,19 @@ public class StringKit {
 			return defaultValue;
 		return s.toString().trim();
 	}
+	
+	public static String getString(Object s, String... defaultValues) {
+		if (isEmpty(s)){
+			if(defaultValues!=null){
+				for(String defaultValue:defaultValues){
+					if(isNotEmpty(defaultValue))
+						return defaultValue;
+				}
+			}
+			return "";
+		}else
+			return s.toString().trim();
+	}
 
 	public static String capitalize(String s){
 		 return new StringBuilder().append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
