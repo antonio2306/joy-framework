@@ -347,6 +347,8 @@ public class RuleDispatcher{
 		for(Entry<String, String[]> entry : params.entrySet()){
 			datas.put(entry.getKey(), entry.getValue()[0]);
 		}
+		if(!datas.containsKey(JoyManager.getServer().getSceneKeyParam()))
+			datas.put(JoyManager.getServer().getSceneKeyParam(), RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam()));
 		
 		String appServerType = StringKit.getString(request.getParameter("appServerType"), JoyManager.getServer().getAppServerType());
 
