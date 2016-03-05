@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
+import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 
 /**
@@ -127,7 +128,7 @@ public class RouteManager {
 
 	public static String getAppServerURLByKey(String routeKey) {
 		String serverURL = routes.get(routeKey);
-		if (StringKit.isEmpty(serverURL)) {
+		if (StringKit.isEmpty(serverURL) && !JoyManager.getServer().isPrivateMode()) {
 			if (JoyManager.getServer() instanceof CenterServer) {
 				serverURL = JoyManager.getRouteStore().getServerURL(routeKey);
 				if (StringKit.isEmpty(serverURL))
@@ -135,7 +136,7 @@ public class RouteManager {
 			} else {
 				String centerURL = getCenterServerURL();
 				if(StringKit.isNotEmpty(centerURL)){
-					serverURL = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(centerURL, "_t=route&_k="+routeKey));
+					serverURL = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(centerURL, "_t=route&_k="+routeKey+"&"+RuleKit.SERVER_KEY_PARAM_NAME+"="+RouteManager.getLocalRouteKey()));
 					if(!serverURL.startsWith("http"))
 						serverURL = "";
 					else
