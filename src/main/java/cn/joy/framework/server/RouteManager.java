@@ -145,7 +145,7 @@ public class RouteManager {
 			}
 			routes.put(routeKey, serverURL);
 		}
-		if (logger.isDebugEnabled())
+		if (StringKit.isEmpty(serverURL) && logger.isDebugEnabled())
 			logger.debug("routes: " + routes);
 		return serverURL;
 	}
