@@ -130,6 +130,15 @@ public class QuartzScheduler {
 		}
 	}
 	
+	public void start(){
+		try {
+			if(scheduler.isShutdown())
+				scheduler.start();
+		} catch (SchedulerException e) {
+			logger.error("scheduler start fail.", e);
+		}
+	}
+	
 	public void shutdown(){
 		try {
 			scheduler.shutdown();
