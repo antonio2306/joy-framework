@@ -33,6 +33,16 @@ public class QuartzPlugin implements ISchedulePlugin {
 		}
 		return quartzScheduler;
 	}
+	
+	public void unuse(String schedulerName){
+		if(StringKit.isEmpty(schedulerName))
+			return;
+		QuartzScheduler quartzScheduler = schedulerMap.get(schedulerName);
+		if(quartzScheduler!=null){
+			quartzScheduler.shutdown();
+		}
+		schedulerMap.remove(schedulerName);
+	}
 
 	public void start() {
 		File configFile = new File(PathKit.getClassPath()+"/quartz.properties");
