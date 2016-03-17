@@ -26,7 +26,7 @@ public class Db {
 			return SpringResource.getMainDb();
 		return SpringResource.getDb(dbName);
 	}
-
+	
 	public static Session getSession() {
 		return use().getSession();
 	}
@@ -34,6 +34,22 @@ public class Db {
 	public static boolean beginTransaction() {
 		try {
 			return use().beginTransaction();
+		} catch (NullPointerException e) {
+			return false;
+		}
+	}
+	
+	public static boolean beginNewTransaction() {
+		try {
+			return use().beginNewTransaction();
+		} catch (NullPointerException e) {
+			return false;
+		}
+	}
+	
+	public static boolean beginEmptyTransaction() {
+		try {
+			return use().beginEmptyTransaction();
 		} catch (NullPointerException e) {
 			return false;
 		}
@@ -70,6 +86,10 @@ public class Db {
 
 	public static <T> T get(String hql, Object... params) {
 		return use().get(hql, params);
+	}
+	
+	public static <T> T get(String hql, Map<String, Object> namedParams, Object... params) {
+		return use().get(hql, namedParams, params);
 	}
 
 	public static Object unique(String hql, Object... params) {

@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,7 +25,12 @@ import org.hibernate.transform.Transformers;
 public class SpringDb {
 	private Logger logger = Logger.getLogger(SpringDb.class);
 	private SessionFactory sessionFactory = null;
-	private final ThreadLocal<Session> threadLocal = new ThreadLocal<Session>();
+	private final ThreadLocal<LinkedList<Session>> threadLocal = new ThreadLocal<LinkedList<Session>>();
+	
+	public SpringDb(){
+		LinkedList<Session> sessionStack = new LinkedList<Session>();
+		threadLocal.set(sessionStack);
+	}
 
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
@@ -34,10 +40,11 @@ public class SpringDb {
 		this.sessionFactory = sessionFactory;
 	}
 	
-	public Session getThreadLocalSession() {
-		return threadLocal.get();
+	Session getThreadLocalSession() {
+		return threadLocal.get().peekLast();
 	}
 	
+	//在当前线程中获取事务，如果为空，则开启自己的事务
 	public Session getSession() {
 		Session session = getThreadLocalSession();
 		if(session!=null)
@@ -48,63 +55,69 @@ public class SpringDb {
 	}
 	
 	void beginTransaction(Session session) {
-		if(getThreadLocalSession()==null)
-			if (session != null) 
-				session.beginTransaction();
+		if(session!=null && session!=getThreadLocalSession())
+			session.beginTransaction();
 	}
 
 	void endTransaction(Session session) {
-		if(getThreadLocalSession()==null)
-			if (session != null && session.isOpen()){
+		if(session!=null && session!=getThreadLocalSession()){
+			if (session.isOpen()){
 				if(logger.isDebugEnabled())
 					logger.debug("close single session...");
 				session.close();
 			}
+		}
 	}
 
 	void commitAndEndTransaction(Session session) {
-		if(getThreadLocalSession()==null){
-			if (session != null) {
-				try {
-					session.getTransaction().commit();
-				} catch (Exception e) {
-					logger.error("", e);
-					session.getTransaction().rollback();
-					throw new DbException(e);
-				} finally {
-					if(logger.isDebugEnabled())
-						logger.debug("close single session...");
-					session.close();
-				}
+		if(session!=null && session!=getThreadLocalSession()){
+			try {
+				session.getTransaction().commit();
+			} catch (Exception e) {
+				logger.error("", e);
+				session.getTransaction().rollback();
+				throw new DbException(e);
+			} finally {
+				if(logger.isDebugEnabled())
+					logger.debug("close single session...");
+				session.close();
 			}
 		}
 	}
 
 	void rollbackAndEndTransaction(Session session) {
-		if(getThreadLocalSession()==null){
-			if (session != null) {
-				try {
-					session.getTransaction().rollback();
-				} catch (Exception e) {
-					logger.error("", e);
-					throw new DbException(e);
-				} finally {
-					if(logger.isDebugEnabled())
-						logger.debug("close single session...");
-					session.close();
-				}
+		if(session!=null && session!=getThreadLocalSession()){
+			try {
+				session.getTransaction().rollback();
+			} catch (Exception e) {
+				logger.error("", e);
+				throw new DbException(e);
+			} finally {
+				if(logger.isDebugEnabled())
+					logger.debug("close single session...");
+				session.close();
 			}
 		}
 	}
+	
+	void addLastSession(Session session) {
+		if(logger.isDebugEnabled())
+			logger.debug("add last session...");
+		threadLocal.get().add(session);
+	}
+	
+	Session removeLastSession() {
+		if(logger.isDebugEnabled())
+			logger.debug("close last session...");
+		return threadLocal.get().pollLast();
+	}
 
 	public boolean beginTransaction() {
-		//if (logger.isDebugEnabled())
-		//	logger.debug("beginTransaction...");
 		Session session = getThreadLocalSession();
 		if (session == null || !session.isOpen()){
 			session = sessionFactory.openSession();
 			session.beginTransaction();
-			threadLocal.set(session);
+			addLastSession(session);
 			if (logger.isDebugEnabled())
 				logger.debug("beginTransaction do.");
 			return true;
@@ -112,20 +125,35 @@ public class SpringDb {
 		return false;
 	}
 
+	public boolean beginNewTransaction() {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		addLastSession(session);
+		if (logger.isDebugEnabled())
+			logger.debug("beginNewTransaction do.");
+		return true;
+	}
+
+	public boolean beginEmptyTransaction() {
+		if (logger.isDebugEnabled())
+			logger.debug("beginEmptyTransaction do.");
+		addLastSession(null);
+		return true;
+	}
+	
 	public void endTransaction() {
-		//if (logger.isDebugEnabled())
-		//	logger.debug("endTransaction...");
-		Session session = getThreadLocalSession();
+		Session session = removeLastSession();
+		if (logger.isDebugEnabled())
+			logger.debug("endTransaction session="+session);
 		if (session != null && session.isOpen()){
 			session.close();
 			if (logger.isDebugEnabled())
 				logger.debug("endTransaction do.");
 		}
-		threadLocal.remove();
 	}
 
 	public void commitAndEndTransaction() {
-		Session session = getThreadLocalSession();
+		Session session = removeLastSession();
 		if (session != null) {
 			try {
 				session.getTransaction().commit();
@@ -137,13 +165,12 @@ public class SpringDb {
 				throw new DbException(e);
 			} finally {
 				session.close();
-				threadLocal.remove();
 			}
 		}
 	}
 
 	public void rollbackAndEndTransaction() {
-		Session session = getThreadLocalSession();
+		Session session = removeLastSession();
 		if (session != null) {
 			try {
 				session.getTransaction().rollback();
@@ -154,7 +181,6 @@ public class SpringDb {
 				throw new DbException(e);
 			} finally {
 				session.close();
-				threadLocal.remove();
 			}
 		}
 	}
@@ -217,6 +243,15 @@ public class SpringDb {
 		if (logger.isDebugEnabled())
 			logger.debug("db get ==> " + hql);
 		List<T> list = list(hql, params);
+		if (list != null && list.size() > 0)
+			return list.get(0);
+		return null;
+	}
+	
+	public <T> T get(String hql, Map<String, Object> namedParams, Object... params) {
+		if (logger.isDebugEnabled())
+			logger.debug("db get ==> " + hql);
+		List<T> list = list(hql, namedParams, params);
 		if (list != null && list.size() > 0)
 			return list.get(0);
 		return null;

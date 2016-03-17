@@ -25,7 +25,10 @@ public class JfinalPlugin implements ITransactionPlugin{
 	public void stop() {
 	}
 
-	public RuleResult doTransaction(final JoyCallback callback) throws Exception {
+	public RuleResult doTransaction(final JoyCallback callback, final int transactionWay) throws Exception {
+		if(transactionWay==0)
+			return callback.run();
+		
 		RuleResult ruleResult = null;
 		final List<RuleResult> resultWrap = new ArrayList<RuleResult>();
 		try {

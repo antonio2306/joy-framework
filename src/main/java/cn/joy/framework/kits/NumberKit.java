@@ -1,5 +1,7 @@
 package cn.joy.framework.kits;
 
+import java.math.BigDecimal;
+
 import org.apache.commons.lang.math.NumberUtils;
 /**
  * 数值操作工具类
@@ -54,6 +56,18 @@ public class NumberKit {
 	public static Integer getInteger(Object value, Integer defaultValue) {
 		try {
 			return new Integer(value.toString());
+		} catch (Exception ex) {
+			return defaultValue;
+		}
+	}
+	
+	public static BigDecimal BigDecimal(Object value) {
+		return getBigDecimal(value, null);
+	}
+
+	public static BigDecimal getBigDecimal(Object value, BigDecimal defaultValue) {
+		try {
+			return new BigDecimal(value.toString());
 		} catch (Exception ex) {
 			return defaultValue;
 		}

@@ -9,5 +9,5 @@ import cn.joy.framework.rule.RuleResult;
  * @date 2014-07-06
  */
 public interface ITransactionPlugin extends IPlugin {
-	public RuleResult doTransaction(JoyCallback callback) throws Exception;
+	public RuleResult doTransaction(JoyCallback callback, int transactionWay) throws Exception;
 }

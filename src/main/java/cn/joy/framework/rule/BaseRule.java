@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import cn.joy.framework.annotation.NewTransaction;
 import cn.joy.framework.annotation.NoTransaction;
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
@@ -54,15 +55,15 @@ public abstract class BaseRule {
 		final BaseRule rule = this;
 		final Object[] mParams = this.getActionMethodParam(rContext, rParam);
 		
-		NoTransaction ntAnnotation = method.getAnnotation(NoTransaction.class);
+		/*NoTransaction ntAnnotation = method.getAnnotation(NoTransaction.class);
 		if(ntAnnotation!=null){
 			return executeRuleMethod(method, rule, mParams);
-		}else
-			return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
-				public RuleResult run(Object... params) throws Exception{
-					return executeRuleMethod(method, rule, mParams);
-				}
-			});
+		}else*/
+		return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
+			public RuleResult run(Object... params) throws Exception{
+				return executeRuleMethod(method, rule, mParams);
+			}
+		}, method.getAnnotation(NoTransaction.class)!=null?0:method.getAnnotation(NewTransaction.class)!=null?2:1);
 	}
 	
 	private RuleResult executeRuleMethod(final Method method, final BaseRule rule, final Object[] mParams) throws Exception{

@@ -22,15 +22,20 @@ public class SpringPlugin implements ITransactionPlugin{
 		
 	}
 
-	public RuleResult doTransaction(JoyCallback callback) throws Exception{
+	public RuleResult doTransaction(JoyCallback callback, int transactionWay) throws Exception{
 		RuleResult ruleResult = null;
 		boolean isNew = false;
 		try {
-			isNew = Db.beginTransaction();
+			if(transactionWay==0)
+				isNew = Db.beginEmptyTransaction();
+			else if(transactionWay==1)
+				isNew = Db.beginTransaction();
+			else if(transactionWay==2)
+				isNew = Db.beginNewTransaction();
 			
 			ruleResult = callback.run();
 			if(logger.isDebugEnabled())
-				logger.debug("doTransaction, result="+ruleResult.isSuccess());
+				logger.debug("doTransaction, transactionWay="+transactionWay+", result="+ruleResult.isSuccess());
 			if(ruleResult.isSuccess()){
 				if(isNew)
 					Db.commitAndEndTransaction();
