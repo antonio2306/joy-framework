@@ -1,5 +1,7 @@
 package cn.joy.framework.core;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -75,6 +77,16 @@ public abstract class JoyBundle<T> extends JoyMap<T, String, Object> {
     }
 
     public T putDouble(String key, Double value) {
+        mMap.put(key, value);
+        return (T)this;
+    }
+    
+    public T putBigInteger(String key, BigInteger value) {
+        mMap.put(key, value);
+        return (T)this;
+    }
+    
+    public T putBigDecimal(String key, BigDecimal value) {
         mMap.put(key, value);
         return (T)this;
     }
@@ -155,6 +167,44 @@ public abstract class JoyBundle<T> extends JoyMap<T, String, Object> {
 		}
 		try {
 			return Double.parseDouble(o.toString());
+		} catch (Exception e) {
+			return defaultValue;
+		}
+	}
+	
+	public BigInteger getBigInteger(String key) {
+		return getBigInteger(key, null);
+	}
+
+	public BigInteger getBigInteger(String key, BigInteger defaultValue) {
+		Object o = mMap.get(key);
+		if (o == null) {
+			return defaultValue;
+		}
+		
+		if(o instanceof BigInteger)
+			return (BigInteger)o;
+		try {
+			return new BigInteger(o.toString());
+		} catch (Exception e) {
+			return defaultValue;
+		}
+	}
+
+	public BigDecimal getBigDecimal(String key) {
+		return getBigDecimal(key, null);
+	}
+
+	public BigDecimal getBigDecimal(String key, BigDecimal defaultValue) {
+		Object o = mMap.get(key);
+		if (o == null) {
+			return defaultValue;
+		}
+		
+		if(o instanceof BigDecimal)
+			return (BigDecimal)o;
+		try {
+			return new BigDecimal(o.toString());
 		} catch (Exception e) {
 			return defaultValue;
 		}
