@@ -50,8 +50,8 @@ public class SpringPlugin implements ITransactionPlugin{
 				Db.rollbackAndEndTransaction();
 			throw e;
 		} finally {
-			if(isNew)
-				Db.endTransaction();
+			//if(isNew)	//session栈，不能多次关闭了
+			//	Db.endTransaction();
 		}
 		return ruleResult;
 	}

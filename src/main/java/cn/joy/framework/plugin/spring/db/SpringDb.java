@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
@@ -27,11 +28,6 @@ public class SpringDb {
 	private SessionFactory sessionFactory = null;
 	private final ThreadLocal<LinkedList<Session>> threadLocal = new ThreadLocal<LinkedList<Session>>();
 	
-	public SpringDb(){
-		LinkedList<Session> sessionStack = new LinkedList<Session>();
-		threadLocal.set(sessionStack);
-	}
-
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
@@ -40,8 +36,17 @@ public class SpringDb {
 		this.sessionFactory = sessionFactory;
 	}
 	
+	private LinkedList<Session> getThreadLocal(){
+		LinkedList<Session> sessionStack = threadLocal.get();
+		if(sessionStack==null){
+			sessionStack = new LinkedList<Session>();
+			threadLocal.set(sessionStack);
+		}
+		return sessionStack;
+	}
+	
 	Session getThreadLocalSession() {
-		return threadLocal.get().peekLast();
+		return getThreadLocal().peekLast();
 	}
 	
 	//在当前线程中获取事务，如果为空，则开启自己的事务
@@ -103,13 +108,13 @@ public class SpringDb {
 	void addLastSession(Session session) {
 		if(logger.isDebugEnabled())
 			logger.debug("add last session...");
-		threadLocal.get().add(session);
+		getThreadLocal().add(session);
 	}
 	
 	Session removeLastSession() {
 		if(logger.isDebugEnabled())
 			logger.debug("close last session...");
-		return threadLocal.get().pollLast();
+		return getThreadLocal().pollLast();
 	}
 
 	public boolean beginTransaction() {
