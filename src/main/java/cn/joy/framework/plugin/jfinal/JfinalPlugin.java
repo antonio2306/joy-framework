@@ -32,20 +32,24 @@ public class JfinalPlugin implements ITransactionPlugin{
 		RuleResult ruleResult = null;
 		final List<RuleResult> resultWrap = new ArrayList<RuleResult>();
 		try {
-			Db.tx(new IAtom() {
-				public boolean run() throws SQLException {
-					try {
-						RuleResult txResult = callback.run();
-						if(logger.isDebugEnabled())
-							logger.debug("doTransaction, txResult="+txResult.toJSON());
-						resultWrap.add(txResult);
-						return txResult.isSuccess();
-					} catch (Exception e) {
-						logger.error("", e);
-						return false;
+			try {
+				Db.tx(new IAtom() {
+					public boolean run() throws SQLException {
+						try {
+							RuleResult txResult = callback.run();
+							if(logger.isDebugEnabled())
+								logger.debug("doTransaction, txResult="+txResult.toJSON());
+							resultWrap.add(txResult);
+							return txResult.isSuccess();
+						} catch (Exception e) {
+							logger.error("", e);
+							return false;
+						}
 					}
-				}
-			});
+				});
+			} catch (RuntimeException e) {
+				logger.warn(e.getMessage());
+			}
 			
 			if(resultWrap.size()==0)
 				return ruleResult.fail(MainError.create(MainErrorType.MISSING_RESULT));
