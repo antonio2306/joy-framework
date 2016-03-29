@@ -1,11 +1,15 @@
 package cn.joy.framework.plugin.jfinal;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.plugin.jfinal.annotation.Controller;
+import cn.joy.framework.plugin.jfinal.annotation.Table;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +21,7 @@ import com.jfinal.config.Interceptors;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.Model;
 
 public class BaseConfig extends JFinalConfig{
@@ -29,12 +34,30 @@ public class BaseConfig extends JFinalConfig{
 
 	@Override
 	public void configRoute(Routes me) {
-		
+		List<Class> controllerClasses  = ClassKit.listClassByAnnotation(this.getClass().getPackage().getName(), Controller.class);
+		if(controllerClasses!=null){
+			for(Class controllerClass:controllerClasses){
+				Controller controllerInfo = (Controller)controllerClass.getAnnotation(Controller.class);
+				logger.debug("add controller "+controllerInfo.url());
+				me.add(controllerInfo.url(), controllerClass);
+			}
+		}
 	}
 
 	@Override
 	public void configPlugin(Plugins me) {
 		
+	}
+	
+	protected void configTable(ActiveRecordPlugin arp){
+		List<Class> tableClasses  = ClassKit.listClassByAnnotation(this.getClass().getPackage().getName(), Table.class);
+		if(tableClasses!=null){
+			for(Class tableClass:tableClasses){
+				Table tableInfo = (Table)tableClass.getAnnotation(Table.class);
+				logger.debug("add table "+tableInfo.name());
+				arp.addMapping(tableInfo.name(), tableClass);
+			}
+		}
 	}
 
 	@Override
