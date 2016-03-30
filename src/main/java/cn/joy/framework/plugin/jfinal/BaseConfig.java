@@ -5,12 +5,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.kits.ClassKit;
-import cn.joy.framework.kits.JsonKit;
-import cn.joy.framework.plugin.jfinal.annotation.Controller;
-import cn.joy.framework.plugin.jfinal.annotation.Table;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -24,6 +18,14 @@ import com.jfinal.config.Routes;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.Model;
 
+import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.kits.ClassKit;
+import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.StringKit;
+import cn.joy.framework.plugin.jfinal.annotation.Ctrl;
+import cn.joy.framework.plugin.jfinal.annotation.Table;
+
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class BaseConfig extends JFinalConfig{
 	private static Logger logger = Logger.getLogger(BaseConfig.class);
 
@@ -34,11 +36,12 @@ public class BaseConfig extends JFinalConfig{
 
 	@Override
 	public void configRoute(Routes me) {
-		List<Class> controllerClasses  = ClassKit.listClassByAnnotation(this.getClass().getPackage().getName(), Controller.class);
+		List<Class> controllerClasses  = ClassKit.listClassByAnnotation(this.getClass().getPackage().getName(), Ctrl.class);
 		if(controllerClasses!=null){
 			for(Class controllerClass:controllerClasses){
-				Controller controllerInfo = (Controller)controllerClass.getAnnotation(Controller.class);
-				logger.debug("add controller "+controllerInfo.url());
+				Ctrl controllerInfo = (Ctrl)controllerClass.getAnnotation(Ctrl.class);
+				if(logger.isDebugEnabled())
+					logger.debug("add controller "+controllerInfo.url());
 				me.add(controllerInfo.url(), controllerClass);
 			}
 		}
@@ -49,13 +52,17 @@ public class BaseConfig extends JFinalConfig{
 		
 	}
 	
-	protected void configTable(ActiveRecordPlugin arp){
+	protected void configTable(ActiveRecordPlugin arp, String db){
 		List<Class> tableClasses  = ClassKit.listClassByAnnotation(this.getClass().getPackage().getName(), Table.class);
 		if(tableClasses!=null){
 			for(Class tableClass:tableClasses){
 				Table tableInfo = (Table)tableClass.getAnnotation(Table.class);
-				logger.debug("add table "+tableInfo.name());
-				arp.addMapping(tableInfo.name(), tableClass);
+				if(StringKit.isNotEmpty(db) && !db.equals(tableInfo.db()))
+					continue;
+				if(logger.isDebugEnabled())
+					logger.debug("add table "+tableInfo.name());
+				
+				arp.addMapping(tableInfo.name(), tableInfo.pk(), tableClass);
 			}
 		}
 	}

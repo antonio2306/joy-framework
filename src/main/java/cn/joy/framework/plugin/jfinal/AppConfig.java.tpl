@@ -4,17 +4,15 @@ public class AppConfig extends BaseConfig{
 	@Override
 	public void configConstant(Constants me) {
 		me.setDevMode(true);
-		me.setViewType(ViewType.JSP); 
-		loadPropertyFile("xxx.properties");	
+		me.setViewType(ViewType.JSP);
+		me.setBaseViewPath("/WEB-INF/jsp");
+		loadPropertyFile("app.properties");
 	}
 
 	@Override
 	public void configRoute(Routes me) {
-		me.add("/", XxxController.class);
-		me.add("/service/open", OpenRuleController.class);
-		me.add("/service/business", BusinessRuleController.class);
-		me.add("/service/download", DownloadRuleController.class);
-		me.add("/webproxy", WebProxyController.class);
+		//me.add("/", XxxController.class);
+		super.configRoute(me);
 	}
 
 	@Override
@@ -49,16 +47,11 @@ public class AppConfig extends BaseConfig{
 
 	@Override
 	public void afterJFinalStart() {
-		super.afterJFinalStart();
 		//用户需要自定义安全管理器，检查请求的安全性
 		JoyManager.setRouteStore(new DefaultRouteStore());
 		//用户需要自定义服务器路由存储
 		JoyManager.setSecurityManager(new DefaultSecurityManager());
 		
-		try{
-			JoyManager.init();
-		} catch(Exception e){
-			throw new RuntimeException(e);
-		}
+		super.afterJFinalStart();
 	}
 }

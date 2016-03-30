@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target({ TYPE })
-public @interface Controller {
+public @interface Ctrl {
 	public String url() default "";
 	
 }

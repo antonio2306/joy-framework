@@ -12,6 +12,6 @@ public @interface Table {
 	
 	public String db() default "";
 	
-	public String[] pk() default {};
+	public String pk() default "";
 
 }
