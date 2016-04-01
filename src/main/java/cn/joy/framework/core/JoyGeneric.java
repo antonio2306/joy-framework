@@ -1,5 +1,7 @@
 package cn.joy.framework.core;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -171,6 +173,38 @@ public abstract class JoyGeneric {
 			}
 			try {
 				return Double.parseDouble(o.toString());
+			} catch (Exception e) {
+				return defaultValue;
+			}
+		}
+		
+		public BigInteger getBigInteger(K key) {
+			return getBigInteger(key, null);
+		}
+
+		public BigInteger getBigInteger(K key, BigInteger defaultValue) {
+			Object o = mMap.get(key);
+			if (o == null) {
+				return defaultValue;
+			}
+			try {
+				return new BigInteger(o.toString());
+			} catch (Exception e) {
+				return defaultValue;
+			}
+		}
+		
+		public BigDecimal getBigDecimal(K key) {
+			return getBigDecimal(key, null);
+		}
+
+		public BigDecimal getBigDecimal(K key, BigDecimal defaultValue) {
+			Object o = mMap.get(key);
+			if (o == null) {
+				return defaultValue;
+			}
+			try {
+				return new BigDecimal(o.toString());
 			} catch (Exception e) {
 				return defaultValue;
 			}
