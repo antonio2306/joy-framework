@@ -244,9 +244,9 @@ public class RuleExecutor {
 			if(logger.isDebugEnabled())
 				logger.debug("规则【"+ruleURI+"】的类加载器："+rule.getClass().getClassLoader().getClass().getSimpleName());
 			if(this.isAsyn)
-				return doExecuteAsyn(rule, rParam.putString(RuleParam.KEY_RULE_URI, ruleURI));
+				return doExecuteAsyn(rule, rParam.put(RuleParam.KEY_RULE_URI, ruleURI));
 			else
-				return doExecute(rule, rParam.putString(RuleParam.KEY_RULE_URI, ruleURI), isInnerInvoke);
+				return doExecute(rule, rParam.put(RuleParam.KEY_RULE_URI, ruleURI), isInnerInvoke);
 		}else
 			return RuleResult.empty().fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
 	}

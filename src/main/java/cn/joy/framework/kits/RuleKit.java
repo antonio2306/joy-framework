@@ -10,8 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
+import cn.joy.framework.rule.RuleContext;
+import cn.joy.framework.rule.RuleExecutor;
+import cn.joy.framework.rule.RuleInvokeConfig;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
 
@@ -103,7 +107,7 @@ public class RuleKit {
 	public static String getStringAttribute(HttpServletRequest request, String key, String defaultValue){
 		String value = StringKit.getString(request.getAttribute(key));
 		if(StringKit.isEmpty(value))
-			value = StringKit.getString(request.getSession().getAttribute(key));
+			value = StringKit.getString(SessionKit.get(request, key));
 		if(StringKit.isEmpty(value))
 			return defaultValue;
 		return value;
@@ -116,7 +120,7 @@ public class RuleKit {
 	public static Long getLongAttribute(HttpServletRequest request, String key, Long defaultValue){
 		Long value = NumberKit.getLong(request.getAttribute(key));
 		if(value==null)
-			value = NumberKit.getLong(request.getSession().getAttribute(key));
+			value = NumberKit.getLong(SessionKit.get(request, key));
 		if(value==null)
 			return defaultValue;
 		return defaultValue;
@@ -212,5 +216,40 @@ public class RuleKit {
 		resultMap.put("content", StringKit.getString(result.getContent()));
 		resultMap.put("msg", StringKit.getString(result.getMsg()));
 		result.putExtraData(SIGNATURE_PARAM_NAME, getSign(resultMap, signKey));
+	}
+	
+	public static RuleResult invokeLocalRule(HttpServletRequest request, String loginId, String ruleURI, RuleParam rParam){
+		return invokeRule(request, loginId, "", "", ruleURI, rParam, false);
+	}
+	
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI){
+		return invokeRule(request, loginId, companyCode, url, ruleURI, RuleParam.create(), false);
+	}
+	
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI,
+			Map<String, Object> params){
+		return invokeRule(request, loginId, companyCode, url, ruleURI, RuleParam.create().put(params), false);
+	}
+	
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI,
+			Map<String, Object> params, boolean isAsyn){
+		return invokeRule(request, loginId, companyCode, url, ruleURI, RuleParam.create().put(params), isAsyn);
+	}
+	
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI, RuleParam rParam){
+		return invokeRule(request, loginId, companyCode, url, ruleURI, rParam, false);
+	}
+	
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI, RuleParam rParam, boolean isAsyn){
+		String sceneKey = "";
+		if(request!=null)
+			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());
+		if(StringKit.isNotEmpty(url)){
+			return RuleExecutor.createRemote(RuleContext.createSingle(StringKit.getString(loginId, "NONE"), companyCode, sceneKey), RuleInvokeConfig.create().setAsyn(isAsyn))
+					.execute(url+"@" + ruleURI, rParam);
+		}else{
+			return RuleExecutor.create(RuleContext.createSingle(StringKit.getString(loginId, "NONE"), companyCode, sceneKey), RuleInvokeConfig.create().setAsyn(isAsyn))
+					.execute(ruleURI, rParam);
+		}
 	}
 }

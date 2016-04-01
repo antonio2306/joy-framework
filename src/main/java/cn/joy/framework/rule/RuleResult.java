@@ -1,16 +1,16 @@
 package cn.joy.framework.rule;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import cn.joy.framework.core.JoyMap;
 import cn.joy.framework.exception.IErrorType;
 import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.StringKit;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * 业务规则执行结果
  * @author liyy
@@ -57,6 +57,18 @@ public class RuleResult {
 	
 	public RuleResult success(String message){
 		return success(message, null);
+	}
+	
+	public RuleResult success(Map<String, Object> content){
+		return success("", content);
+	}
+	
+	public RuleResult success(JoyMap<String, Object> content){
+		return success("", content.map());
+	}
+	
+	public RuleResult success(List<Map<String, Object>> content){
+		return success("", content);
 	}
 	
 	public RuleResult success(String message, Object content){
