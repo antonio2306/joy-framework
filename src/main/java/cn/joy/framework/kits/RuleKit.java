@@ -107,7 +107,7 @@ public class RuleKit {
 	public static String getStringAttribute(HttpServletRequest request, String key, String defaultValue){
 		String value = StringKit.getString(request.getAttribute(key));
 		if(StringKit.isEmpty(value))
-			value = StringKit.getString(SessionKit.get(request, key));
+			value = StringKit.getString(request.getSession().getAttribute(key));
 		if(StringKit.isEmpty(value))
 			return defaultValue;
 		return value;
@@ -120,7 +120,7 @@ public class RuleKit {
 	public static Long getLongAttribute(HttpServletRequest request, String key, Long defaultValue){
 		Long value = NumberKit.getLong(request.getAttribute(key));
 		if(value==null)
-			value = NumberKit.getLong(SessionKit.get(request, key));
+			value = NumberKit.getLong(request.getSession().getAttribute(key));
 		if(value==null)
 			return defaultValue;
 		return defaultValue;
