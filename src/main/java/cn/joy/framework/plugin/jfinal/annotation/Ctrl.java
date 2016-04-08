@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 public @interface Ctrl {
 	public String url() default "";
 	
+	public String viewPath() default "";
 }

@@ -41,8 +41,17 @@ public class BaseConfig extends JFinalConfig{
 			for(Class controllerClass:controllerClasses){
 				Ctrl controllerInfo = (Ctrl)controllerClass.getAnnotation(Ctrl.class);
 				if(logger.isDebugEnabled())
-					logger.debug("add controller "+controllerInfo.url());
-				me.add(controllerInfo.url(), controllerClass);
+					logger.debug("add controller, url="+controllerInfo.url()+", viewPath="+controllerInfo.viewPath());
+				String viewPath = controllerInfo.viewPath();
+				if(StringKit.isEmpty(viewPath)){
+					String packageName = controllerClass.getPackage().getName();
+					viewPath = StringKit.matchOne(packageName, "\\.module\\.(.+)\\.web").replaceAll("\\.", "/");
+				}
+				
+				if(StringKit.isEmpty(viewPath))
+					me.add(controllerInfo.url(), controllerClass);
+				else
+					me.add(controllerInfo.url(), controllerClass, viewPath);
 			}
 		}
 	}
