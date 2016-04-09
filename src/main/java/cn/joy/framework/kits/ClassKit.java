@@ -8,9 +8,15 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import org.apache.commons.lang3.StringUtils;
+
+import bsh.StringUtil;
 /**
  * Class操作工具类
  * @author liyy
@@ -155,11 +161,17 @@ public class ClassKit {
 		String packageDirName = packageName.replace('.', '/');
 		try {
 			// 定义一个枚举的集合 并进行循环来处理这个目录下的things
+			Set<String> loadedUrl = new HashSet<String>();	//某些特定环境下，可能加载多次
 			Enumeration<URL> dirs = getClassLoader().getResources(packageDirName);
 			// 循环迭代下去
 			while (dirs.hasMoreElements()) {
 				// 获取下一个元素
 				URL url = dirs.nextElement();
+				String loadedPath = StringKit.trim(url.getPath().toString(), "/");
+				if(loadedUrl.contains(loadedPath))
+					continue;
+				loadedUrl.add(loadedPath);
+				
 				// 得到协议的名称
 				String protocol = url.getProtocol();
 				// 如果是以文件的形式保存在服务器上

@@ -1,5 +1,6 @@
 package cn.joy.framework.kits;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,7 +50,11 @@ public class StringKit {
 		}else
 			return s.toString().trim();
 	}
-
+	
+	public static String trim(String str, String trim){
+		return str.trim().replaceFirst("^"+trim, "").replaceFirst(trim+"$", "");
+	}
+	
 	public static String capitalize(String s){
 		 return new StringBuilder().append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
 	}
