@@ -45,20 +45,20 @@ public class ClassKit {
 	/**
 	 * 取得所有实现某接口或继承某类的类
 	 * */
-	public static List<Class> listClassBySuper(String packageName, Class c) {
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c) {
 		return listClassBySuper(packageName, c, true, "");
 	}
 	
-	public static List<Class> listClassBySuper(String packageName, Class c, String pattern) {
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, String pattern) {
 		return listClassBySuper(packageName, c, true, pattern);
 	}
 	
-	public static List<Class> listClassBySuper(String packageName, Class c, boolean recursive) {
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, boolean recursive) {
 		return listClassBySuper(packageName, c, recursive, "");
 	}
 	
-	public static List<Class> listClassBySuper(String packageName, Class c, boolean recursive, String pattern) {
-		List<Class> returnClassList = new ArrayList<Class>();
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, boolean recursive, String pattern) {
+		List<Class<? extends T>> returnClassList = new ArrayList<>();
 
 		// 获取当前包下以及子包下所以的类
 		List<Class> allClass = listClass(packageName, recursive, pattern);

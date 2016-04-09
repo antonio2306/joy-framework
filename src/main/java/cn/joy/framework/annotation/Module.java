@@ -14,7 +14,5 @@ public @interface Module {
 
 	public String code() default "";
 	
-	public boolean hasSubs() default false;
-
 	public String[] depends() default {};
 }

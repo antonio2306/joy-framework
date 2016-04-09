@@ -29,15 +29,15 @@ public abstract class JoyModule {
 	}
 	
 	public static JoyModule create(String moduleKey, Class moduleDefineClass){
-		Module moduleAnnotation = (Module) moduleDefineClass.getAnnotation(Module.class);
-		if(moduleAnnotation==null)
-			throw new RuntimeException("Wrong Module Object");
-		
 		JoyModule joyModule = (JoyModule)BeanKit.getNewInstance(moduleDefineClass);//new JoyModule();
 		joyModule.key = moduleKey;
-		joyModule.name = moduleAnnotation.name();
-		joyModule.code = moduleAnnotation.code();
-		joyModule.description = moduleAnnotation.desc();
+		
+		Module moduleAnnotation = (Module) moduleDefineClass.getAnnotation(Module.class);
+		if(moduleAnnotation!=null){
+			joyModule.name = moduleAnnotation.name();
+			joyModule.code = moduleAnnotation.code();
+			joyModule.description = moduleAnnotation.desc();
+		}
 		
 		joyModule.init();
 		

@@ -3,6 +3,8 @@ package cn.joy.framework.core;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,11 +144,7 @@ public class JoyManager {
 		
 		getRouteStore().initRoute();
 		
-		File moduleBaseDir = new File(PathKit.getPackagePath(server.getModulePackage()));
-		logger.info("module base dir: "+moduleBaseDir);
-		if(moduleBaseDir.exists()){
-			scanModules(moduleBaseDir, "");
-		}
+		scanModules();
 		
 		logger.info("JOY Framework run...");
 	}
@@ -170,49 +168,30 @@ public class JoyManager {
 		logger.info("JOY Framework shutdown...");
 	}
 	
-	private static void scanModules(File moduleBaseDir, String parentPath){
-		File[] moduleDirs = moduleBaseDir.listFiles();
-		for(File moduleDir:moduleDirs){
-			if(moduleDir.isDirectory()){
-				boolean isModule = false;
-				boolean hasSubs = false;
-				String moduleName = parentPath+moduleDir.getName();
-				List moduleClasses = ClassKit.listClass(server.getModulePackage()+"."+moduleName, false);
-				if(moduleClasses!=null && moduleClasses.size()>0){
-					for (Object md : moduleClasses) {
-						Class mdClass = (Class) md;
-						Module moduleAnnotation = (Module) mdClass.getAnnotation(Module.class);
-						if(moduleAnnotation==null)
-							continue;
-						moduleDefines.put(moduleName, JoyModule.create(moduleName, mdClass));
-						if(logger.isInfoEnabled())
-							logger.info("create joy module: "+moduleName);
-						isModule = true;
-						hasSubs = moduleAnnotation.hasSubs();
-						break;
-					}
-				}
-
-				if(!isModule){
-					scanModules(moduleDir, moduleName+".");
-					continue;
-				}
-				
+	private static void scanModules(){
+		if(StringKit.isEmpty(server.getModulePackage()))
+			return;
+		int modulePackagePrefixLength = server.getModulePackage().length()+1;
+		List<Class<? extends JoyModule>> moduleClassList = ClassKit.listClassBySuper(server.getModulePackage(), JoyModule.class);
+		Collections.sort(moduleClassList, new Comparator<Class>() {
+			public int compare(Class o1, Class o2) {
+				return o1.getPackage().getName().compareTo(o2.getPackage().getName());
+			};
+		});
+		for(Class moduleClass:moduleClassList){
+			String moduleName = moduleClass.getPackage().getName().substring(modulePackagePrefixLength);
+			moduleDefines.put(moduleName, JoyModule.create(moduleName, moduleClass));
+			
+			if(logger.isInfoEnabled())
+				logger.info("found module: "+moduleName);
+			modules.add(moduleName);
+			
+			String eventPackage = String.format(JoyManager.getServer().getEventPackagePattern(), moduleName);
+			List<Class<? extends JoyEventListener>> listeners = ClassKit.listClassBySuper(eventPackage, JoyEventListener.class);
+			for(Class listenerClass:listeners){
 				if(logger.isInfoEnabled())
-					logger.info("found module: "+moduleName);
-				modules.add(moduleName);
-				
-				String eventPackage = String.format(JoyManager.getServer().getEventPackagePattern(), moduleName);
-				List<Class> listeners = ClassKit.listClassBySuper(eventPackage, JoyEventListener.class);
-				for(Class listenerClass:listeners){
-					if(logger.isInfoEnabled())
-						logger.info("found module event listener: "+listenerClass);
-					EventManager.addListener((JoyEventListener)BeanKit.getNewInstance(listenerClass));
-				}
-				
-				if(hasSubs){
-					scanModules(moduleDir, moduleName+".");
-				}
+					logger.info("found module event listener: "+listenerClass);
+				EventManager.addListener((JoyEventListener)BeanKit.getNewInstance(listenerClass));
 			}
 		}
 	}
