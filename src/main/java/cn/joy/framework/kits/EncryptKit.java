@@ -20,6 +20,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -210,14 +211,14 @@ public class EncryptKit {
 	public static String initMacKey() throws Exception {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacMD5");
 		SecretKey secretKey = keyGenerator.generateKey();
-		return encryptBASE64(secretKey.getEncoded());
+		return base64Encode(secretKey.getEncoded());
 	}
 
 	/**
 	 * HMAC加密
 	 */
 	public static byte[] hmac(byte[] data, String str) throws Exception {
-		SecretKey secretKey = new SecretKeySpec(decryptBASE64(str), "HmacMD5");
+		SecretKey secretKey = new SecretKeySpec(base64Decode(str), "HmacMD5");
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
 		mac.init(secretKey);
 		return mac.doFinal(data);
@@ -226,15 +227,15 @@ public class EncryptKit {
 	/**
 	 * BASE64加密
 	 */
-	public static String encryptBASE64(byte[] str) throws Exception {
-		return (new BASE64Encoder()).encodeBuffer(str);
+	public static String base64Encode(byte[] str){
+		return DatatypeConverter.printBase64Binary(str);
 	}
 
 	/**
 	 * BASE64解密
 	 */
-	public static byte[] decryptBASE64(String str) throws Exception {
-		return (new BASE64Decoder()).decodeBuffer(str);
+	public static byte[] base64Decode(String str){
+		return DatatypeConverter.parseBase64Binary(str);
 	}
 	
 	public static byte[] encryptDES(byte[] data, String key) throws Exception {
@@ -272,13 +273,13 @@ public class EncryptKit {
 		System.out.println("原文:\n" + inputStr);
 
 		byte[] inputData = inputStr.getBytes();
-		String code = encryptBASE64(inputData);
+		String code = base64Encode(inputData);
 		System.out.println("BASE64加密后:\n" + code);
 
-		byte[] output = decryptBASE64(code);
+		byte[] output = base64Decode(code);
 		String outputStr = new String(output);
 		System.out.println("BASE64解密后:\n" + outputStr);
-
+		
 		// 验证BASE64加密解密一致性
 		System.out.println(inputStr.equals(outputStr));
 		

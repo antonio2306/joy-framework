@@ -107,7 +107,18 @@ public class JsonKit {
 		}
 		return writer.toString();
 	}
-
+	
+	public static String object2FormatJson(Object object) {
+		StringWriter writer = new StringWriter();
+		try {
+			if (object != null)
+				mapper.writerWithDefaultPrettyPrinter().writeValue(writer, object);
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return writer.toString();
+	}
+	
 	public static Object json2Object(String json, Class klass) {
 		Object object = null;
 		try {

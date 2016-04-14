@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -147,7 +148,7 @@ public class HttpKit {
 			httpPost.setEntity(entity);
 			if ("xml".equals(contentType))
 				httpPost.setHeader("Content-Type", "text/xml;charset=UTF-8");
-			else if(StringKit.isNotEmpty(contentType))
+			else if (StringKit.isNotEmpty(contentType))
 				httpPost.setHeader("Content-Type", contentType);
 		} catch (UnsupportedEncodingException e) {
 			logger.error("", e);
@@ -155,7 +156,7 @@ public class HttpKit {
 
 		return handleResponse(httpClient, httpPost);
 	}
-	
+
 	public static String post(String url, byte[] data, String contentType) {
 		HttpClient httpClient = createHttpClient();
 		HttpPost httpPost = new HttpPost(url);
@@ -165,9 +166,9 @@ public class HttpKit {
 			httpPost.setEntity(entity);
 			if ("xml".equals(contentType))
 				httpPost.setHeader("Content-Type", "text/xml;charset=UTF-8");
-			else if("file".equals(contentType))
+			else if ("file".equals(contentType))
 				httpPost.setHeader("Content-Type", "application/octet-stream");
-			else if(StringKit.isNotEmpty(contentType))
+			else if (StringKit.isNotEmpty(contentType))
 				httpPost.setHeader("Content-Type", contentType);
 		} catch (Exception e) {
 			logger.error("", e);
@@ -233,7 +234,7 @@ public class HttpKit {
 		HttpGet httpGet = new HttpGet(url);
 		return handleResponse(httpClient, httpGet);
 	}
-	
+
 	public static byte[] getBytes(String url) {
 		HttpClient httpClient = createHttpClient();
 		HttpGet httpGet = new HttpGet(url);
@@ -267,7 +268,7 @@ public class HttpKit {
 		}
 		return responseText;
 	}
-	
+
 	public static byte[] handleBytesResponse(HttpClient client, HttpRequestBase request) {
 		byte[] responseText = null;
 		try {
@@ -299,7 +300,8 @@ public class HttpKit {
 
 		SSLContext sslContext = SSLContext.getInstance("TLS");
 
-		public SSLSocketFactoryEx(KeyStore truststore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+		public SSLSocketFactoryEx(KeyStore truststore)
+				throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
 			super(truststore);
 
 			TrustManager tm = new X509TrustManager() {
@@ -307,17 +309,20 @@ public class HttpKit {
 					return null;
 				}
 
-				public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+				public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
+						throws java.security.cert.CertificateException {
 				}
 
-				public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+				public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
+						throws java.security.cert.CertificateException {
 				}
 			};
 			sslContext.init(null, new TrustManager[] { tm }, null);
 		}
 
 		@Override
-		public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
+		public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
+				throws IOException, UnknownHostException {
 			return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
 		}
 
@@ -349,7 +354,7 @@ public class HttpKit {
 	public static Map<String, String> getParameterMap(HttpServletRequest request) {
 		return getParameterMap(request, null);
 	}
-	
+
 	public static Map<String, String> getParameterMap(HttpServletRequest request, String namePrefix) {
 		// 参数Map
 		Map<String, String[]> params = request.getParameterMap();
@@ -360,7 +365,7 @@ public class HttpKit {
 		boolean filterByNamePrefix = StringKit.isNotEmpty(namePrefix);
 		for (Entry<String, String[]> entry : params.entrySet()) {
 			name = (String) entry.getKey();
-			if(filterByNamePrefix && !name.startsWith(namePrefix))
+			if (filterByNamePrefix && !name.startsWith(namePrefix))
 				continue;
 			String[] values = entry.getValue();
 			if (null == values) {
@@ -400,18 +405,36 @@ public class HttpKit {
 			}
 		}
 		// 对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
-		if (StringKit.isNotEmpty(ip) && ip.length() > 15) { // "***.***.***.***".length() = 15
+		if (StringKit.isNotEmpty(ip) && ip.length() > 15) { // "***.***.***.***".length()
+															// = 15
 			int index = ip.indexOf(",");
 			if (index != -1)
 				ip = ip.substring(0, index);
 		}
 		return ip;
 	}
-	
-	public static void setCORS(HttpServletResponse response){
+
+	public static void setCORS(HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");
-	    response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-	    response.setHeader("Access-Control-Max-Age", "3600");
-	    response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+	}
+
+	public static Cookie getCookie(HttpServletRequest request, String name) {
+		return null;
+	}
+
+	public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, Cookie cookie) {
+
+	}
+
+	public static void setCookie(HttpServletRequest request, HttpServletResponse response, String name, String value) {
+
+	}
+
+	public static void setCookie(HttpServletRequest request, HttpServletResponse response, String name, String value,
+			int maxAge) {
+
 	}
 }

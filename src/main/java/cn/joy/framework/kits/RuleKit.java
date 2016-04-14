@@ -218,35 +218,20 @@ public class RuleKit {
 		result.putExtraData(SIGNATURE_PARAM_NAME, getSign(resultMap, signKey));
 	}
 	
-	public static RuleResult invokeLocalRule(HttpServletRequest request, String loginId, String ruleURI, RuleParam rParam){
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String ruleURI, RuleParam rParam){
 		return invokeRule(request, loginId, "", "", ruleURI, rParam, false);
 	}
 	
-	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI){
-		return invokeRule(request, loginId, companyCode, url, ruleURI, RuleParam.create(), false);
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String ruleURI, RuleParam rParam){
+		return invokeRule(request, loginId, companyCode, null, ruleURI, rParam, false);
 	}
 	
-	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI,
-			Map<String, Object> params){
-		return invokeRule(request, loginId, companyCode, url, ruleURI, RuleParam.create().put(params), false);
-	}
-	
-	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI,
-			Map<String, Object> params, boolean isAsyn){
-		return invokeRule(request, loginId, companyCode, url, ruleURI, RuleParam.create().put(params), isAsyn);
-	}
-	
-	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI, RuleParam rParam){
-		return invokeRule(request, loginId, companyCode, url, ruleURI, rParam, false);
-	}
-	
-	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String url, String ruleURI, RuleParam rParam, boolean isAsyn){
-		String sceneKey = "";
-		if(request!=null)
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String sceneKey, String ruleURI, RuleParam rParam, boolean isAsyn){
+		if(StringKit.isEmpty(sceneKey) && request!=null)
 			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());
-		if(StringKit.isNotEmpty(url)){
+		if(ruleURI.contains("@")){
 			return RuleExecutor.createRemote(RuleContext.createSingle(StringKit.getString(loginId, "NONE"), companyCode, sceneKey), RuleInvokeConfig.create().setAsyn(isAsyn))
-					.execute(url+"@" + ruleURI, rParam);
+					.execute(ruleURI, rParam);
 		}else{
 			return RuleExecutor.create(RuleContext.createSingle(StringKit.getString(loginId, "NONE"), companyCode, sceneKey), RuleInvokeConfig.create().setAsyn(isAsyn))
 					.execute(ruleURI, rParam);
