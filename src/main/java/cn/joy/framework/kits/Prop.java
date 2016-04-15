@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.joy.framework.core.JoyMap;
+
 public class Prop {
 	public static final String encoding = "UTF-8";
 	private Properties properties = null;
@@ -18,8 +20,18 @@ public class Prop {
 		this(fileName, encoding);
 	}
 	
-	Prop(InputStream inputStream) {
+	public Prop(InputStream inputStream) {
 		this(inputStream, encoding);
+	}
+	
+	public Prop(JoyMap<String, Object> props) {
+		properties = new Properties();
+		properties.putAll(props.map());
+	}
+	
+	public Prop(Map<String, Object> props) {
+		properties = new Properties();
+		properties.putAll(props);
 	}
 	
 	Prop(String fileName, String encoding) {

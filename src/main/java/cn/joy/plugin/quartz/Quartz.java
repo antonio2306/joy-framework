@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.quartz.SchedulerException;
 
 import cn.joy.framework.kits.StringKit;
+import cn.joy.plugin.quartz.task.ScheduleTask;
 
 public class Quartz{
 	private static Logger logger = Logger.getLogger(Quartz.class);

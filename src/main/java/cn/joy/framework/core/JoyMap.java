@@ -7,5 +7,7 @@ package cn.joy.framework.core;
  */
 @SuppressWarnings({ "rawtypes" })
 public class JoyMap<K, V> extends JoyGeneric.GenericMap<JoyMap<K, V>, K, V> {
-	
+	public static JoyMap<String, Object> createStringObject(){
+		return new JoyMap<String, Object>();
+	}
 }

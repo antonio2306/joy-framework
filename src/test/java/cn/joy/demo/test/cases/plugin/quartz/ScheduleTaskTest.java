@@ -1,4 +1,4 @@
-package cn.joy.demo.test.cases.framework;
+package cn.joy.demo.test.cases.plugin.quartz;
 
 import org.testng.annotations.Test;
 

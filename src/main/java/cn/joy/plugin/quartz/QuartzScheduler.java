@@ -17,6 +17,8 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+import cn.joy.plugin.quartz.task.ScheduleTask;
+
 public class QuartzScheduler {
 	private Logger logger = Logger.getLogger(QuartzScheduler.class);
 	private Scheduler scheduler;

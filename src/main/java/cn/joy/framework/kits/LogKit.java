@@ -36,11 +36,19 @@ public class LogKit{
 		return result;
 	}
 	
+	public static Log getLog(Class<?> clazz){
+		return new Log(clazz);
+	}
+	
 	public static class Log {
 		private Logger logger;
 		
 		Log(String logKey){
 			this.logger = LoggerFactory.getLogger(logKey);
+		}
+		
+		Log(Class<?> clazz){
+			this.logger = LoggerFactory.getLogger(clazz);
 		}
 		
 		public boolean isDebugEnabled(){
