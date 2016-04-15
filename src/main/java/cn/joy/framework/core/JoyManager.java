@@ -10,17 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cn.joy.framework.annotation.Module;
 import cn.joy.framework.event.EventManager;
 import cn.joy.framework.event.JoyEventListener;
 import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.PathKit;
 import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.plugin.IPlugin;
-import cn.joy.framework.plugin.ITransactionPlugin;
+import cn.joy.framework.plugin.JoyExtension;
+import cn.joy.framework.plugin.JoyPlugin;
+import cn.joy.framework.plugin.PluginManager;
 import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
 import cn.joy.framework.server.CenterServer;
@@ -38,17 +39,28 @@ import cn.joy.framework.support.SecurityManager;
  * @date 2014-05-20
  */
 public class JoyManager {
-	private static Logger logger = Logger.getLogger(JoyManager.class);
-	private static Map<String, IPlugin> plugins = new HashMap();
-	private static List<String> modules = new ArrayList();
-	private static Map<String, JoyModule> moduleDefines = new HashMap();
+	private static Logger logger = LoggerFactory.getLogger(JoyManager.class);
+	private static List<String> modules = new ArrayList<>();
+	private static Map<String, JoyModule> moduleDefines = new HashMap<>();
 	
 	private static RuleLoader rLoader;
 	private static JoyServer server;
-	private static ITransactionPlugin txPlugin;
+	private static PluginManager pluginMgr;
 	private static SecurityManager securityManager;
 	private static AppAuthManager appAuthManager;
 	private static RouteStore routeStore;
+	
+	public static PluginManager plugin(){
+		return pluginMgr;
+	}
+	
+	public static JoyPlugin plugin(String pluginKey){
+		return pluginMgr.getPlugin(pluginKey);
+	}
+	
+	public static JoyExtension extension(Class<? extends JoyExtension> extClass){
+		return pluginMgr.getExtension(extClass);
+	}
 	
 	public static SecurityManager getSecurityManager() {
 		if(securityManager==null)
@@ -82,10 +94,6 @@ public class JoyManager {
 	
 	public static RuleLoader getRuleLoader() {
 		return rLoader;
-	}
-	
-	public static ITransactionPlugin getTransactionPlugin() {
-		return txPlugin;
 	}
 	
 	public static JoyServer getServer(){
@@ -126,19 +134,7 @@ public class JoyManager {
 		server = isCenterServer?new CenterServer():new AppServer();
 		server.init(config);
 		
-		txPlugin = (ITransactionPlugin)loadPlugin(server.getTransactionPlugin());
-		
-		String optionalPlugins = server.getPlugins();
-		if(StringKit.isNotEmpty(optionalPlugins)){
-			String[] ops = optionalPlugins.split(",");
-			for(String op:ops){
-				loadOptionalPlugin(op);
-			}
-		}
-		
-		for(IPlugin plugin:plugins.values()){
-			plugin.start();
-		}
+		pluginMgr = PluginManager.build();
 		
 		rLoader = RuleLoader.singleton();
 		
@@ -157,12 +153,7 @@ public class JoyManager {
 			module.destroy();
 		}
 		
-		for(IPlugin plugin:plugins.values()){
-			logger.info("stop plugin "+plugin.getClass().getName()+"...");
-			plugin.stop();
-		}
-		
-		txPlugin.stop();
+		pluginMgr.release();
 		
 		server.stop();
 		logger.info("JOY Framework shutdown...");
@@ -196,36 +187,4 @@ public class JoyManager {
 		}
 	}
 	
-	public static IPlugin getPlugin(String pluginName){
-		IPlugin plugin = plugins.get(pluginName); 
-		if(plugin!=null && Boolean.parseBoolean(System.getProperty("plugin."+pluginName+".enable", "true")))
-			return plugin;
-		return null;
-	}
-	
-	private static IPlugin loadPlugin(String pluginName) throws Exception{
-		IPlugin plugin = plugins.get(pluginName);
-		if(plugin==null){
-			plugin = (IPlugin)BeanKit.getNewInstance("cn.joy.framework.plugin."+pluginName+"."
-					+StringKit.capitalize(pluginName)+"Plugin");
-			if(plugin==null)
-				throw new RuntimeException("No plugin with name "+pluginName);
-			plugins.put(pluginName, plugin);
-		}
-		return plugin; 
-	}
-	
-	private static void loadOptionalPlugin(String pluginName){
-		IPlugin plugin = plugins.get(pluginName);
-		if(plugin==null){
-			try {
-				plugin = (IPlugin)BeanKit.getNewInstance("cn.joy.framework.plugin."+pluginName+"."
-						+StringKit.capitalize(pluginName)+"Plugin");
-				if(plugin!=null)
-					plugins.put(pluginName, plugin);
-			} catch (Exception e) {
-				logger.info("No optional plugin with name "+pluginName);
-			}
-		}
-	}
 }

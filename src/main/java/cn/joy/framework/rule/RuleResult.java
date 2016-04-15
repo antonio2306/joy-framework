@@ -16,6 +16,7 @@ import cn.joy.framework.kits.StringKit;
  * @author liyy
  * @date 2014-05-20
  */
+@SuppressWarnings("unchecked")
 public class RuleResult {
 	private static final RuleResult NULL_RULE_RESULT;
 	public static final String FLAG_EMPTY_RESULT = "EMPTY";
@@ -24,7 +25,6 @@ public class RuleResult {
 	private String rMessage;
 	private Object rContent;
 	private RuleExtraData rExtra;
-	private RuleException rException;
 	private MainError rError;
 	
 	static{
@@ -103,7 +103,6 @@ public class RuleResult {
 	
 	public RuleResult fail(RuleException exception){
 		this.result = false;
-		this.rException = exception;
 		RuleResult failResult = exception.getFailResult();
 		if(failResult!=null){
 			this.rMessage = failResult.getMsg();

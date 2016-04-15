@@ -2,9 +2,8 @@ package cn.joy.demo.test.cases.framework;
 
 import org.testng.annotations.Test;
 
-import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.plugin.ISchedulePlugin;
 import cn.joy.framework.test.TestExecutor;
+import cn.joy.plugin.quartz.Quartz;
 
 @Test(groups="case.schedtask", dependsOnGroups="case.init")
 public class ScheduleTaskTest {
@@ -15,18 +14,17 @@ public class ScheduleTaskTest {
 	}
 	
 	public void testSchedtask(){
-		ISchedulePlugin schedPlugin = (ISchedulePlugin)JoyManager.getPlugin("quartz");
-		schedPlugin.schedule(TestJob.class, "testJob", "test", "0/3 * * * * ?");
+		Quartz.schedule(TestJob.class, "testJob", "test", "0/2 * * * * ?");
 		
 		try {
 			System.out.println("主线程："+Thread.currentThread().getId());
-			Thread.sleep(6000);
+			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
-		schedPlugin.unschedule("testJob", "test");
-		schedPlugin.stop();
+		Quartz.unschedule("testJob", "test");
+		Quartz.release();
 	}
 	
 	

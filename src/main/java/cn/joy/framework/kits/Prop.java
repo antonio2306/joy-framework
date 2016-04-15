@@ -18,6 +18,10 @@ public class Prop {
 		this(fileName, encoding);
 	}
 	
+	Prop(InputStream inputStream) {
+		this(inputStream, encoding);
+	}
+	
 	Prop(String fileName, String encoding) {
 		InputStream inputStream = null;
 		try {
@@ -51,6 +55,18 @@ public class Prop {
 			properties.load(new InputStreamReader(inputStream, encoding));
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading properties file.", e);
+		}
+		finally {
+			if (inputStream != null) try {inputStream.close();} catch (IOException e) {e.printStackTrace();}
+		}
+	}
+	
+	Prop(InputStream inputStream, String encoding) {
+		try {
+			properties = new Properties();
+			properties.load(new InputStreamReader(inputStream, encoding));
+		} catch (IOException e) {
+			throw new RuntimeException("Error loading properties stream.", e);
 		}
 		finally {
 			if (inputStream != null) try {inputStream.close();} catch (IOException e) {e.printStackTrace();}
@@ -102,6 +118,19 @@ public class Prop {
         }
         return kvMap;
     }
+	
+	public Prop remove(String key){
+		properties.remove(key);
+		return this;
+	}
+	
+	public Prop removeAll(String keyPrefix){
+		for(String key:properties.stringPropertyNames()){
+			if(key.startsWith(keyPrefix))
+				properties.remove(key);
+		}
+		return this;
+	}
 	
 	public boolean containsKey(String key) {
 		return properties.containsKey(key);

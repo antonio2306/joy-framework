@@ -13,10 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import org.apache.commons.lang3.StringUtils;
-
-import bsh.StringUtil;
 /**
  * Class操作工具类
  * @author liyy

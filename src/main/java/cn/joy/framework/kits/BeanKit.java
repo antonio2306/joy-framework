@@ -63,18 +63,14 @@ public class BeanKit {
 		try {
 			if(clazz!=null)
 				return clazz.newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 		return null;
 	}
 
-	public static Object getNewInstance(String clazz)
-			throws ClassNotFoundException, IllegalAccessException,
-			InstantiationException {
-		return getClass(clazz).newInstance();
+	public static Object getNewInstance(String clazz) {
+		return getNewInstance(ClassKit.getClass(clazz));
 	}
 
 	public static InputStream getResourceAsStream(Class claz, String name) {

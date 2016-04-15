@@ -1,6 +1,7 @@
 package cn.joy.framework.kits;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,6 +47,10 @@ public class PropKit {
 		if (PropKit.prop == previous)
 			PropKit.prop = null;
 		return previous;
+	}
+	
+	public static Prop use(InputStream inputStream) {
+		return new Prop(inputStream);
 	}
 	
 	public static void clear() {

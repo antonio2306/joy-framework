@@ -14,6 +14,7 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
+import cn.joy.framework.plugin.extention.TransactionExtension;
 /**
  * 业务规则基类
  * @author liyy
@@ -59,11 +60,17 @@ public abstract class BaseRule {
 		if(ntAnnotation!=null){
 			return executeRuleMethod(method, rule, mParams);
 		}else*/
-		return JoyManager.getTransactionPlugin().doTransaction(new JoyCallback(){
-			public RuleResult run(Object... params) throws Exception{
-				return executeRuleMethod(method, rule, mParams);
-			}
-		}, method.getAnnotation(NoTransaction.class)!=null?0:method.getAnnotation(NewTransaction.class)!=null?2:1);
+		TransactionExtension txExt = (TransactionExtension)JoyManager.extension(TransactionExtension.class);
+		if(txExt!=null){
+			return txExt.doTransaction(new JoyCallback(){
+				public RuleResult run(Object... params) throws Exception{
+					return executeRuleMethod(method, rule, mParams);
+				}
+			}, method.getAnnotation(NoTransaction.class)!=null?0:method.getAnnotation(NewTransaction.class)!=null?2:1);
+		}else{
+			return executeRuleMethod(method, rule, mParams);
+		}
+		
 	}
 	
 	private RuleResult executeRuleMethod(final Method method, final BaseRule rule, final Object[] mParams) throws Exception{

@@ -22,8 +22,6 @@ import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 import cn.joy.framework.core.JoyConstants;
 
 public class EncryptKit {

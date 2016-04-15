@@ -5,7 +5,7 @@ import java.util.Date;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import cn.joy.framework.plugin.quartz.ScheduleTask;
+import cn.joy.plugin.quartz.ScheduleTask;
 
 public class TestJob implements ScheduleTask {  
     //把要执行的操作，写在execute方法中  

@@ -10,7 +10,6 @@ app_center_server_url=
 plugin_mvc=spring
 plugin_transaction=spring
 plugin_route=spring
-plugins=quartz
 
 param_loginid=loginId
 param_companycode=companyCode
