@@ -14,9 +14,9 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import cn.joy.framework.kits.NumberKit;
-import cn.joy.plugin.cache.CacheProvider;
+import cn.joy.framework.provider.CacheProvider;
 
-public class MemoryCache implements CacheProvider {
+public class MemoryProvider extends CacheProvider {
 	private LoadingCache<Object, Object> cache;
 	
 	@Override

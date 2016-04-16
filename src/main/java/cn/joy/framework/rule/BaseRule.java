@@ -10,11 +10,10 @@ import org.apache.log4j.Logger;
 import cn.joy.framework.annotation.NewTransaction;
 import cn.joy.framework.annotation.NoTransaction;
 import cn.joy.framework.core.JoyCallback;
-import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
-import cn.joy.framework.plugin.extention.TransactionExtension;
+import cn.joy.framework.provider.TransactionProvider;
 /**
  * 业务规则基类
  * @author liyy
@@ -60,9 +59,9 @@ public abstract class BaseRule {
 		if(ntAnnotation!=null){
 			return executeRuleMethod(method, rule, mParams);
 		}else*/
-		TransactionExtension txExt = (TransactionExtension)JoyManager.extension(TransactionExtension.class);
-		if(txExt!=null){
-			return txExt.doTransaction(new JoyCallback(){
+		TransactionProvider txProvider = TransactionProvider.build();
+		if(txProvider!=null){
+			return txProvider.doTransaction(new JoyCallback(){
 				public RuleResult run(Object... params) throws Exception{
 					return executeRuleMethod(method, rule, mParams);
 				}

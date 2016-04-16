@@ -19,9 +19,9 @@ import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.PathKit;
 import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.plugin.JoyExtension;
 import cn.joy.framework.plugin.JoyPlugin;
 import cn.joy.framework.plugin.PluginManager;
+import cn.joy.framework.provider.JoyProvider;
 import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
 import cn.joy.framework.server.CenterServer;
@@ -58,8 +58,12 @@ public class JoyManager {
 		return pluginMgr.getPlugin(pluginKey);
 	}
 	
-	public static JoyExtension extension(Class<? extends JoyExtension> extClass){
-		return pluginMgr.getExtension(extClass);
+	public static JoyProvider provider(Class<? extends JoyProvider> providerClass){
+		return pluginMgr.getProvider(providerClass);
+	}
+	
+	public static JoyProvider provider(Class<? extends JoyProvider> providerClass, String key){
+		return pluginMgr.getProvider(providerClass, key);
 	}
 	
 	public static SecurityManager getSecurityManager() {

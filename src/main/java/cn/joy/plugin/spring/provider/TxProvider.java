@@ -1,16 +1,12 @@
-package cn.joy.plugin.spring.db;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package cn.joy.plugin.spring.provider;
 
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.exception.RuleException;
-import cn.joy.framework.plugin.extention.TransactionExtension;
+import cn.joy.framework.provider.TransactionProvider;
 import cn.joy.framework.rule.RuleResult;
+import cn.joy.plugin.spring.db.Db;
 
-public class TxExtension extends TransactionExtension {
-	private Logger logger = LoggerFactory.getLogger(TxExtension.class);
-
+public class TxProvider extends TransactionProvider {
 	@Override
 	public RuleResult doTransaction(JoyCallback callback, int transactionWay) throws Exception{
 		RuleResult ruleResult = null;
@@ -24,8 +20,8 @@ public class TxExtension extends TransactionExtension {
 				isNew = Db.beginNewTransaction();
 			
 			ruleResult = callback.run();
-			if(logger.isDebugEnabled())
-				logger.debug("doTransaction, transactionWay="+transactionWay+", result="+ruleResult.isSuccess());
+			if(log.isDebugEnabled())
+				log.debug("doTransaction, transactionWay="+transactionWay+", result="+ruleResult.isSuccess());
 			if(ruleResult.isSuccess()){
 				if(isNew)
 					Db.commitAndEndTransaction();
@@ -33,9 +29,9 @@ public class TxExtension extends TransactionExtension {
 				throw new RuleException(ruleResult);
 		} catch (Exception e) {
 			if(e instanceof RuleException)
-				logger.error("RuleException: "+e.getMessage());
+				log.error("RuleException: "+e.getMessage());
 			else
-				logger.error("", e);
+				log.error("", e);
 			if(isNew)
 				Db.rollbackAndEndTransaction();
 			throw e;

@@ -14,7 +14,7 @@ import cn.joy.framework.test.TestExecutor;
 
 @Test(groups = "case.executor", dependsOnGroups = "case.init")
 public class RuleExecutorTest {
-	public static Map<String, String> asynResultMap = new HashMap();
+	public static Map<String, String> asynResultMap = new HashMap<>();
 	@Test(enabled = false)
 	public static void main(String[] args) {
 		TestExecutor.executeGroup("case.executor");

@@ -55,6 +55,14 @@ public class StringKit {
 		return str.trim().replaceFirst("^"+trim, "").replaceFirst(trim+"$", "");
 	}
 	
+	public static String rTrim(String str, String trim){
+		return str.trim().replaceFirst(trim+"$", "");
+	}
+	
+	public static String lTrim(String str, String trim){
+		return str.trim().replaceFirst("^"+trim, "");
+	}
+	
 	public static String capitalize(String s){
 		 return new StringBuilder().append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
 	}
