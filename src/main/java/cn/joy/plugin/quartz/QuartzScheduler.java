@@ -58,10 +58,14 @@ public class QuartzScheduler {
 	}
 	
 	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron){
-		schedule(jobClass, jobName, jobGroup, cron, null);
+		schedule(jobClass, jobName, jobGroup, cron, null, false);
 	}
 	
-	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas){
+	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, boolean triggerOnceAfterSchedule){
+		schedule(jobClass, jobName, jobGroup, cron, null, triggerOnceAfterSchedule);
+	}
+	
+	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas, boolean triggerOnceAfterSchedule){
 		if(scheduler==null)
 			return;
 		try {
@@ -81,16 +85,20 @@ public class QuartzScheduler {
 	}
 	
 	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron){
-		reSchedule(jobClass, jobName, jobGroup, cron, null);
+		reSchedule(jobClass, jobName, jobGroup, cron, null, false);
 	}
 	
-	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas){
+	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, boolean triggerOnceAfterSchedule){
+		reSchedule(jobClass, jobName, jobGroup, cron, null, triggerOnceAfterSchedule);
+	}
+	
+	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas, boolean triggerOnceAfterSchedule){
 		if(scheduler==null)
 			return;
 		try {
 			if(scheduler.checkExists(JobKey.jobKey(jobName, jobGroup)))
 				unschedule(jobName, jobGroup);
-			schedule(jobClass, jobName, jobGroup, cron, datas);
+			schedule(jobClass, jobName, jobGroup, cron, datas, triggerOnceAfterSchedule);
 		} catch (SchedulerException e) {
 			throw new RuntimeException("reSchedule job fail.", e);
 		}

@@ -2,15 +2,15 @@ package cn.joy.framework.core;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.annotation.Module;
 import cn.joy.framework.kits.BeanKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.Prop;
 import cn.joy.framework.kits.PropKit;
 
 public abstract class JoyModule {
-	private static Logger logger = Logger.getLogger(JoyModule.class);
+	protected Log log = LogKit.getLog(JoyModule.class);
 	
 	private String key;
 	
@@ -66,7 +66,7 @@ public abstract class JoyModule {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn(e.getMessage());
+			log.warn(e.getMessage());
 		}
 	}
 	
