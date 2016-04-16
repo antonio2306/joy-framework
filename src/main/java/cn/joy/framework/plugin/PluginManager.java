@@ -40,7 +40,7 @@ public class PluginManager{
 		for(Class pluginClass:pluginClassList){
 			logger.info("Plugin["+pluginClass.getName()+"] load...");
 			JoyPlugin plugin = (JoyPlugin)BeanKit.getNewInstance(pluginClass);
-			String pluginKey = StringKit.rTrim(pluginClass.getName().toLowerCase().replace(packageName+".", ""), "v");
+			String pluginKey = StringKit.rTrim(pluginClass.getName().toLowerCase().replace(packageName+".", ""), "plugin");
 			if(plugin.init()){
 				logger.info("Plugin["+pluginClass.getName()+"] init...");
 				plugins.put(pluginKey, plugin);
@@ -49,7 +49,7 @@ public class PluginManager{
 				for(Class providerClass:providerClassList){
 					logger.info("Provider["+providerClass.getName()+"] load...");
 					JoyProvider provider = (JoyProvider)BeanKit.getNewInstance(providerClass);
-					String providerKey = StringKit.rTrim(providerClass.getName().toLowerCase(), "provider");
+					String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
 					
 					JoyMap<String, JoyProvider> providerMap = providers.get(providerClass.getSuperclass());
 					if(providerMap==null){

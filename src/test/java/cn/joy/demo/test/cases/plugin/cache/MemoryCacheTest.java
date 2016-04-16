@@ -15,7 +15,6 @@ public class MemoryCacheTest {
 		TestExecutor.executeGroup("case.cache");
 	}
 	
-	@Test(enabled = false)
 	public void testMemoryCache(){
 		CacheProvider cache = CacheProvider.build("c1");
 		

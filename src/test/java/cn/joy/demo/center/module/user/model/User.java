@@ -9,23 +9,26 @@ public class User {
 		return name;
 	}
 
-	public void setName(String name) {
+	public User setName(String name) {
 		this.name = name;
+		return this;
 	}
 
 	public Integer getAge() {
 		return age;
 	}
 
-	public void setAge(Integer age) {
+	public User setAge(Integer age) {
 		this.age = age;
+		return this;
 	}
 
 	public String getGender() {
 		return gender;
 	}
 
-	public void setGender(String gender) {
+	public User setGender(String gender) {
 		this.gender = gender;
+		return this;
 	}
 }
