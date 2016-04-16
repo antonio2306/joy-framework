@@ -136,6 +136,16 @@ public class QuartzScheduler {
 		}
 	}
 	
+	public void trigger(String jobName, String jobGroup){
+		if(scheduler==null)
+			return;
+		try {
+			scheduler.triggerJob(JobKey.jobKey(jobName, jobGroup));
+		} catch (SchedulerException e) {
+			throw new RuntimeException("trigger job fail.", e);
+		}
+	}
+	
 	public void unschedule(String jobName, String jobGroup){
 		if(scheduler==null)
 			return;

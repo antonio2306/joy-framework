@@ -1,9 +1,6 @@
 package cn.joy.demo.test.cases.plugin.serialize;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import cn.joy.demo.center.module.user.model.User;

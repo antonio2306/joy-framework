@@ -51,6 +51,14 @@ public abstract class JoyGeneric {
 			return mMap.containsKey(key);
 		}
 		
+		public boolean containsKeys(K... keys){
+			for(K key:keys){
+				if(!mMap.containsKey(key))
+					return false;
+			}
+			return true;
+		}
+		
 		public boolean containsValue(V value){
 			return mMap.containsValue(value);
 		}

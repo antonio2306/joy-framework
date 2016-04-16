@@ -1,11 +1,15 @@
 package cn.joy.framework.plugin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.joy.framework.annotation.Plugin;
 import cn.joy.framework.core.JoyMap;
 import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.ClassKit;
@@ -20,7 +24,6 @@ public class PluginManager{
 	private JoyMap<Class<? extends JoyProvider>, JoyMap<String, JoyProvider>> providers = new JoyMap<>();
 	
 	private PluginManager(){
-		this.init();
 	}
 	
 	public static PluginManager build(){
@@ -36,31 +39,61 @@ public class PluginManager{
 	}
 	
 	public void scanPlugin(String packageName){
+		Map<String, List<Class<? extends JoyPlugin>>> waitLoadPlugins = new HashMap<>();
 		List<Class<? extends JoyPlugin>> pluginClassList = ClassKit.listClassBySuper(packageName, JoyPlugin.class);
 		for(Class pluginClass:pluginClassList){
-			logger.info("Plugin["+pluginClass.getName()+"] load...");
-			JoyPlugin plugin = (JoyPlugin)BeanKit.getNewInstance(pluginClass);
-			String pluginKey = StringKit.rTrim(pluginClass.getName().toLowerCase().replace(packageName+".", ""), "plugin");
-			if(plugin.init()){
-				logger.info("Plugin["+pluginClass.getName()+"] init...");
-				plugins.put(pluginKey, plugin);
-				
-				List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), JoyProvider.class);
-				for(Class providerClass:providerClassList){
-					logger.info("Provider["+providerClass.getName()+"] load...");
-					JoyProvider provider = (JoyProvider)BeanKit.getNewInstance(providerClass);
-					String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
-					
-					JoyMap<String, JoyProvider> providerMap = providers.get(providerClass.getSuperclass());
-					if(providerMap==null){
-						providerMap = new JoyMap<String, JoyProvider>();
-						providers.put(providerClass.getSuperclass(), providerMap);
-					}
-
-					if(!providerMap.containsKey("default") || StringKit.isTrue(plugin.getConfig().get("provider."+providerKey+".default")))
-						providerMap.put("default", provider);
-					providerMap.put(providerKey, provider);
+			loadPlugin(pluginClass, waitLoadPlugins);
+		}
+	}
+	
+	private void loadPlugin(Class<? extends JoyPlugin> pluginClass, Map<String, List<Class<? extends JoyPlugin>>> waitLoadPlugins){
+		Plugin pluginInfo = pluginClass.getAnnotation(Plugin.class);
+		boolean canLoad = true;
+		for(String depend:pluginInfo.depends()){
+			if(!plugins.containsKey(depend)){
+				List<Class<? extends JoyPlugin>> waitLoadPluginList = waitLoadPlugins.get(depend);
+				if(waitLoadPluginList==null){
+					waitLoadPluginList = new ArrayList<Class<? extends JoyPlugin>>();
+					waitLoadPlugins.put(depend, waitLoadPluginList);
 				}
+				waitLoadPluginList.add(pluginClass);
+				canLoad = false;
+				logger.info("Plugin["+pluginClass.getName()+"] wait "+depend);
+			}
+		}
+		if(!canLoad)
+			return;
+			
+		logger.info("Plugin["+pluginClass.getName()+"] load...");
+		JoyPlugin plugin = (JoyPlugin)BeanKit.getNewInstance(pluginClass);
+		if(plugin.init()){
+			String pluginKey = pluginInfo.key();
+			logger.info("Plugin[class="+pluginClass.getName()+", key="+pluginKey+"] init...");
+			plugins.put(pluginKey, plugin);
+			
+			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), JoyProvider.class);
+			for(Class providerClass:providerClassList){
+				logger.info("Provider["+providerClass.getName()+"] load...");
+				JoyProvider provider = (JoyProvider)BeanKit.getNewInstance(providerClass);
+				String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
+				
+				JoyMap<String, JoyProvider> providerMap = providers.get(providerClass.getSuperclass());
+				if(providerMap==null){
+					providerMap = new JoyMap<String, JoyProvider>();
+					providers.put(providerClass.getSuperclass(), providerMap);
+				}
+
+				if(!providerMap.containsKey("default") || StringKit.isTrue(plugin.getConfig().get("provider."+providerKey+".default")))
+					providerMap.put("default", provider);
+				providerMap.put(providerKey, provider);
+			}
+			
+			List<Class<? extends JoyPlugin>> waitLoadPluginList = waitLoadPlugins.get(pluginKey);
+			if(waitLoadPluginList!=null){
+				for(Class<? extends JoyPlugin> waitLoadPlugin: waitLoadPluginList){
+					loadPlugin(waitLoadPlugin, waitLoadPlugins);
+				}
+				waitLoadPlugins.remove(pluginKey);
 			}
 		}
 	}

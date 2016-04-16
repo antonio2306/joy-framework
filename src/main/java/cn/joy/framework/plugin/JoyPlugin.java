@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.ClassKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.PathKit;
 import cn.joy.framework.kits.Prop;
 import cn.joy.framework.kits.PropKit;
 import cn.joy.framework.kits.StringKit;
 
 public abstract class JoyPlugin {
-	private static Logger logger = Logger.getLogger(JoyPlugin.class);
+	protected static Log log = LogKit.getLog(JoyPlugin.class);
 	private Prop config = null;
 
 	public Prop getConfig() {
@@ -44,7 +44,7 @@ public abstract class JoyPlugin {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn(e.getMessage());
+			log.warn(e.getMessage());
 		}
 	}
 	
@@ -52,7 +52,7 @@ public abstract class JoyPlugin {
 		loadConfig();
 		
 		if(config==null){
-			logger.warn("missing plugin["+this.getClass().getSimpleName()+"] properties");
+			log.warn("missing plugin["+this.getClass().getSimpleName()+"] properties");
 			return false;
 		}
 		

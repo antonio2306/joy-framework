@@ -44,6 +44,10 @@ public class Quartz{
 		mainScheduler.schedule(jobClass, jobName, jobGroup, cron);
 	}
 	
+	public static void trigger(String jobName, String jobGroup){
+		mainScheduler.trigger(jobName, jobGroup);
+	}
+	
 	public static void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron){
 		mainScheduler.reSchedule(jobClass, jobName, jobGroup, cron);
 	}

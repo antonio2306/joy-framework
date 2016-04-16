@@ -139,6 +139,7 @@ public class JoyManager {
 		server.init(config);
 		
 		pluginMgr = PluginManager.build();
+		pluginMgr.init();
 		
 		rLoader = RuleLoader.singleton();
 		
