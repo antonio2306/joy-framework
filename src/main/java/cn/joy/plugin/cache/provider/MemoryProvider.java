@@ -13,27 +13,29 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.CollectionKit;
 import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.provider.CacheProvider;
 
-public class MemoryProvider extends CacheProvider {
-	private LoadingCache<Object, Object> cache;
+public class MemoryProvider<K, V> extends CacheProvider<K, V> {
+	private LoadingCache<K, V> cache;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void init(Properties prop) { 
-		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+		CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
 
 		long expire = NumberKit.getLong(prop.get("expire"), 0L);
 		if(expire>0)
 			cacheBuilder.expireAfterWrite(expire, TimeUnit.SECONDS);
-		cache = cacheBuilder.build(new CacheLoader<Object, Object>() {
-					public Object load(Object key) throws Exception {
+		cache = cacheBuilder.build(new CacheLoader<K, V>() {
+					public V load(K key) throws Exception {
 						return null;
 					}
 				});
 	}
-
+	
 	@Override
 	public void release() {
 		if(cache!=null)
@@ -42,34 +44,41 @@ public class MemoryProvider extends CacheProvider {
 	}
 
 	@Override
-	public void set(Object key, Object value) {
+	public void set(K key, V value) {
 		cache.put(key, value);
 	}
-
+	
 	@Override
-	public <T> T get(Object key){
-		return (T)cache.getIfPresent(key);
+	public V getSet(K key, V value) {
+		V oldValue = this.get(key);
+		this.set(key, value);
+		return oldValue;
 	}
 
 	@Override
-	public void del(Object key) {
+	public V get(K key){
+		return (V)cache.getIfPresent(key);
+	}
+
+	@Override
+	public void del(K key) {
 		cache.invalidate(key);
 	}
 
 	@Override
-	public void del(Object... keys) {
-		for(Object key:keys){
+	public void del(K... keys) {
+		for(K key:keys){
 			cache.invalidate(key);
 		}
 	}
-
+	
 	@Override
 	public Set<String> keys(String pattern) {
 		if("*".equals(pattern))
 			return CollectionKit.convertSetType(cache.asMap().keySet(), String.class);
-		Set<Object> keys = cache.asMap().keySet();
+		Set<K> keys = cache.asMap().keySet();
 		Set<String> returnKeys = new HashSet<>();
-		for(Object key:keys){
+		for(K key:keys){
 			String keyStr = key.toString();
 			if(keyStr.matches(pattern))
 				returnKeys.add(keyStr);
@@ -78,37 +87,30 @@ public class MemoryProvider extends CacheProvider {
 	}
 
 	@Override
-	public boolean exists(Object key) {
+	public boolean exists(K key) {
 		return cache.asMap().containsKey(key);
 	}
 
 	@Override
-	public <T> T getSet(Object key, Object value) {
-		Object oldValue = this.get(key);
-		this.set(key, value);
-		return (T)oldValue;
-	}
-
-	@Override
-	public void hset(Object key, Object field, Object value) {
+	public void hset(K key, Object field, Object value) {
 		Map<Object, Object> map = (Map)cache.getIfPresent(key);
 		if(map==null){
 			map = new HashMap<>();
-			cache.put(key, map);
+			cache.put(key, (V)map);
 		}
 		map.put(field, value);
 	}
 
 	@Override
-	public <T> T hget(Object key, Object field) {
+	public Object hget(K key, Object field) {
 		Map<Object, Object> map = (Map)cache.getIfPresent(key);
 		if(map!=null)
-			return (T)map.get(field);
+			return map.get(field);
 		return null;
 	}
 
 	@Override
-	public void hdel(Object key, Object... fields) {
+	public void hdel(K key, Object... fields) {
 		Map<Object, Object> map = (Map)cache.getIfPresent(key);
 		if(map!=null){
 			for(Object field:fields){
@@ -118,7 +120,7 @@ public class MemoryProvider extends CacheProvider {
 	}
 
 	@Override
-	public boolean hexists(Object key, Object field) {
+	public boolean hexists(K key, Object field) {
 		Map<Object, Object> map = (Map)cache.getIfPresent(key);
 		if(map!=null)
 			return map.containsKey(field);
@@ -126,12 +128,12 @@ public class MemoryProvider extends CacheProvider {
 	}
 
 	@Override
-	public Map hgetAll(Object key) {
+	public Map hgetAll(K key) {
 		return (Map)cache.getIfPresent(key);
 	}
 
 	@Override
-	public List<Object> hvals(Object key) {
+	public List<Object> hvals(K key) {
 		Map<Object, Object> map = (Map)cache.getIfPresent(key);
 		if(map!=null)
 			return new ArrayList(map.values());
@@ -139,7 +141,7 @@ public class MemoryProvider extends CacheProvider {
 	}
 
 	@Override
-	public Set<Object> hkeys(Object key) {
+	public Set hkeys(K key) {
 		Map<Object, Object> map = (Map)cache.getIfPresent(key);
 		if(map!=null)
 			return map.keySet();
