@@ -44,8 +44,11 @@ public class RedisPlugin extends JoyPlugin {
 			Redis.addPool(pool, jedisPool);
 		}
 		
+		String serializeWay = prop.get("serialize.way", "kryo");
+		Redis.serializeWay = serializeWay;
+		
 		if(Redis.mainPool!=null){
-			Redis.mainCache = Cache.create(Redis.mainPool);
+			Redis.mainCache = Cache.create(Redis.mainPool, serializeWay);
 		}
 		
 	}

@@ -17,6 +17,8 @@ public class Redis {
 	
 	static JedisPool mainPool = null;
 	
+	static String serializeWay = "kryo";
+	
 	private static final Map<String, JedisPool> poolMap = new ConcurrentHashMap<String, JedisPool>();
 	private static final Map<String, Cache> cacheMap = new ConcurrentHashMap<String, Cache>();
 	
@@ -44,7 +46,7 @@ public class Redis {
 	public static Cache use(String poolKey, String cacheName) {
 		Cache cache = cacheMap.get(cacheName);
 		if(cache==null){
-			cache = Cache.create(usePool(poolKey));
+			cache = Cache.create(usePool(poolKey), serializeWay);
 			cacheMap.put(cacheName, cache);
 			if (mainCache == null)
 				mainCache = cache;

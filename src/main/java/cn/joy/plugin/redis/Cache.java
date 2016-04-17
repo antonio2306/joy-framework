@@ -20,14 +20,15 @@ import redis.clients.util.SafeEncoder;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class Cache {
 	protected JedisPool jedisPool;
-	protected SerializeProvider serializeProvider = SerializeProvider.build("fst");
+	protected SerializeProvider serializeProvider;
 	
 	protected final ThreadLocal<Jedis> threadLocalJedis = new ThreadLocal<Jedis>();
 	
 	private Cache(){}
 	
-	public static Cache create(JedisPool jedisPool){
+	public static Cache create(JedisPool jedisPool, String serializeWay){
 		Cache cache = new Cache();
+		cache.serializeProvider = SerializeProvider.build(serializeWay);
 		cache.jedisPool = jedisPool;
 		return cache;
 	}
@@ -45,6 +46,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public String setStr(String key, String value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.set(key, value);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 存放 key value 对到 redis，并将 key 的生存时间设为 seconds (以秒为单位)。
 	 * 如果 key 已经存在， SETEX 命令将覆写旧值。
@@ -53,6 +62,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.setex(keyToBytes(key), seconds, valueToBytes(value));
+		}
+		finally {close(jedis);}
+	}
+	
+	public String setexStr(String key, int seconds, String value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.setex(key, seconds, value);
 		}
 		finally {close(jedis);}
 	}
@@ -69,6 +86,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public String getStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.get(key);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 删除给定的一个 key
 	 * 不存在的 key 会被忽略。
@@ -81,6 +106,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public Long delStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.del(key);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 删除给定的多个 key
 	 * 不存在的 key 会被忽略。
@@ -89,6 +122,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.del(keysToBytesArray(keys));
+		}
+		finally {close(jedis);}
+	}
+	
+	public Long delStr(String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.del(keys);
 		}
 		finally {close(jedis);}
 	}
@@ -137,6 +178,16 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public String msetStr(String... keysValues) {
+		if (keysValues.length % 2 != 0)
+			throw new IllegalArgumentException("wrong number of arguments for met, keysValues length can not be odd");
+		Jedis jedis = getJedis();
+		try {
+			return jedis.mset(keysValues);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 返回所有(一个或多个)给定 key 的值。
 	 * 如果给定的 key 里面，有某个 key 不存在，那么这个 key 返回特殊值 nil 。因此，该命令永不失败。
@@ -151,6 +202,13 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public List mgetStr(String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.mget(keys);
+		}
+		finally {close(jedis);}
+	}
 	/**
 	 * 将 key 中储存的数字值减一。
 	 * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 DECR 操作。
@@ -162,6 +220,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.decr(keyToBytes(key));
+		}
+		finally {close(jedis);}
+	}
+	
+	public Long decrStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.decr(key);
 		}
 		finally {close(jedis);}
 	}
@@ -181,6 +247,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public Long decrByStr(String key, long longValue) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.decrBy(key, longValue);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 将 key 中储存的数字值增一。
 	 * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCR 操作。
@@ -191,6 +265,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.incr(keyToBytes(key));
+		}
+		finally {close(jedis);}
+	}
+	
+	public Long incrStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.incr(key);
 		}
 		finally {close(jedis);}
 	}
@@ -210,6 +292,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public Long incrByStr(String key, long longValue) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.incrBy(key, longValue);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 检查给定 key 是否存在。
 	 */
@@ -217,6 +307,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.exists(keyToBytes(key));
+		}
+		finally {close(jedis);}
+	}
+	
+	public boolean existsStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.exists(key);
 		}
 		finally {close(jedis);}
 	}
@@ -237,10 +335,18 @@ public class Cache {
 	 * 当 key 和 newkey 相同，或者 key 不存在时，返回一个错误。
 	 * 当 newkey 已经存在时， RENAME 命令将覆盖旧值。
 	 */
-	public String rename(Object oldkey, Object newkey) {
+	public String renameStr(Object oldkey, Object newkey) {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.rename(keyToBytes(oldkey), keyToBytes(newkey));
+		}
+		finally {close(jedis);}
+	}
+	
+	public String renameStr(String oldkey, String newkey) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.rename(oldkey, newkey);
 		}
 		finally {close(jedis);}
 	}
@@ -258,6 +364,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public Long moveStr(String key, int dbIndex) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.move(key, dbIndex);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 将 key 原子性地从当前实例传送到目标实例的指定数据库上，一旦传送成功， key 保证会出现在目标实例上，而当前实例上的 key 会被删除。
 	 */
@@ -265,6 +379,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.migrate(valueToBytes(host), port, keyToBytes(key), destinationDb, timeout);
+		}
+		finally {close(jedis);}
+	}
+	
+	public String migrateStr(String host, int port, String key, int destinationDb, int timeout) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.migrate(host, port, key, destinationDb, timeout);
 		}
 		finally {close(jedis);}
 	}
@@ -297,6 +419,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public Long expireStr(String key, int seconds) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.expire(key, seconds);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * EXPIREAT 的作用和 EXPIRE 类似，都用于为 key 设置生存时间。不同在于 EXPIREAT 命令接受的时间参数是 UNIX 时间戳(unix timestamp)。
 	 */
@@ -304,6 +434,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.expireAt(keyToBytes(key), unixTime);
+		}
+		finally {close(jedis);}
+	}
+	
+	public Long expireAtStr(String key, long unixTime) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.expireAt(key, unixTime);
 		}
 		finally {close(jedis);}
 	}
@@ -319,6 +457,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public Long pexpireStr(String key, long milliseconds) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.pexpire(key, milliseconds);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 这个命令和 EXPIREAT 命令类似，但它以毫秒为单位设置 key 的过期 unix 时间戳，而不是像 EXPIREAT 那样，以秒为单位。
 	 */
@@ -326,6 +472,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.pexpireAt(keyToBytes(key), millisecondsTimestamp);
+		}
+		finally {close(jedis);}
+	}
+	
+	public Long pexpireAtStr(String key, long millisecondsTimestamp) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.pexpireAt(key, millisecondsTimestamp);
 		}
 		finally {close(jedis);}
 	}
@@ -342,6 +496,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public String getSetStr(String key, String value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.getSet(key, value);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 移除给定 key 的生存时间，将这个 key 从『易失的』(带生存时间 key )转换成『持久的』(一个不带生存时间、永不过期的 key )。
 	 */
@@ -349,6 +511,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.persist(keyToBytes(key));
+		}
+		finally {close(jedis);}
+	}
+	
+	public Long persistStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.persist(key);
 		}
 		finally {close(jedis);}
 	}
@@ -364,6 +534,14 @@ public class Cache {
 		finally {close(jedis);}
 	}
 	
+	public String typeStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.type(key);
+		}
+		finally {close(jedis);}
+	}
+	
 	/**
 	 * 以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)。
 	 */
@@ -371,6 +549,14 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.ttl(keyToBytes(key));
+		}
+		finally {close(jedis);}
+	}
+	
+	public Long ttlStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.ttl(key);
 		}
 		finally {close(jedis);}
 	}
@@ -1107,6 +1293,439 @@ public class Cache {
 		Jedis jedis = getJedis();
 		try {
 			return jedis.zscore(keyToBytes(key), valueToBytes(member));
+		}
+		finally {close(jedis);}
+	}
+	
+	//for string value
+	public Long pttlStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.pttl(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long objectRefcountStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.objectRefcount(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long objectIdletimeStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.objectIdletime(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long hsetStr(String key, String field, String value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hset(key, field, value);
+		}
+		finally {close(jedis);}
+	}
+
+	public String hmsetStr(String key, Map<String, String> hash) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hmset(key, hash);
+		}
+		finally {close(jedis);}
+	}
+
+	public String hgetStr(String key, String field) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hget(key, field);
+		}
+		finally {close(jedis);}
+	}
+
+	public List hmgetStr(String key, String... fields) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hmget(key, fields);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long hdelStr(String key, String... fields) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hdel(key, fields);
+		}
+		finally {close(jedis);}
+	}
+
+	public boolean hexistsStr(String key, String field) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hexists(key, field);
+		}
+		finally {close(jedis);}
+	}
+
+	public Map hgetAllStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hgetAll(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public List hvalsStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hvals(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set<String> hkeysStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hkeys(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long hlenStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hlen(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long hincrByStr(String key, String field, long value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hincrBy(key, field, value);
+		}
+		finally {close(jedis);}
+	}
+
+	public Double hincrByFloatStr(String key, String field, double value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.hincrByFloat(key, field, value);
+		}
+		finally {close(jedis);}
+	}
+
+	public String lindexStr(String key, long index) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.lindex(key, index);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long getCounterStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return Long.parseLong((String)jedis.get(key.toString()));
+		}
+		finally {close(jedis);}
+	}
+
+	public Long llenStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.llen(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public String lpopStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.lpop(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long lpushStr(String key, String... values) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.lpush(key, values);
+		}
+		finally {close(jedis);}
+	}
+
+	public String lsetStr(String key, long index, String value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.lset(key, index, value);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long lremStr(String key, long count, String value) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.lrem(key, count, value);
+		}
+		finally {close(jedis);}
+	}
+
+	public List lrangeStr(String key, long start, long end) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.lrange(key, start, end);
+		}
+		finally {close(jedis);}
+	}
+
+	public String ltrimStr(String key, long start, long end) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.ltrim(key, start, end);
+		}
+		finally {close(jedis);}
+	}
+
+	public String rpopStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.rpop(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public String rpoplpushStr(String srcKey, String dstKey) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.rpoplpush(srcKey, dstKey);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long rpushStr(String key, String... values) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.rpush(key, values);
+		}
+		finally {close(jedis);}
+	}
+
+	public List blpopStr(String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.blpop(keys);
+		}
+		finally {close(jedis);}
+	}
+
+	public List blpopStr(int timeout, String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.blpop(timeout, keys);
+		}
+		finally {close(jedis);}
+	}
+
+	public List brpopStr(String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.brpop(keys);
+		}
+		finally {close(jedis);}
+	}
+
+	public List brpopStr(int timeout, String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.brpop(timeout, keys);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long saddStr(String key, String... members) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.sadd(key, members);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long scardStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.scard(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public String spopStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.spop(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set smembersStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.smembers(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public boolean sismemberStr(String key, String member) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.sismember(key, member);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set sinterStr(String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.sinter(keys);
+		}
+		finally {close(jedis);}
+	}
+
+	public String srandmemberStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.srandmember(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public List srandmemberStr(String key, int count) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.srandmember(key, count);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long sremStr(String key, String... members) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.srem(key, members);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set sunionStr(String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.sunion(keys);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set sdiffStr(String... keys) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.sdiff(keys);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long zaddStr(String key, double score, String member) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zadd(key, score, member);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long zaddStr(String key, Map<String, Double> scoreMembers) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zadd(key, scoreMembers);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long zcardStr(String key) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zcard(key);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long zcountStr(String key, double min, double max) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zcount(key, min, max);
+		}
+		finally {close(jedis);}
+	}
+
+	public Double zincrbyStr(String key, double score, String member) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zincrby(key, score, member);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set zrangeStr(String key, long start, long end) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zrange(key, start, end);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set zrevrangeStr(String key, long start, long end) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zrevrange(key, start, end);
+		}
+		finally {close(jedis);}
+	}
+
+	public Set zrangeByScoreStr(String key, double min, double max) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zrangeByScore(key, min, max);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long zrankStr(String key, String member) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zrank(key, member);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long zrevrankStr(String key, String member) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zrevrank(key, member);
+		}
+		finally {close(jedis);}
+	}
+
+	public Long zremStr(String key, String... members) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zrem(key, members);
+		}
+		finally {close(jedis);}
+	}
+
+	public Double zscoreStr(String key, String member) {
+		Jedis jedis = getJedis();
+		try {
+			return jedis.zscore(key, member);
 		}
 		finally {close(jedis);}
 	}
