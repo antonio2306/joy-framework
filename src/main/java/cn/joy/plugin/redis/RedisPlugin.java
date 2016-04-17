@@ -1,14 +1,13 @@
 package cn.joy.plugin.redis;
 
-import cn.joy.framework.annotation.Plugin;
-import cn.joy.framework.kits.Prop;
-import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.plugin.JoyPlugin;
-import cn.joy.plugin.serialize.provider.FstProvider;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
+import cn.joy.framework.annotation.Plugin;
+import cn.joy.framework.kits.Prop;
+import cn.joy.framework.kits.StringKit;
+import cn.joy.framework.plugin.JoyPlugin;
 
 @Plugin(key="redis", depends = {"serialize"})
 public class RedisPlugin extends JoyPlugin {

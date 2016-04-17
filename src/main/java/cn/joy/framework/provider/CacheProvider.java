@@ -29,6 +29,9 @@ public abstract class CacheProvider implements JoyProvider{
 		CacheProvider cache = cacheMap.get(cacheName);
 		if(cache==null){
 			cache = (CacheProvider)BeanKit.getNewInstance(use(key).getClass());
+			if(prop==null)
+				prop = new Properties();
+			prop.put("cacheName", cacheName);
 			cache.init(prop);
 			cacheMap.put(cacheName, cache);
 		}
@@ -52,7 +55,7 @@ public abstract class CacheProvider implements JoyProvider{
 	public abstract <T> T get(Object key);
 	public abstract void del(Object key);
 	public abstract void del(Object... keys);
-	public abstract Set<Object> keys(String pattern);
+	public abstract Set<String> keys(String pattern);
 	public abstract boolean exists(Object key);
 	public abstract <T> T getSet(Object key, Object value);
 	

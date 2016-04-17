@@ -13,6 +13,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import cn.joy.framework.kits.CollectionKit;
 import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.provider.CacheProvider;
 
@@ -23,7 +24,7 @@ public class MemoryProvider extends CacheProvider {
 	public void init(Properties prop) { 
 		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
 
-		long expire = prop==null?0:NumberKit.getLong(prop.get("expire"), 0L);
+		long expire = NumberKit.getLong(prop.get("expire"), 0L);
 		if(expire>0)
 			cacheBuilder.expireAfterWrite(expire, TimeUnit.SECONDS);
 		cache = cacheBuilder.build(new CacheLoader<Object, Object>() {
@@ -63,8 +64,17 @@ public class MemoryProvider extends CacheProvider {
 	}
 
 	@Override
-	public Set<Object> keys(String pattern) {
-		return cache.asMap().keySet();
+	public Set<String> keys(String pattern) {
+		if("*".equals(pattern))
+			return CollectionKit.convertSetType(cache.asMap().keySet(), String.class);
+		Set<Object> keys = cache.asMap().keySet();
+		Set<String> returnKeys = new HashSet<>();
+		for(Object key:keys){
+			String keyStr = key.toString();
+			if(keyStr.matches(pattern))
+				returnKeys.add(keyStr);
+		}
+		return returnKeys;
 	}
 
 	@Override

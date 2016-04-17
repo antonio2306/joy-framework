@@ -1,7 +1,9 @@
 package cn.joy.framework.kits;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class CollectionKit {
 	/**
@@ -17,4 +19,14 @@ public class CollectionKit {
         }
         return target;
     }
+    
+    //并不保证可转换性，仅为了书写方便
+    public static <K> Set<K> convertSetType(Set<?> set, Class<K> toClass){
+    	Set<K> newSet = new HashSet<>();
+    	for(Object element:set){
+    		newSet.add((K)element);
+    	}
+    	return newSet;
+    }
+    
 }

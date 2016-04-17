@@ -15,6 +15,10 @@ public class Quartz{
 	static QuartzScheduler mainScheduler = QuartzScheduler.nullQuartzScheduler;
 	private static final ConcurrentHashMap<String, QuartzScheduler> schedulerMap = new ConcurrentHashMap<String, QuartzScheduler>();
 	
+	public static QuartzScheduler use(){
+		return mainScheduler;
+	} 
+	
 	public static QuartzScheduler use(String schedulerName){
 		return use(schedulerName, null);
 	}

@@ -17,6 +17,7 @@ import redis.clients.util.SafeEncoder;
 /**
  * Cache api 原样保持了Jedis api 的方法名称及使用方法
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Cache {
 	protected JedisPool jedisPool;
 	protected SerializeProvider serializeProvider = SerializeProvider.build("fst");
@@ -60,7 +61,6 @@ public class Cache {
 	 * 返回 key 所关联的 value 值
 	 * 如果 key 不存在那么返回特殊值 nil 。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T get(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -141,7 +141,6 @@ public class Cache {
 	 * 返回所有(一个或多个)给定 key 的值。
 	 * 如果给定的 key 里面，有某个 key 不存在，那么这个 key 返回特殊值 nil 。因此，该命令永不失败。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List mget(Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -275,13 +274,15 @@ public class Cache {
 	 * 默认使用 0 号数据库。
 	 * 注意：在 Jedis 对象被关闭时，数据库又会重新被设置为初始值，所以本方法 select(...)
 	 * 正常工作需要使用如下方式之一：
-	 * 1：使用 RedisInterceptor，在本线程内共享同一个 Jedis 对象
-	 * 2：使用 Redis.call(ICallback) 进行操作
+	 * 2：使用 Redis.call(JoyCallback) 进行操作
 	 * 3：自行获取 Jedis 对象进行操作
 	 */
 	public String select(int databaseIndex) {
 		Jedis jedis = getJedis();
-		return jedis.select(databaseIndex);
+		try {
+			return jedis.select(databaseIndex);
+		}
+		finally {close(jedis);}
 	}
 	
 	/**
@@ -333,7 +334,6 @@ public class Cache {
 	 * 将给定 key 的值设为 value ，并返回 key 的旧值(old value)。
 	 * 当 key 存在但不是字符串类型时，返回一个错误。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T getSet(Object key, Object value) {
 		Jedis jedis = getJedis();
 		try {
@@ -440,7 +440,6 @@ public class Cache {
 	/**
 	 * 返回哈希表 key 中给定域 field 的值。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T hget(Object key, Object field) {
 		Jedis jedis = getJedis();
 		try {
@@ -454,7 +453,6 @@ public class Cache {
 	 * 如果给定的域不存在于哈希表，那么返回一个 nil 值。
 	 * 因为不存在的 key 被当作一个空哈希表来处理，所以对一个不存在的 key 进行 HMGET 操作将返回一个只带有 nil 值的表。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List hmget(Object key, Object... fields) {
 		Jedis jedis = getJedis();
 		try {
@@ -490,7 +488,6 @@ public class Cache {
 	 * 返回哈希表 key 中，所有的域和值。
 	 * 在返回值里，紧跟每个域名(field name)之后是域的值(value)，所以返回值的长度是哈希表大小的两倍。
 	 */
-	@SuppressWarnings("rawtypes")
 	public Map hgetAll(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -506,7 +503,6 @@ public class Cache {
 	/**
 	 * 返回哈希表 key 中所有域的值。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List hvals(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -577,14 +573,6 @@ public class Cache {
 	
 	/**
 	 * 返回列表 key 中，下标为 index 的元素。
-	 * 下标(index)参数 start 和 stop 都以 0 为底，也就是说，以 0 表示列表的第一个元素，以 1 表示列表的第二个元素，以此类推。
-	 * 你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
-	 * 如果 key 不是列表类型，返回一个错误。
-	 */
-	@SuppressWarnings("unchecked")
-	
-	/**
-	 * 返回列表 key 中，下标为 index 的元素。
 	 * 下标(index)参数 start 和 stop 都以 0 为底，也就是说，以 0 表示列表的第一个元素，
 	 * 以 1 表示列表的第二个元素，以此类推。
 	 * 你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
@@ -625,7 +613,6 @@ public class Cache {
 	/**
 	 * 移除并返回列表 key 的头元素。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T lpop(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -688,7 +675,6 @@ public class Cache {
 	 * 获取 list 中下标 1 到 3 的数据： cache.lrange(listKey, 1, 3);
 	 * </pre>
 	 */
-	@SuppressWarnings("rawtypes")
 	public List lrange(Object key, long start, long end) {
 		Jedis jedis = getJedis();
 		try {
@@ -716,7 +702,6 @@ public class Cache {
 	/**
 	 * 移除并返回列表 key 的尾元素。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T rpop(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -730,7 +715,6 @@ public class Cache {
 	 * 将列表 source 中的最后一个元素(尾元素)弹出，并返回给客户端。
 	 * 将 source 弹出的元素插入到列表 destination ，作为 destination 列表的的头元素。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T rpoplpush(Object srcKey, Object dstKey) {
 		Jedis jedis = getJedis();
 		try {
@@ -760,7 +744,6 @@ public class Cache {
 	 * 它是 LPOP 命令的阻塞版本，当给定列表内没有任何元素可供弹出的时候，连接将被 BLPOP 命令阻塞，直到等待超时或发现可弹出元素为止。
 	 * 当给定多个 key 参数时，按参数 key 的先后顺序依次检查各个列表，弹出第一个非空列表的头元素。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List blpop(Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -775,7 +758,6 @@ public class Cache {
 	 * 它是 LPOP 命令的阻塞版本，当给定列表内没有任何元素可供弹出的时候，连接将被 BLPOP 命令阻塞，直到等待超时或发现可弹出元素为止。
 	 * 当给定多个 key 参数时，按参数 key 的先后顺序依次检查各个列表，弹出第一个非空列表的头元素。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List blpop(int timeout, Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -791,7 +773,6 @@ public class Cache {
 	 * 当给定多个 key 参数时，按参数 key 的先后顺序依次检查各个列表，弹出第一个非空列表的尾部元素。
 	 * 关于阻塞操作的更多信息，请查看 BLPOP 命令， BRPOP 除了弹出元素的位置和 BLPOP 不同之外，其他表现一致。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List brpop(Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -807,7 +788,6 @@ public class Cache {
 	 * 当给定多个 key 参数时，按参数 key 的先后顺序依次检查各个列表，弹出第一个非空列表的尾部元素。
 	 * 关于阻塞操作的更多信息，请查看 BLPOP 命令， BRPOP 除了弹出元素的位置和 BLPOP 不同之外，其他表现一致。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List brpop(int timeout, Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -857,7 +837,6 @@ public class Cache {
 	 * 移除并返回集合中的一个随机元素。
 	 * 如果只想获取一个随机元素，但不想该元素从集合中被移除的话，可以使用 SRANDMEMBER 命令。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T spop(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -870,7 +849,6 @@ public class Cache {
 	 * 返回集合 key 中的所有成员。
 	 * 不存在的 key 被视为空集合。
 	 */
-	@SuppressWarnings("rawtypes")
 	public Set smembers(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -896,7 +874,6 @@ public class Cache {
 	/**
 	 * 返回多个集合的交集，多个集合由 keys 指定
 	 */
-	@SuppressWarnings("rawtypes")
 	public Set sinter(Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -911,7 +888,6 @@ public class Cache {
 	/**
 	 * 返回集合中的一个随机元素。
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T srandmember(Object key) {
 		Jedis jedis = getJedis();
 		try {
@@ -928,7 +904,6 @@ public class Cache {
 	 * 如果 count 为负数，那么命令返回一个数组，数组中的元素可能会重复出现多次，而数组的长度为 count 的绝对值。
 	 * 该操作和 SPOP 相似，但 SPOP 将随机元素从集合中移除并返回，而 SRANDMEMBER 则仅仅返回随机元素，而不对集合进行任何改动。
 	 */
-	@SuppressWarnings("rawtypes")
 	public List srandmember(Object key, int count) {
 		Jedis jedis = getJedis();
 		try {
@@ -953,7 +928,6 @@ public class Cache {
 	 * 返回多个集合的并集，多个集合由 keys 指定
 	 * 不存在的 key 被视为空集。
 	 */
-	@SuppressWarnings("rawtypes")
 	public Set sunion(Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -969,7 +943,6 @@ public class Cache {
 	 * 返回一个集合的全部成员，该集合是所有给定集合之间的差集。
 	 * 不存在的 key 被视为空集。
 	 */
-	@SuppressWarnings("rawtypes")
 	public Set sdiff(Object... keys) {
 		Jedis jedis = getJedis();
 		try {
@@ -1045,7 +1018,6 @@ public class Cache {
 	 * 具有相同 score 值的成员按字典序(lexicographical order )来排列。
 	 * 如果你需要成员按 score 值递减(从大到小)来排列，请使用 ZREVRANGE 命令。
 	 */
-	@SuppressWarnings("rawtypes")
 	public Set zrange(Object key, long start, long end) {
 		Jedis jedis = getJedis();
 		try {
@@ -1063,7 +1035,6 @@ public class Cache {
 	 * 具有相同 score 值的成员按字典序的逆序(reverse lexicographical order)排列。
 	 * 除了成员按 score 值递减的次序排列这一点外， ZREVRANGE 命令的其他方面和 ZRANGE 命令一样。
 	 */
-	@SuppressWarnings("rawtypes")
 	public Set zrevrange(Object key, long start, long end) {
 		Jedis jedis = getJedis();
 		try {
@@ -1079,7 +1050,6 @@ public class Cache {
 	 * 返回有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。
 	 * 有序集成员按 score 值递增(从小到大)次序排列。
 	 */
-	@SuppressWarnings("rawtypes")
 	public Set zrangeByScore(Object key, double min, double max) {
 		Jedis jedis = getJedis();
 		try {
@@ -1200,7 +1170,6 @@ public class Cache {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")
 	protected List valueListFromBytesList(List<byte[]> data) {
 		List<Object> result = new ArrayList<Object>();
 		for (byte[] d : data)
