@@ -24,7 +24,7 @@ public class SerializeTest {
 	
 	@Test(dependsOnMethods="initData")
 	public void testDefaultSerialize(){
-		SerializeProvider provider = SerializeProvider.build();
+		SerializeProvider provider = SerializeProvider.use();
 		
 		byte[] user1Byte1 = provider.serialize(user1);
 		Assert.assertEquals(provider.deserialize(user1Byte1, User.class).getName(), "张三");
@@ -35,7 +35,7 @@ public class SerializeTest {
 	
 	@Test(dependsOnMethods="initData")
 	public void testProtostuffSerialize(){
-		SerializeProvider provider = SerializeProvider.build("protostuff");
+		SerializeProvider provider = SerializeProvider.use("protostuff");
 		
 		byte[] user1Byte2 = provider.serialize(user1);
 		Assert.assertEquals(provider.deserialize(user1Byte2, User.class).getName(), "张三");

@@ -11,7 +11,7 @@ import cn.joy.framework.rule.RuleResult;
 public abstract class TransactionProvider implements JoyProvider{
 	protected Log log = LogKit.getLog(TransactionProvider.class);
 
-	public static TransactionProvider build(){
+	public static TransactionProvider use(){
 		return (TransactionProvider)JoyManager.provider(TransactionProvider.class);
 	}
 	

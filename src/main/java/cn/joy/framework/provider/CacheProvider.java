@@ -8,31 +8,55 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.BeanKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.StringKit;
 
 public abstract class CacheProvider<K, V> implements JoyProvider{
+	protected Log log = LogKit.getLog(CacheProvider.class);
 	private static final Map<String, CacheProvider> cacheMap = new ConcurrentHashMap<>();
+	protected Loader<K, V> cacheLoader;
 	
-	private static CacheProvider use(String key){
-		return (CacheProvider)JoyManager.provider(CacheProvider.class, key);
+	private static CacheProvider way(String way){
+		return (CacheProvider)JoyManager.provider(CacheProvider.class, way);
 	}
 	
-	public static <K, V> CacheProvider<K, V> build(String cacheName){
-		return build(null, cacheName, null);
+	public static <K, V> CacheProvider<K, V> use(String cacheName){
+		return use(null, cacheName, null, null);
 	}
 	
-	public static <K, V> CacheProvider<K, V> build(String cacheName, Properties prop){
-		return build(null, cacheName, prop);
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName){
+		return use(way, cacheName, null, null);
 	}
 	
-	public static <K, V> CacheProvider<K, V> build(String key, String cacheName, Properties prop){
+	public static <K, V> CacheProvider<K, V> use(String cacheName, Loader<K, V> cacheLoader){
+		return use(null, cacheName, null, cacheLoader);
+	}
+	
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, Loader<K, V> cacheLoader){
+		return use(way, cacheName, null, cacheLoader);
+	}
+	
+	public static <K, V> CacheProvider<K, V> use(String cacheName, Properties prop){
+		return use(null, cacheName, prop, null);
+	}
+	
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, Properties prop){
+		return use(way, cacheName, prop, null);
+	}
+	
+	public static <K, V> CacheProvider<K, V> use(String cacheName, Properties prop, Loader<K, V> cacheLoader){
+		return use(null, cacheName, prop, cacheLoader);
+	}
+	
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, Properties prop, Loader<K, V> cacheLoader){
 		CacheProvider cache = cacheMap.get(cacheName);
 		if(cache==null){
-			cache = (CacheProvider)BeanKit.getNewInstance(use(key).getClass());
+			cache = (CacheProvider)BeanKit.getNewInstance(way(way).getClass());
 			if(prop==null)
 				prop = new Properties();
 			prop.put("cacheName", cacheName);
-			cache.init(prop);
+			cache.setCacheLoader(cacheLoader).init(prop);
 			cacheMap.put(cacheName, cache);
 		}
 		return cache;
@@ -46,6 +70,11 @@ public abstract class CacheProvider<K, V> implements JoyProvider{
 			cache.release();
 		}
 		cacheMap.remove(cacheName);
+	}
+	
+	protected CacheProvider setCacheLoader(Loader<K, V> cacheLoader){
+		this.cacheLoader = cacheLoader;
+		return this;
 	}
 	
 	public abstract void init(Properties prop);
@@ -66,4 +95,8 @@ public abstract class CacheProvider<K, V> implements JoyProvider{
 	public abstract Map hgetAll(K key);
 	public abstract List hvals(K key);
 	public abstract Set hkeys(K key);
+	
+	public static abstract class Loader<K, V>{
+		public abstract V load(K key) throws Exception;
+	}
 }

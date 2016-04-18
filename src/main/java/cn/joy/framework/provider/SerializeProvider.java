@@ -8,12 +8,12 @@ import cn.joy.framework.kits.LogKit.Log;
 
 public abstract class SerializeProvider implements JoyProvider {
 	protected Log log = LogKit.getLog(SerializeProvider.class);
-	public static SerializeProvider build(){
-		return build(null);
+	public static SerializeProvider use(){
+		return use(null);
 	}
 	
-	public static SerializeProvider build(String key){
-		return (SerializeProvider)JoyManager.provider(SerializeProvider.class, key);
+	public static SerializeProvider use(String way){
+		return (SerializeProvider)JoyManager.provider(SerializeProvider.class, way);
 	}
 	
 	@Override
