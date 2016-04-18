@@ -1803,7 +1803,19 @@ public class Cache {
 	
 	public Jedis getAndSetThreadJedis() {
 		Jedis jedis = threadLocalJedis.get();
-		return jedis != null ? jedis : jedisPool.getResource();
+		if(jedis==null){
+			jedis = jedisPool.getResource();
+			setThreadJedis(jedis);
+		}
+		return jedis;
+	}
+	
+	public boolean openThreadJedis() {
+		if(threadLocalJedis.get()==null){
+			setThreadJedis(jedisPool.getResource());
+			return true;
+		}
+		return false;
 	}
 	
 	public void close(Jedis jedis) {
@@ -1826,6 +1838,7 @@ public class Cache {
 	public void release(){
 		if(jedisPool!=null)
 			jedisPool.destroy();
+		threadLocalJedis.remove();
 	}
 }
 

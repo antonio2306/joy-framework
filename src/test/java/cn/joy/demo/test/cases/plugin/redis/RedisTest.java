@@ -20,18 +20,18 @@ public class RedisTest {
 	
 	public void testDefaultRedis(){
 		Cache cache = Redis.use();
-		cache.getAndSetThreadJedis();
+		cache.openThreadJedis();
 		//jedis关闭会还原
 		cache.select(1);
-		//System.out.println(cache.getJedis().getDB());
+		Assert.assertEquals(cache.getJedis().getDB().longValue(), 1);
 		
 		cache.set("abc", 123);
 		Assert.assertEquals(cache.get("abc"), 123);
 		
 		//序列化后不能使用incr操作
-		cache.getJedis().set("num", "11");
+		cache.setStr("num", "11");
 		cache.incr("num");
-		Assert.assertEquals(cache.getJedis().get("num"), "12");
+		Assert.assertEquals(cache.getStr("num"), "12");
 		
 		cache.del("abc");
 		Assert.assertEquals(cache.get("abc"), null);
@@ -67,14 +67,14 @@ public class RedisTest {
 		//cache.hincrBy("ff", "m5", 1);
 		//Assert.assertEquals(cache.hget("ff", "m5"), 556);
 		//序列化的和不序列化的不能混用
-		cache.getJedis().hset("ff", "m6", "99");
-		cache.getJedis().hincrBy("ff", "m6", 1);
-		Assert.assertEquals(cache.getJedis().hget("ff", "m6"), "100");
-		//System.out.println(cache.getJedis().hgetAll("ff").size());	//??? =2?
-		//System.out.println(cache.hgetAll("ff"));
+		cache.hsetStr("gg", "m6", "99");
+		cache.hincrByStr("gg", "m6", 1);
+		Assert.assertEquals(cache.hgetStr("gg", "m6"), "100");
+		//System.out.println(cache.hgetAllStr("ff").size());	//??? =2?
+		//System.out.println(cache.hgetAll("ff").size());	//??? =2?
 		
-		cache.getJedis().flushDB();
-		cache.removeThreadJedis();
+		Assert.assertEquals(cache.getJedis().getDB().longValue(), 1);
+		cache.getJedis().flushDB();	//清空测试数据
 		cache.release();
 	}
 }
