@@ -59,7 +59,7 @@ public abstract class BaseRule {
 		if(ntAnnotation!=null){
 			return executeRuleMethod(method, rule, mParams);
 		}else*/
-		TransactionProvider txProvider = TransactionProvider.build();
+		TransactionProvider txProvider = TransactionProvider.use();
 		if(txProvider!=null){
 			return txProvider.doTransaction(new JoyCallback(){
 				public RuleResult run(Object... params) throws Exception{

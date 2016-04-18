@@ -1,4 +1,4 @@
-package cn.joy.demo.test.cases.plugin.cache;
+package cn.joy.demo.test.cases.plugin.redis;
 
 import java.util.Map;
 
@@ -11,18 +11,18 @@ import cn.joy.framework.kits.Prop;
 import cn.joy.framework.provider.CacheProvider;
 import cn.joy.framework.test.TestExecutor;
 
-@Test(groups="case.cache", dependsOnGroups="case.init")
-public class MemoryCacheTest {
+@Test(groups="case.cache.redis", dependsOnGroups="case.init")
+public class RedisCacheTest {
 	@Test(enabled = false)
 	public static void main(String[] args) {
-		TestExecutor.executeGroup("case.cache");
+		TestExecutor.executeGroup("case.cache.redis");
 	}
 	
 	public void testCache(){
-		CacheProvider<String, Object> cache = CacheProvider.use("c1");
-		CacheProvider<String, User> cache2 = CacheProvider.use("c2");
-		CacheProvider<String, String> cache3 = CacheProvider.use("c3");
-		CacheProvider<String, Map> cache4 = CacheProvider.use("c4");
+		CacheProvider<String, Object> cache = CacheProvider.use("redis");
+		CacheProvider<String, User> cache2 = CacheProvider.use("redis", "c2");
+		CacheProvider<String, String> cache3 = CacheProvider.use("redis", "c3");
+		CacheProvider<String, Map> cache4 = CacheProvider.use("redis", "c4");
 		
 		cache.set("aa", 123);
 		Assert.assertEquals(cache.get("aa"), 123);
@@ -51,7 +51,7 @@ public class MemoryCacheTest {
 	}
 	
 	public void testCacheExpire(){
-		CacheProvider<String, Object> cache = CacheProvider.use("e1", new Prop(JoyMap.createStringObject().put("expire", 2)).getProperties());
+		CacheProvider<String, Object> cache = CacheProvider.use("redis", "e1", new Prop(JoyMap.createStringObject().put("expire", 2)).getProperties());
 		
 		cache.set("aa", 123);
 		Assert.assertEquals(cache.get("aa"), 123);
@@ -78,7 +78,7 @@ public class MemoryCacheTest {
 	}
 	
 	public void testLoadingCache(){
-		CacheProvider<String, Object> cache = CacheProvider.use("l1", new CacheProvider.Loader<String, Object>() {
+		CacheProvider<String, Object> cache = CacheProvider.use("redis", "l1", new CacheProvider.Loader<String, Object>() {
 			public Object load(String key) throws Exception {
 				return "load "+key;
 			};
@@ -90,7 +90,7 @@ public class MemoryCacheTest {
 		cache.del("aa");
 		Assert.assertEquals(cache.get("aa"), "load aa");
 		
-		//map里的会触发load
+		//map里的不会触发load
 		Assert.assertEquals(cache.hget("mm", "eee"), null);
 		
 		cache = CacheProvider.use("l2", new Prop(JoyMap.createStringObject().put("expire", 2)).getProperties(),

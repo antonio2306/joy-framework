@@ -28,7 +28,7 @@ public class Cache {
 	
 	public static Cache create(JedisPool jedisPool, String serializeWay){
 		Cache cache = new Cache();
-		cache.serializeProvider = SerializeProvider.build(serializeWay);
+		cache.serializeProvider = SerializeProvider.use(serializeWay);
 		cache.jedisPool = jedisPool;
 		return cache;
 	}

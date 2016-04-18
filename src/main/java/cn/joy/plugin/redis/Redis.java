@@ -29,6 +29,9 @@ public class Redis {
 	}
 	
 	private static JedisPool usePool(String poolKey){
+		if(poolKey==null)
+			return mainPool;
+		
 		JedisPool pool = poolMap.get(poolKey);
 		if(pool==null)
 			return mainPool;
@@ -39,15 +42,15 @@ public class Redis {
 		return mainCache;
 	}
 	
-	public static Cache use(String cacheName) {
-		return use(null, cacheName);
+	public static Cache use(String cacheKey) {
+		return use(null, cacheKey);
 	}
 	
-	public static Cache use(String poolKey, String cacheName) {
-		Cache cache = cacheMap.get(cacheName);
+	public static Cache use(String poolKey, String cacheKey) {
+		Cache cache = cacheMap.get(cacheKey);
 		if(cache==null){
 			cache = Cache.create(usePool(poolKey), serializeWay);
-			cacheMap.put(cacheName, cache);
+			cacheMap.put(cacheKey, cache);
 			if (mainCache == null)
 				mainCache = cache;
 		}
