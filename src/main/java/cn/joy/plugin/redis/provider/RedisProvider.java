@@ -38,8 +38,11 @@ public class RedisProvider<K, V> extends CacheProvider<K, V> {
 					    // 取得按表达式的方式订阅的消息后的处理  
 					    public void onPMessage(String pattern, String channel, String message) {
 					    	if(channel.endsWith("expired")){
-					    		if (StringKit.isNotEmpty(cacheName))
+					    		if (StringKit.isNotEmpty(cacheName)){
+					    			if(!message.startsWith(getKeyPrefix()))
+					    				return;
 					    			message = message.substring(getKeyPrefix().length());
+					    		}
 					    		try {
 									expireCallback.run(message, null);
 								} catch (Exception e) {
