@@ -16,7 +16,7 @@ import cn.joy.framework.kits.StringKit;
 public abstract class CacheProvider<K, V> implements JoyProvider{
 	protected Log log = LogKit.getLog(CacheProvider.class);
 	private static final Map<String, CacheProvider> cacheMap = new ConcurrentHashMap<>();
-	protected JoyCallback loaderCallback;
+	protected JoyCallback missCallback;
 	protected JoyCallback expireCallback;
 	
 	private static CacheProvider way(String way){
@@ -27,8 +27,8 @@ public abstract class CacheProvider<K, V> implements JoyProvider{
 		return use(cacheName, 0);
 	}
 	
-	public static <K, V> CacheProvider<K, V> use(String cacheName, JoyCallback loaderCallback){
-		return use(cacheName, loaderCallback, 0);
+	public static <K, V> CacheProvider<K, V> use(String cacheName, JoyCallback missCallback){
+		return use(cacheName, missCallback, 0);
 	}
 	
 	public static <K, V> CacheProvider<K, V> use(String cacheName, int expireTime){
@@ -40,35 +40,35 @@ public abstract class CacheProvider<K, V> implements JoyProvider{
 		}, expireTime);
 	}
 	
-	public static <K, V> CacheProvider<K, V> use(String cacheName, JoyCallback loaderCallback, int expireTime){
-		return use(cacheName, loaderCallback, expireTime, null);
+	public static <K, V> CacheProvider<K, V> use(String cacheName, JoyCallback missCallback, int expireTime){
+		return use(cacheName, missCallback, expireTime, null);
 	}
 	
-	public static <K, V> CacheProvider<K, V> use(String cacheName, JoyCallback loaderCallback, int expireTime, JoyCallback expireCallback){
-		return use(null, cacheName, null, loaderCallback, expireTime, expireCallback);
+	public static <K, V> CacheProvider<K, V> use(String cacheName, JoyCallback missCallback, int expireTime, JoyCallback expireCallback){
+		return use(null, cacheName, null, missCallback, expireTime, expireCallback);
 	}
 	
 	public static <K, V> CacheProvider<K, V> use(String way, String cacheName){
 		return use(way, cacheName, 0);
 	}
 	
-	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, JoyCallback loaderCallback){
-		return use(way, cacheName, loaderCallback, 0);
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, JoyCallback missCallback){
+		return use(way, cacheName, missCallback, 0);
 	}
 	
 	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, int expireTime){
 		return use(way, cacheName, null, expireTime);
 	}
 	
-	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, JoyCallback loaderCallback, int expireTime){
-		return use(way, cacheName, loaderCallback, expireTime, null);
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, JoyCallback missCallback, int expireTime){
+		return use(way, cacheName, missCallback, expireTime, null);
 	}
 	
-	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, JoyCallback loaderCallback, int expireTime, JoyCallback expireCallback){
-		return use(way, cacheName, null, loaderCallback, expireTime, expireCallback);
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, JoyCallback missCallback, int expireTime, JoyCallback expireCallback){
+		return use(way, cacheName, null, missCallback, expireTime, expireCallback);
 	}
 	
-	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, Properties prop, JoyCallback loaderCallback, int expireTime, JoyCallback expireCallback){
+	public static <K, V> CacheProvider<K, V> use(String way, String cacheName, Properties prop, JoyCallback missCallback, int expireTime, JoyCallback expireCallback){
 		CacheProvider cache = cacheMap.get(cacheName);
 		if(cache==null){
 			cache = (CacheProvider)BeanKit.getNewInstance(way(way).getClass());
@@ -76,7 +76,7 @@ public abstract class CacheProvider<K, V> implements JoyProvider{
 				prop = new Properties();
 			prop.put("cacheName", cacheName);
 			prop.put("expire", expireTime);
-			cache.setLoaderCallback(loaderCallback).setExpireCallback(expireCallback).init(prop);
+			cache.setMissCallback(missCallback).setExpireCallback(expireCallback).init(prop);
 			cacheMap.put(cacheName, cache);
 		}
 		return cache;
@@ -92,8 +92,8 @@ public abstract class CacheProvider<K, V> implements JoyProvider{
 		cacheMap.remove(cacheName);
 	}
 	
-	protected CacheProvider<K, V> setLoaderCallback(JoyCallback loaderCallback){
-		this.loaderCallback = loaderCallback;
+	protected CacheProvider<K, V> setMissCallback(JoyCallback missCallback){
+		this.missCallback = missCallback;
 		return this;
 	}
 	

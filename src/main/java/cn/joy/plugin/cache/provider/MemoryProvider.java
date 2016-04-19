@@ -46,8 +46,8 @@ public class MemoryProvider<K, V> extends CacheProvider<K, V> {
 			});
 		cache = cacheBuilder.build(new CacheLoader<K, V>() {
 					public V load(K key) throws Exception {
-						if(loaderCallback!=null)
-							return (V)loaderCallback.run(key);
+						if(missCallback!=null)
+							return (V)missCallback.run(key);
 						return null;
 					}
 				});

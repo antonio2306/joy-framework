@@ -88,9 +88,9 @@ public class RedisProvider<K, V> extends CacheProvider<K, V> {
 	@Override
 	public V get(K key) {
 		V value = cache.get(getRealKey(key));
-		if (value == null && loaderCallback != null) {
+		if (value == null && missCallback != null) {
 			try {
-				value = (V)loaderCallback.run(key);
+				value = (V)missCallback.run(key);
 				set(key, value);
 			} catch (Exception e) {
 				log.error("", e);
