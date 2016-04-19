@@ -1796,6 +1796,10 @@ public class Cache {
 		return result;
 	}
 	
+	public JedisPool getPool() {
+		return jedisPool;
+	}
+	
 	public Jedis getJedis() {
 		Jedis jedis = threadLocalJedis.get();
 		return jedis != null ? jedis : jedisPool.getResource();

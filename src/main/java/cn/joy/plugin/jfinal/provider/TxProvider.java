@@ -18,7 +18,7 @@ public class TxProvider extends TransactionProvider {
 	@Override
 	public RuleResult doTransaction(final JoyCallback callback, final int transactionWay) throws Exception {
 		if(transactionWay==0)
-			return callback.run();
+			return (RuleResult)callback.run();
 		
 		RuleResult ruleResult = null;
 		final List<RuleResult> resultWrap = new ArrayList<RuleResult>();
@@ -27,7 +27,7 @@ public class TxProvider extends TransactionProvider {
 				Db.tx(new IAtom() {
 					public boolean run() throws SQLException {
 						try {
-							RuleResult txResult = callback.run();
+							RuleResult txResult = (RuleResult)callback.run();
 							if(log.isDebugEnabled())
 								log.debug("doTransaction, txResult="+txResult.toJSON());
 							resultWrap.add(txResult);

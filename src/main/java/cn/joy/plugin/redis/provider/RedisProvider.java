@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPubSub;
 import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.provider.CacheProvider;
@@ -15,23 +17,60 @@ public class RedisProvider<K, V> extends CacheProvider<K, V> {
 	private Cache cache;
 	private int expire;
 	private String cacheName;
+	private Jedis expireCallbackJedis;
 
 	@Override
 	public void init(Properties prop) {
 		this.cacheName = prop.getProperty("cacheName");
 		cache = Redis.use(cacheName);
 		expire = NumberKit.getInteger(prop.get("expire"), 0);
+		if (expireCallback != null) {
+			expireCallbackJedis = cache.getPool().getResource();
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					expireCallbackJedis.psubscribe(new JedisPubSub() {
+					    // 初始化按表达式的方式订阅时候的处理  
+					    public void onPSubscribe(String pattern, int subscribedChannels) {  
+					        //System.out.println(pattern + "=" + subscribedChannels);  
+					    }  
+					  
+					    // 取得按表达式的方式订阅的消息后的处理  
+					    public void onPMessage(String pattern, String channel, String message) {
+					    	if(channel.endsWith("expired")){
+					    		if (StringKit.isNotEmpty(cacheName))
+					    			message = message.substring(getKeyPrefix().length());
+					    		try {
+									expireCallback.run(message, null);
+								} catch (Exception e) {
+									log.error("", e);
+								}
+					    	}
+					    }  
+					}, "*expired");
+				}
+			}).start();
+		}
 	}
 
 	@Override
 	public void release() {
 		cache.release();
 		cache = null;
+		
+		expireCallbackJedis.close();
+		expireCallbackJedis = null;
 	}
 	
-	private Object getRealKey(K key){
-		if(StringKit.isNotEmpty(cacheName))
-			return cacheName+"."+key;
+	private String getKeyPrefix(){
+		if (StringKit.isNotEmpty(cacheName))
+			return cacheName + ".";
+		return "";
+	}
+
+	private Object getRealKey(K key) {
+		if (StringKit.isNotEmpty(cacheName))
+			return getKeyPrefix() + key;
 		return key;
 	}
 
@@ -46,9 +85,9 @@ public class RedisProvider<K, V> extends CacheProvider<K, V> {
 	@Override
 	public V get(K key) {
 		V value = cache.get(getRealKey(key));
-		if(value==null && cacheLoader!=null){
+		if (value == null && loaderCallback != null) {
 			try {
-				value = cacheLoader.load(key);
+				value = (V)loaderCallback.run(key);
 				set(key, value);
 			} catch (Exception e) {
 				log.error("", e);
@@ -64,11 +103,11 @@ public class RedisProvider<K, V> extends CacheProvider<K, V> {
 
 	@Override
 	public void del(K... keys) {
-		for(K key:keys){
+		for (K key : keys) {
 			cache.del(getRealKey(key));
 		}
 	}
-	
+
 	@Override
 	public Set<String> keys(String pattern) {
 		return cache.keys(pattern);

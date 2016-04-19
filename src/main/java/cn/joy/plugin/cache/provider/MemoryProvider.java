@@ -12,6 +12,9 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalCause;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import cn.joy.framework.kits.CollectionKit;
 import cn.joy.framework.kits.NumberKit;
@@ -19,7 +22,6 @@ import cn.joy.framework.provider.CacheProvider;
 
 public class MemoryProvider<K, V> extends CacheProvider<K, V> {
 	private LoadingCache<K, V> cache;
-	private Loader<K, V> cacheLoader;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -29,19 +31,26 @@ public class MemoryProvider<K, V> extends CacheProvider<K, V> {
 		long expire = NumberKit.getLong(prop.get("expire"), 0L);
 		if(expire>0)
 			cacheBuilder.expireAfterWrite(expire, TimeUnit.SECONDS);
+		if(expireCallback!=null)
+			cacheBuilder.removalListener(new RemovalListener<K, V>() {
+				@Override
+				public void onRemoval(RemovalNotification<K, V> notification) {
+					if(RemovalCause.EXPIRED.equals(notification.getCause())){
+						try {
+							expireCallback.run(notification.getKey(), notification.getValue());
+						} catch (Exception e) {
+							log.error("", e);
+						}
+					}
+				}
+			});
 		cache = cacheBuilder.build(new CacheLoader<K, V>() {
 					public V load(K key) throws Exception {
-						if(cacheLoader!=null)
-							return cacheLoader.load(key);
+						if(loaderCallback!=null)
+							return (V)loaderCallback.run(key);
 						return null;
 					}
 				});
-	}
-	
-	@Override
-	public CacheProvider setCacheLoader(Loader<K, V> cacheLoader){
-		this.cacheLoader = cacheLoader;
-		return this;
 	}
 	
 	@Override

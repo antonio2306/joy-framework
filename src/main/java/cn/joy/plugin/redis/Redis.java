@@ -77,7 +77,7 @@ public class Redis {
 			cache.setThreadJedis(jedis);
 		}
 		try {
-			return callback.run(cache).getContent();
+			return callback.run(cache);
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}finally {

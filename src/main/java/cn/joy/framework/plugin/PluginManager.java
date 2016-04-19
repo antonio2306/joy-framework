@@ -6,19 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.joy.framework.annotation.Plugin;
 import cn.joy.framework.core.JoyMap;
 import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.ClassKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.provider.JoyProvider;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PluginManager{
-	private static Logger logger = LoggerFactory.getLogger(PluginManager.class);
+	private static Log log = LogKit.getLog(PluginManager.class);
 	private static final PluginManager me = new PluginManager();
 	private JoyMap<String, JoyPlugin> plugins = new JoyMap<>();
 	private JoyMap<Class<? extends JoyProvider>, JoyMap<String, JoyProvider>> providers = new JoyMap<>();
@@ -31,11 +30,11 @@ public class PluginManager{
 	}
 	
 	public void init(){
-		logger.info("plugin manager init...");
+		log.info("plugin manager init...");
 		scanPlugin("cn.joy.plugin");
 		
-		if(logger.isDebugEnabled())
-			logger.debug("plugins="+plugins+", providers="+providers);
+		if(log.isDebugEnabled())
+			log.debug("plugins="+plugins+", providers="+providers);
 	}
 	
 	public void scanPlugin(String packageName){
@@ -58,22 +57,22 @@ public class PluginManager{
 				}
 				waitLoadPluginList.add(pluginClass);
 				canLoad = false;
-				logger.info("Plugin["+pluginClass.getName()+"] wait "+depend);
+				log.info("Plugin["+pluginClass.getName()+"] wait "+depend);
 			}
 		}
 		if(!canLoad)
 			return;
 			
-		logger.info("Plugin["+pluginClass.getName()+"] load...");
+		log.info("Plugin["+pluginClass.getName()+"] load...");
 		JoyPlugin plugin = (JoyPlugin)BeanKit.getNewInstance(pluginClass);
 		if(plugin.init()){
 			String pluginKey = pluginInfo.key();
-			logger.info("Plugin[class="+pluginClass.getName()+", key="+pluginKey+"] init...");
+			log.info("Plugin[class="+pluginClass.getName()+", key="+pluginKey+"] init...");
 			plugins.put(pluginKey, plugin);
 			
 			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), JoyProvider.class);
 			for(Class providerClass:providerClassList){
-				logger.info("Provider["+providerClass.getName()+"] load...");
+				log.info("Provider["+providerClass.getName()+"] load...");
 				JoyProvider provider = (JoyProvider)BeanKit.getNewInstance(providerClass);
 				String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
 				
@@ -112,14 +111,22 @@ public class PluginManager{
 	
 	public void release() {
 		for (Entry<String, JoyPlugin> entry : plugins.entry()) {
-			entry.getValue().stop();
+			try {
+				entry.getValue().stop();
+			} catch (Exception e) {
+				log.error("", e);
+			}
 		}
 		plugins.clear();
 		
 		for (Entry<Class<? extends JoyProvider>, JoyMap<String, JoyProvider>> entry : providers.entry()) {
 			JoyMap<String, JoyProvider> providerMap = entry.getValue();
 			for(Entry<String, JoyProvider> providerEntry:providerMap.entry()){
-				providerEntry.getValue().release();
+				try {
+					providerEntry.getValue().release();
+				} catch (Exception e) {
+					log.error("", e);
+				}
 			}
 		}
 		providers.clear();
