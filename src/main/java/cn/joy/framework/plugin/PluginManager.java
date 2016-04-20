@@ -72,7 +72,8 @@ public class PluginManager{
 			plugins.put(pluginKey, plugin);
 			
 			Prop pluginConfig = plugin.getConfig();
-			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), JoyProvider.class, "^.+Provider\\.class$");
+			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), 
+					JoyProvider.class, true, "^.+Provider\\.class$", true);
 			for(Class providerClass:providerClassList){
 				String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
 				String enable = pluginConfig.get("provider."+providerKey+".enable");
