@@ -12,6 +12,7 @@ import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.LogKit;
 import cn.joy.framework.kits.LogKit.Log;
+import cn.joy.framework.kits.Prop;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.provider.JoyProvider;
 
@@ -70,12 +71,16 @@ public class PluginManager{
 			log.info("Plugin[class="+pluginClass.getName()+", key="+pluginKey+"] init...");
 			plugins.put(pluginKey, plugin);
 			
+			Prop pluginConfig = plugin.getConfig();
 			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), JoyProvider.class);
 			for(Class providerClass:providerClassList){
+				String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
+				String enable = pluginConfig.get("provider."+providerKey+".enable");
+				if(StringKit.isNotEmpty(enable) && !StringKit.isTrue(enable))
+					continue;
+				
 				log.info("Provider["+providerClass.getName()+"] load...");
 				JoyProvider provider = (JoyProvider)BeanKit.getNewInstance(providerClass);
-				String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
-				
 				JoyMap<String, JoyProvider> providerMap = providers.get(providerClass.getSuperclass());
 				if(providerMap==null){
 					providerMap = new JoyMap<String, JoyProvider>();
