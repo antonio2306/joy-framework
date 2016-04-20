@@ -79,6 +79,8 @@ public class QuartzScheduler {
 			Set<Trigger> triggers = new HashSet<Trigger>();
 			triggers.add(trigger);
 			scheduler.scheduleJob(job, triggers, true);//.scheduleJob(job, trigger);
+			if(triggerOnceAfterSchedule)
+				scheduler.triggerJob(JobKey.jobKey(jobName, jobGroup));
 		} catch (SchedulerException e) {
 			throw new RuntimeException("schedule job fail.", e);
 		}
