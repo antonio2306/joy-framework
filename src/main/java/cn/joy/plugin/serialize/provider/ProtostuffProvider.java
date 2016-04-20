@@ -18,7 +18,7 @@ public class ProtostuffProvider extends SerializeProvider{
     private static Map<Class<?>, Schema<?>> cachedSchema = new ConcurrentHashMap<>();
 
     private static Objenesis objenesis = new ObjenesisStd(true);
-
+    
     /**
      * 序列化（对象 -> 字节数组）
      */

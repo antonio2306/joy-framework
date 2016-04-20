@@ -20,6 +20,10 @@ public class LogKit{
 		return use("joy");
 	}
 	
+	public static void main(String[] args) {
+		LogKit.debug("111");
+	}
+	
 	public static Log use(String logKey) {
 		Log result = map.get(logKey);
 		if (result == null) {

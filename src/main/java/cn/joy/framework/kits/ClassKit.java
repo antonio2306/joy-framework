@@ -48,22 +48,22 @@ public class ClassKit {
 	 * 取得所有实现某接口或继承某类的类
 	 * */
 	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c) {
-		return listClassBySuper(packageName, c, true, "");
+		return listClassBySuper(packageName, c, true, "", false);
 	}
 	
 	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, String pattern) {
-		return listClassBySuper(packageName, c, true, pattern);
+		return listClassBySuper(packageName, c, true, pattern, false);
 	}
 	
 	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, boolean recursive) {
-		return listClassBySuper(packageName, c, recursive, "");
+		return listClassBySuper(packageName, c, recursive, "", false);
 	}
 	
-	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, boolean recursive, String pattern) {
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, boolean recursive, String pattern, boolean ignoreNotFound) {
 		List<Class<? extends T>> returnClassList = new ArrayList<>();
 
 		// 获取当前包下以及子包下所以的类
-		List<Class> allClass = listClass(packageName, recursive, pattern);
+		List<Class> allClass = listClass(packageName, recursive, pattern, ignoreNotFound);
 		if (allClass != null) {
 			for (Class classes : allClass) {
 				// 判断是否是同一个接口
@@ -84,17 +84,17 @@ public class ClassKit {
 	}
 	
 	public static List<Class> listClassByAnnotation(String packageName, Class c, String pattern) {
-		return listClassByAnnotation(packageName, c, true, pattern);
+		return listClassByAnnotation(packageName, c, true, pattern, false);
 	}
 	
 	public static List<Class> listClassByAnnotation(String packageName, Class c, boolean recursive) {
-		return listClassByAnnotation(packageName, c, recursive, "");
+		return listClassByAnnotation(packageName, c, recursive, "", false);
 	}
 	
-	public static List<Class> listClassByAnnotation(String packageName, Class c, boolean recursive, String pattern) {
+	public static List<Class> listClassByAnnotation(String packageName, Class c, boolean recursive, String pattern, boolean ignoreNotFound) {
 		List<Class> returnClassList = new ArrayList<Class>();
 		
-		List<Class> allClass = listClass(packageName, recursive, pattern);
+		List<Class> allClass = listClass(packageName, recursive, pattern, ignoreNotFound);
 		if (allClass != null) {
 			for (Class clazz : allClass) {
 				if (clazz.getAnnotation(c)!=null) {
@@ -107,20 +107,20 @@ public class ClassKit {
 	}
 	
 	public static Class getClassBySuper(String packageName, Class c) {
-		return getClassBySuper(packageName, c, true);
+		return getClassBySuper(packageName, c, true, "", false);
 	}
 	
 	public static Class getClassBySuper(String packageName, Class c, String pattern) {
-		return getClassBySuper(packageName, c, true, pattern);
+		return getClassBySuper(packageName, c, true, pattern, false);
 	}
 	
 	public static Class getClassBySuper(String packageName, Class c, boolean recursive) {
-		return getClassBySuper(packageName, c, recursive, "");
+		return getClassBySuper(packageName, c, recursive, "", false);
 	}
 
-	public static Class getClassBySuper(String packageName, Class c, boolean recursive,  String pattern) {
+	public static Class getClassBySuper(String packageName, Class c, boolean recursive, String pattern, boolean ignoreNotFound) {
 		// 获取当前包下以及子包下所以的类
-		List<Class> allClass = listClass(packageName, recursive, pattern);
+		List<Class> allClass = listClass(packageName, recursive, pattern, ignoreNotFound);
 		if (allClass != null) {
 			for (Class clazz : allClass) {
 				// 判断是否是同一个接口
@@ -139,18 +139,18 @@ public class ClassKit {
 	 * 从包package中获取所有的Class
 	 */
 	public static List<Class> listClass(String packageName) {
-		return listClass(packageName, true, "");
+		return listClass(packageName, true, "", false);
 	}
 	
 	public static List<Class> listClass(String packageName, String pattern) {
-		return listClass(packageName, true, pattern);
+		return listClass(packageName, true, pattern, false);
 	}
 	
 	public static List<Class> listClass(String packageName, boolean recursive) {
-		return listClass(packageName, recursive, "");
+		return listClass(packageName, recursive, "", false);
 	}
 
-	public static List<Class> listClass(String packageName, boolean recursive, String pattern) {
+	public static List<Class> listClass(String packageName, boolean recursive, String pattern, boolean ignoreNotFound) {
 		// 第一个class类的集合
 		List<Class> classes = new ArrayList<Class>();
 		// 获取包的名字 并进行替换
@@ -212,7 +212,15 @@ public class ClassKit {
 											// 添加到classes
 											classes.add(Class.forName(packageName + '.' + className));
 										} catch (ClassNotFoundException e) {
-											throw new RuntimeException(e);
+											if(ignoreNotFound)
+												LogKit.warn("ClassNotFound："+packageName + '.' + className);
+											else
+												throw new RuntimeException(e);
+										} catch (Throwable t) {
+											if(ignoreNotFound)
+												LogKit.warn("ClassNotFoundError："+packageName + '.' + className);
+											else
+												throw new RuntimeException(t);
 										}
 									}
 								}

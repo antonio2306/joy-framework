@@ -40,7 +40,7 @@ public class PluginManager{
 	
 	public void scanPlugin(String packageName){
 		Map<String, List<Class<? extends JoyPlugin>>> waitLoadPlugins = new HashMap<>();
-		List<Class<? extends JoyPlugin>> pluginClassList = ClassKit.listClassBySuper(packageName, JoyPlugin.class);
+		List<Class<? extends JoyPlugin>> pluginClassList = ClassKit.listClassBySuper(packageName, JoyPlugin.class, "^.+Plugin\\.class$");
 		for(Class pluginClass:pluginClassList){
 			loadPlugin(pluginClass, waitLoadPlugins);
 		}
@@ -72,7 +72,7 @@ public class PluginManager{
 			plugins.put(pluginKey, plugin);
 			
 			Prop pluginConfig = plugin.getConfig();
-			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), JoyProvider.class);
+			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), JoyProvider.class, "^.+Provider\\.class$");
 			for(Class providerClass:providerClassList){
 				String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
 				String enable = pluginConfig.get("provider."+providerKey+".enable");
