@@ -1806,7 +1806,7 @@ public class Cache {
 	}
 	
 	public Jedis getAndSetThreadJedis() {
-		Jedis jedis = threadLocalJedis.get();
+		Jedis jedis = getThreadJedis();
 		if(jedis==null){
 			jedis = jedisPool.getResource();
 			setThreadJedis(jedis);
@@ -1815,15 +1815,23 @@ public class Cache {
 	}
 	
 	public boolean openThreadJedis() {
-		if(threadLocalJedis.get()==null){
+		if(getThreadJedis()==null){
 			setThreadJedis(jedisPool.getResource());
 			return true;
 		}
 		return false;
 	}
 	
+	public void closeThreadJedis() {
+		Jedis jedis = getThreadJedis();
+		if(jedis != null){
+			jedis.close();
+			removeThreadJedis();
+		}
+	}
+	
 	public void close(Jedis jedis) {
-		if (threadLocalJedis.get() == null && jedis != null)
+		if (getThreadJedis() == null && jedis != null)
 			jedis.close();
 	}
 	
@@ -1842,7 +1850,7 @@ public class Cache {
 	public void release(){
 		if(jedisPool!=null)
 			jedisPool.destroy();
-		threadLocalJedis.remove();
+		removeThreadJedis();
 	}
 }
 

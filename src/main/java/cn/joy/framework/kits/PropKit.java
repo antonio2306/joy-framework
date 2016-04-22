@@ -104,7 +104,7 @@ public class PropKit {
 		return getProp().containsKey(key);
 	}
 	
-	public static Map<String, Object> getMap(String prefix) {
+	public static Map<String, String> getMap(String prefix) {
 		return getProp().getMap(prefix);
     }
 }

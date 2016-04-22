@@ -119,13 +119,25 @@ public class Prop {
 		return (value != null) ? Boolean.parseBoolean(value) : defaultValue;
 	}
 	
-	public Map<String, Object> getMap(String prefix) {
-        Map<String, Object> kvMap = new LinkedHashMap<String, Object>();
+	public Map<String, String> getMap(String prefix) {
+        Map<String, String> kvMap = new LinkedHashMap<>();
         Set<String> keySet = properties.stringPropertyNames();
         for (String key : keySet) {
             if (key.startsWith(prefix)) {
                 String value = properties.getProperty(key);
                 kvMap.put(key, value);
+            }
+        }
+        return kvMap;
+    }
+	
+	public Map<String, String> getMapTrimPrefix(String prefix) {
+        Map<String, String> kvMap = new LinkedHashMap<>();
+        Set<String> keySet = properties.stringPropertyNames();
+        for (String key : keySet) {
+            if (key.startsWith(prefix)) {
+                String value = properties.getProperty(key);
+                kvMap.put(key.substring(prefix.length()), value);
             }
         }
         return kvMap;
