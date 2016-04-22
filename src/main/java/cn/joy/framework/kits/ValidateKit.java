@@ -59,6 +59,9 @@ public class ValidateKit {
 
 	/** 手机 */
 	private static final String V_MOBILE = "^(1)[0-9]{10}$";
+	
+	/** 手机 */
+	private static final String V_GLOBAL_MOBILE = "^\\d{7,}$";
 
 	/** ip地址 */
 	private static final String V_IP4 = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)$";
@@ -298,6 +301,17 @@ public class ValidateKit {
 	 */
 	public static boolean isMobile(String value) {
 		return match(V_MOBILE, value);
+	}
+	
+	/**
+	 * 验证是不是手机号码，支持国际手机号
+	 * @param areaCode	国家地区代码
+	 */
+	public static boolean isGlobalMobile(String value, String areaCode) {
+		if(StringKit.isEmpty(areaCode) || "86".equals(areaCode) || "086".equals(areaCode) || "+86".equals(areaCode))
+			return match(V_MOBILE, value);
+		else
+			return match(V_GLOBAL_MOBILE, value);
 	}
 
 	/**
