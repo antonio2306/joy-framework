@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>cn.joy</groupId>
+		<artifactId>joy-framework</artifactId>
+		<version>1.3.0</version>
+	</parent>
+
+	<groupId>cn.joy</groupId>
+	<artifactId>joy-plugin-spring2</artifactId>
+	<version>1.0.0</version>
+	<name>joy plugin spring2</name>
+
+	<properties>
+		<spring.version>2.0.8</spring.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>cn.joy</groupId>
+			<artifactId>joy-framework-core</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+	</dependencies>
+
+</project>
