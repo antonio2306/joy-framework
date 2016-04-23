@@ -20,11 +20,11 @@
 		</property>
 	</bean>
 	
-	<bean id="joySpringDb" class="cn.joy.framework.plugin.spring.db.SpringDb">
+	<bean id="joySpringDb" class="cn.joy.plugin.spring.db.SpringDb">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	
-	<bean id="joyRuleDao" class="cn.joy.framework.plugin.spring.db.RuleDao">
+	<bean id="joyRuleDao" class="cn.joy.plugin.spring.db.RuleDao">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	
@@ -32,27 +32,11 @@
 		<property name="target" ref="joyRuleDao" />
 	</bean>
 
-	<bean id="springResource" class="cn.joy.framework.plugin.spring.SpringResource">
+	<bean id="springResource" class="cn.joy.plugin.spring.SpringResource">
 		<property name="ruleDao" ref="joyRuleDaoProxy" />
 		<property name="mainDb" ref="joySpringDb" />
 	</bean>
 
-	<bean name="/webproxy.do" class="cn.joy.framework.plugin.spring.web.WebProxyController">
-		<property name="methodNameResolver" ref="methodNameResolver" />
-	</bean>
-	
-	<bean name="/openservice.do" class="cn.joy.framework.plugin.spring.web.OpenRuleController">
-		<property name="methodNameResolver" ref="methodNameResolver" />
-	</bean>
-
-	<bean name="/businessservice.do" class="cn.joy.framework.plugin.spring.web.BusinessRuleController">
-		<property name="methodNameResolver" ref="methodNameResolver" />
-	</bean>
-
-	<bean name="/downloadservice.do" class="cn.joy.framework.plugin.spring.web.DownloadRuleController">
-		<property name="methodNameResolver" ref="methodNameResolver" />
-	</bean>
-	
 	<bean id="appConfig" class="com.xxx.AppConfig" init-method="init" destroy-method="destroy">
 	</bean>
 </beans>

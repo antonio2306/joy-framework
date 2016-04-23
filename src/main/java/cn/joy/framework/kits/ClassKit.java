@@ -13,12 +13,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import cn.joy.framework.kits.LogKit.Log;
 /**
  * Class操作工具类
  * @author liyy
  * @date 2014-07-05
  */
 public class ClassKit {
+	private static Log log = LogKit.getLog(ClassKit.class);
 	public static ClassLoader getClassLoader() {
 		return Thread.currentThread().getContextClassLoader();
 	}
@@ -208,17 +211,20 @@ public class ClassKit {
 											continue;
 										// 去掉后面的".class" 获取真正的类名
 										String className = name.substring(packageName.length() + 1, name.length() - 6);
+										
+										//if(StringKit.isNotEmpty(pattern))
+										//	log.debug("pattern="+pattern+", class="+className);
 										try {
 											// 添加到classes
 											classes.add(Class.forName(packageName + '.' + className));
 										} catch (ClassNotFoundException e) {
 											if(ignoreNotFound)
-												LogKit.warn("ClassNotFound："+packageName + '.' + className);
+												log.warn("ClassNotFound："+packageName + '.' + className);
 											else
 												throw new RuntimeException(e);
 										} catch (Throwable t) {
 											if(ignoreNotFound)
-												LogKit.warn("ClassNotFoundError："+packageName + '.' + className);
+												log.warn("ClassNotFoundError："+packageName + '.' + className);
 											else
 												throw new RuntimeException(t);
 										}

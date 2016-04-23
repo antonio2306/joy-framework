@@ -40,7 +40,7 @@ public class PluginManager{
 	
 	public void scanPlugin(String packageName){
 		Map<String, List<Class<? extends JoyPlugin>>> waitLoadPlugins = new HashMap<>();
-		List<Class<? extends JoyPlugin>> pluginClassList = ClassKit.listClassBySuper(packageName, JoyPlugin.class, "^.+Plugin\\.class$");
+		List<Class<? extends JoyPlugin>> pluginClassList = ClassKit.listClassBySuper(packageName, JoyPlugin.class, true, "^.+Plugin\\.class$", true);
 		for(Class pluginClass:pluginClassList){
 			loadPlugin(pluginClass, waitLoadPlugins);
 		}
