@@ -1,11 +1,14 @@
 package cn.joy.plugin.beetl;
 
+import java.io.OutputStream;
+import java.util.Map;
+
 import cn.joy.framework.annotation.Plugin;
 import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.plugin.JoyPlugin;
+import cn.joy.framework.plugin.ResourcePlugin;
 
 @Plugin(key="beetl")
-public class BeetlPlugin extends JoyPlugin<BeetlResourceBuilder, BeetlResource>{
+public class BeetlPlugin extends ResourcePlugin<BeetlResourceBuilder, BeetlResource>{
 	public static BeetlResourceBuilder builder(){
 		return new BeetlResourceBuilder();
 	}
@@ -14,9 +17,22 @@ public class BeetlPlugin extends JoyPlugin<BeetlResourceBuilder, BeetlResource>{
 		return (BeetlPlugin)JoyManager.plugin("beetl");
 	}
 	
+	public static BeetlResource use(){
+		return plugin().useResource();
+	}
+	
+	public static BeetlResource use(String name){
+		return plugin().useResource(name);
+	}
+	
+	public static void unuse(String name){
+		plugin().unuseResource(name);
+	}
+	
 	@Override
-	public void start() {
+	public boolean start() {
 		this.mainResource = builder().build();
+		return true;
 	}
 
 	@Override
@@ -24,4 +40,7 @@ public class BeetlPlugin extends JoyPlugin<BeetlResourceBuilder, BeetlResource>{
 		
 	}
 	
+	public static void merge(String tpl, Map<String, Object> datas, OutputStream outputStream){
+		use().merge(tpl, datas, outputStream);
+	}
 }

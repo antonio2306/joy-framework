@@ -11,7 +11,7 @@ import cn.joy.framework.plugin.JoyPlugin;
 
 @Plugin(key="redis", depends = {"serialize"})
 public class RedisPlugin extends JoyPlugin {
-	public void start() {
+	public boolean start() {
 		Prop prop = getConfig();
 		String[] pools = prop.get("pools").split(",");
 		
@@ -51,6 +51,7 @@ public class RedisPlugin extends JoyPlugin {
 			Redis.mainCache = Cache.create(Redis.mainPool, serializeWay);
 		}
 		
+		return true;
 	}
 	
 	public void stop() {

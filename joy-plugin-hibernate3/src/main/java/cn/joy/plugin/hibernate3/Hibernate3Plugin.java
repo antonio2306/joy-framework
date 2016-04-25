@@ -10,7 +10,8 @@ import cn.joy.framework.plugin.JoyPlugin;
 @Plugin(key="hibernate3")
 public class Hibernate3Plugin extends JoyPlugin{
 	
-	public void start(){
+	public boolean start(){
+		return true;
 	}
 	
 	public void stop(){

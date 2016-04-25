@@ -1,7 +1,5 @@
 package cn.joy.plugin.test.beetl;
 
-import java.io.File;
-
 import org.testng.annotations.Test;
 
 import cn.joy.framework.core.JoyMap;
@@ -18,7 +16,6 @@ public class BeetlTest {
 	@Test
 	public void testFileTpl(){
 		Beetl.use("test").merge("/"+BeetlTest.class.getPackage().getName().replace(".", "/")+"/test.tpl", JoyMap.createStringObject().put("name", "ray").map(), 
-				new File("D:/test.txt"));
-		System.out.println(112);
+				System.out);
 	}
 }
