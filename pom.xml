@@ -13,50 +13,42 @@
 		<joy.version>1.3.0</joy.version>
 		<httpclient.version>4.1.3</httpclient.version>
 		<jackson.version>2.3.2</jackson.version>
-		<jfinal.version>2.2</jfinal.version>
 		<protostuff.version>1.0.9</protostuff.version>
 		<log4j.version>1.2.17</log4j.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.10</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>6.9.10</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.uncommons</groupId>
-			<artifactId>reportng</artifactId>
-			<version>1.1.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<version>3.0</version>
-			<scope>test</scope>
-		</dependency>
+		<!-- <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-api</artifactId> 
+			<version>1.7.10</version> </dependency> <dependency> <groupId>org.slf4j</groupId> 
+			<artifactId>slf4j-log4j12</artifactId> <version>1.7.10</version> </dependency> 
+			<dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> <version>${log4j.version}</version> 
+			</dependency> <dependency> <groupId>org.testng</groupId> <artifactId>testng</artifactId> 
+			<version>6.9.10</version> <scope>test</scope> </dependency> <dependency> 
+			<groupId>org.uncommons</groupId> <artifactId>reportng</artifactId> <version>1.1.4</version> 
+			<scope>test</scope> </dependency> <dependency> <groupId>com.google.inject</groupId> 
+			<artifactId>guice</artifactId> <version>3.0</version> <scope>test</scope> 
+			</dependency> -->
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.10</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.10</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
@@ -109,12 +101,6 @@
 				<version>${hibernate.version}</version> </dependency> -->
 
 			<dependency>
-				<groupId>com.jfinal</groupId>
-				<artifactId>jfinal</artifactId>
-				<version>${jfinal.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>3.0.1</version>
@@ -134,44 +120,19 @@
 				<scope>test</scope>
 			</dependency>
 
-			<dependency>
-				<groupId>redis.clients</groupId>
-				<artifactId>jedis</artifactId>
-				<version>2.7.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.dyuproject.protostuff</groupId>
-				<artifactId>protostuff-core</artifactId>
-				<version>${protostuff.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.dyuproject.protostuff</groupId>
-				<artifactId>protostuff-runtime</artifactId>
-				<version>${protostuff.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<!-- Objenesis -->
-			<dependency>
-				<groupId>com.esotericsoftware.kryo</groupId>
-				<artifactId>kryo</artifactId>
-				<version>2.24.0</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>de.ruedigermoeller</groupId>
-				<artifactId>fst</artifactId>
-				<version>2.45</version>
-				<scope>provided</scope>
-			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
 	<build>
-		<!-- <sourceDirectory>src\main\java</sourceDirectory> <testSourceDirectory>src\test\java</testSourceDirectory> 
-			<outputDirectory>target\classes</outputDirectory> <testOutputDirectory>target\test-classes</testOutputDirectory> -->
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<suiteXmlFiles>
+						<suiteXmlFile>target\test-classes\joy-test.xml</suiteXmlFile>
+					</suiteXmlFiles>
+				</configuration>
+			</plugin>
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<configuration>
@@ -184,10 +145,14 @@
 	</build>
 	<modules>
 		<module>joy-framework-core</module>
+		<module>joy-framework-test</module>
 		<module>joy-plugin-spring2</module>
 		<module>joy-plugin-spring4</module>
 		<module>joy-plugin-hibernate3</module>
+		<module>joy-plugin-jfinal</module>
 		<module>joy-plugin-beetl</module>
 		<module>joy-plugin-quartz</module>
+		<module>joy-plugin-serialize</module>
+		<module>joy-plugin-redis</module>
 	</modules>
 </project>

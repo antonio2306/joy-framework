@@ -76,8 +76,18 @@ public class PluginManager{
 					JoyProvider.class, true, "^.+Provider\\.class$", true);
 			for(Class providerClass:providerClassList){
 				String providerKey = StringKit.rTrim(providerClass.getSimpleName().toLowerCase(), "provider");
+				boolean isEnable = false;
 				String enable = pluginConfig.get("provider."+providerKey+".enable");
-				if(StringKit.isNotEmpty(enable) && !StringKit.isTrue(enable))
+				if(enable.contains(".")){
+					try {
+						Class.forName(enable);
+						isEnable = true;
+					} catch (Exception e) {
+					}
+				}else{
+					isEnable = StringKit.isTrue(enable);
+				}
+				if(!isEnable)
 					continue;
 				
 				log.info("Provider["+providerClass.getName()+"] load...");
@@ -112,7 +122,10 @@ public class PluginManager{
 	}
 	
 	public JoyProvider getProvider(Class<? extends JoyProvider> providerClass, String providerKey){
-		return providers.get(providerClass).get(StringKit.getString(providerKey, "default"));
+		JoyMap<String, JoyProvider> providerMap = providers.get(providerClass);
+		if(providerMap==null)
+			return null;
+		return providerMap.get(StringKit.getString(providerKey, "default"));
 	}
 	
 	public void release() {

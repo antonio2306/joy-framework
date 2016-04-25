@@ -26,5 +26,5 @@ public class BeetlResourceBuilder extends PluginResourceBuilder<BeetlResource>{
 		resource.groupTemplate = new GroupTemplate(resourceLoader, cfg);
 		return resource;
 	}
-
+	
 }

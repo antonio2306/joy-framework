@@ -8,6 +8,7 @@
 	    </run>
     </groups>
   	<packages>
+  		<package name="cn.joy.framework.test.*"></package>
   		<package name="cn.joy.plugin.test.*"></package>
   	</packages>
     <!-- <classes>

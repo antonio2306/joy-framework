@@ -1,7 +1,6 @@
 package cn.joy.plugin.beetl;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.beetl.core.GroupTemplate;
@@ -12,12 +11,12 @@ import cn.joy.framework.plugin.PluginResource;
 public class BeetlResource extends PluginResource {
 	GroupTemplate groupTemplate = null;
 	
-	public void merge(String tpl, Map<String, Object> datas, File outFile) {
+	public void merge(String tpl, Map<String, Object> datas, OutputStream outputStream) {
 		Template template = groupTemplate.getTemplate(tpl);
 		template.binding(datas);
 
 		try {
-			template.renderTo(new FileOutputStream(outFile));
+			template.renderTo(outputStream);
 		} catch (Exception e) {
 			log.error("", e);
 		}

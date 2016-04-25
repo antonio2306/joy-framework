@@ -7,8 +7,8 @@ import cn.joy.framework.plugin.JoyPlugin;
 public class CachePlugin extends JoyPlugin {
 
 	@Override
-	public void start() {
-		
+	public boolean start() {
+		return true;
 	}
 
 	@Override

@@ -10,7 +10,8 @@ import cn.joy.framework.plugin.JoyPlugin;
 @Plugin(key="spring2")
 public class Spring2Plugin extends JoyPlugin{
 	
-	public void start(){
+	public boolean start(){
+		return true;
 	}
 	
 	public void stop(){
