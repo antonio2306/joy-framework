@@ -5,7 +5,6 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cn.joy.demo.center.module.user.model.User;
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.provider.CacheProvider;
 import cn.joy.framework.rule.RuleResult;

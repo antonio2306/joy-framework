@@ -15,3 +15,14 @@ hs_err_pid*
 /target
 /test-result
 
+/joy-framework-core/
+/joy-framework-test/
+/joy-plugin-beetl/
+/joy-plugin-cache/
+/joy-plugin-hibernate3/
+/joy-plugin-jfinal/
+/joy-plugin-quartz/
+/joy-plugin-redis/
+/joy-plugin-serialize/
+/joy-plugin-spring2/
+/joy-plugin-spring4/

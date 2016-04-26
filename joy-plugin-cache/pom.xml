@@ -27,13 +27,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>cn.joy</groupId>
-			<artifactId>joy-framework-test</artifactId>
-			<version>1.0.0</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>

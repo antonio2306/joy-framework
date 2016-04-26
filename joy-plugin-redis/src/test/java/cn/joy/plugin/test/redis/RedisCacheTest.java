@@ -18,7 +18,7 @@ public class RedisCacheTest {
 	}
 
 	public void testCache() {
-		CacheProvider<String, Object> cache = CacheProvider.use("redis");
+		CacheProvider<String, Object> cache = CacheProvider.use("redis", "c1");
 		CacheProvider<String, User> cache2 = CacheProvider.use("redis", "c2");
 		CacheProvider<String, String> cache3 = CacheProvider.use("redis", "c3");
 		CacheProvider<String, Map> cache4 = CacheProvider.use("redis", "c4");
