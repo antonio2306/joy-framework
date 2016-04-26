@@ -28,7 +28,7 @@ public abstract class JoyModule {
 		return null;
 	}
 	
-	public static JoyModule create(String moduleKey, Class moduleDefineClass){
+	public static JoyModule create(String moduleKey, Class<?> moduleDefineClass){
 		JoyModule joyModule = (JoyModule)BeanKit.getNewInstance(moduleDefineClass);//new JoyModule();
 		joyModule.key = moduleKey;
 		

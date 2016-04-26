@@ -1,9 +1,12 @@
 package cn.joy.plugin.redis;
 
+import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.PluginResourceBuilder;
 import redis.clients.jedis.JedisPool;
 
 public class RedisResourceBuilder extends PluginResourceBuilder<RedisResource> {
+	private static final String defaultSerializeWay = "kryo";
+	
 	private JedisPool pool;
 	private String serializeWay;
 	
@@ -24,7 +27,7 @@ public class RedisResourceBuilder extends PluginResourceBuilder<RedisResource> {
 	
 	@Override
 	public RedisResource build() {
-		RedisResource resource = new RedisResource(pool, serializeWay);
+		RedisResource resource = new RedisResource(pool==null?Redis.plugin().usePool():pool, StringKit.getString(serializeWay, defaultSerializeWay));
 		return resource;
 	}
 }

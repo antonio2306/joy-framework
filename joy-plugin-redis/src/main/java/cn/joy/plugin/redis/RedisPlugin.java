@@ -16,8 +16,6 @@ import redis.clients.jedis.Protocol;
 
 @Plugin(key="redis", depends = {"serialize"})
 public class RedisPlugin extends ResourcePlugin<RedisResourceBuilder, RedisResource> {
-	private final String defaultSerializeWay = "kryo";
-	private String serializeWay;
 	private JedisPool mainPool;
 	private final Map<String, JedisPool> poolMap = new ConcurrentHashMap<String, JedisPool>();
 	
@@ -64,9 +62,7 @@ public class RedisPlugin extends ResourcePlugin<RedisResourceBuilder, RedisResou
 				mainPool = jedisPool;
 		}
 		
-		this.serializeWay = prop.get("serialize.way", defaultSerializeWay);
-		this.mainResource = builder().pool(mainPool).serializeWay(serializeWay).build();
-		
+		this.mainResource = builder().pool(mainPool).serializeWay(prop.get("serialize.way")).build();
 		return true;
 	}
 	
@@ -90,6 +86,10 @@ public class RedisPlugin extends ResourcePlugin<RedisResourceBuilder, RedisResou
 	
 	public static void unuse(String name) {
 		plugin().unuseResource(name);
+	}
+	
+	public JedisPool usePool(){
+		return mainPool;
 	}
 	
 	public JedisPool usePool(String poolKey){

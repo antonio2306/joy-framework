@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -27,6 +26,8 @@ public class RedisResource extends PluginResource{
 	protected final ThreadLocal<Jedis> threadLocalJedis = new ThreadLocal<Jedis>();
 	
 	RedisResource(JedisPool jedisPool, String serializeWay){
+		if(jedisPool==null)
+			throw new RuntimeException("No jedis pool");
 		this.jedisPool = jedisPool;
 		this.serializeProvider = SerializeProvider.use(serializeWay);
 	}
