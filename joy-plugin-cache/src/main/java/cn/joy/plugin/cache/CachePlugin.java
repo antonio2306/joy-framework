@@ -13,7 +13,6 @@ public class CachePlugin extends JoyPlugin {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
 
 	}
 

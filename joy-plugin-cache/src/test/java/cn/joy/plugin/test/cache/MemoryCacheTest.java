@@ -1,4 +1,4 @@
-package cn.joy.demo.test.cases.plugin.cache;
+package cn.joy.plugin.test.cache;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ import cn.joy.framework.test.TestExecutor;
 public class MemoryCacheTest {
 	@Test(enabled = false)
 	public static void main(String[] args) {
-		TestExecutor.executeGroup("case.cache");
+		TestExecutor.executePluginGroup("case.cache");
 	}
 	
 	public void testCache(){

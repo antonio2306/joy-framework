@@ -20,6 +20,10 @@ public class Prop {
 		this(fileName, encoding);
 	}
 	
+	public Prop(){
+		properties = new Properties();
+	}
+	
 	public Prop(InputStream inputStream) {
 		this(inputStream, encoding);
 	}
@@ -153,6 +157,21 @@ public class Prop {
 			if(key.startsWith(keyPrefix))
 				properties.remove(key);
 		}
+		return this;
+	}
+	
+	public Prop set(String key, Object value){
+		properties.put(key, value);
+		return this;
+	}
+	
+	public Prop setAll(Properties prop){
+		properties.putAll(prop);
+		return this;
+	}
+	
+	public Prop setAll(Prop prop){
+		properties.putAll(prop.getProperties());
 		return this;
 	}
 	

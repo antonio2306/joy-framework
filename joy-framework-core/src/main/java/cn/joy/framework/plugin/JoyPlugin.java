@@ -56,13 +56,20 @@ public abstract class JoyPlugin {
 	protected void loadConfig(){
 		try {
 			String pluginKey = StringKit.trim(getClass().getSimpleName().toLowerCase(), "plugin");
+			
+			this.config = new Prop();
+			//先加载默认配置
+			try {
+				InputStream inputStream = ClassKit.getClassLoader().getResourceAsStream("plugins/"+pluginKey+"-default.properties");
+				this.config.setAll(PropKit.use(inputStream));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			String propFilePath = PathKit.getClassPath()+"/plugins/"+pluginKey+".properties";
 			File propFile = new File(propFilePath);
 			if(propFile.exists()){
-				this.config = PropKit.use(propFile);
-			}else{
-				InputStream inputStream = ClassKit.getClassLoader().getResourceAsStream("plugins/"+pluginKey+"-default.properties");
-				this.config = PropKit.use(inputStream);
+				this.config.setAll(PropKit.use(propFile));
 			}
 			
 			String envMode = JoyManager.getServer().getEnvMode();

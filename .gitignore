@@ -17,3 +17,7 @@ hs_err_pid*
 /target
 /test-result
 /joy-framework-core/
+/joy-plugin-serialize/
+/joy-plugin-quartz/
+/joy-framework-test/
+/joy-plugin-jfinal/
