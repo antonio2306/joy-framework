@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.joy.framework.annotation.Plugin;
+import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.Prop;
 import cn.joy.framework.kits.StringKit;
@@ -102,25 +103,31 @@ public class RedisPlugin extends ResourcePlugin<RedisResourceBuilder, RedisResou
 		return pool;
 	}
 	
-	public static void main(String[] args) {
-		Jedis jedis = new Jedis("211.95.45.110", 46379);  
-		jedis.select(2);
-		String keys = "name";  
-		  
-		// 删数据  
-		jedis.del(keys);  
-		// 存数据  
-		jedis.set(keys, "111");  
-		// 取数据  
-		String value = jedis.get(keys);  
-		  
-		System.out.println(value);  
-		
-		jedis.incr(keys);
-		value = jedis.get(keys);  
-		System.out.println(value);  
-		
-		System.out.println(jedis.getDB());
+	public static Object call(JoyCallback callback) {
+		return call(callback, use());
+	}
+	
+	public static Object call(JoyCallback callback, String cacheName) {
+		return call(callback, use(cacheName));
+	}
+	
+	private static Object call(JoyCallback callback, RedisResource cache) {
+		Jedis jedis = cache.getThreadJedis();
+		boolean notThreadLocalJedis = (jedis == null);
+		if (notThreadLocalJedis) {
+			jedis = cache.jedisPool.getResource();
+			cache.setThreadJedis(jedis);
+		}
+		try {
+			return callback.run(cache);
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}finally {
+			if (notThreadLocalJedis) {
+				cache.removeThreadJedis();
+				jedis.close();
+			}
+		}
 	}
 }
 

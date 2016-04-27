@@ -5,31 +5,31 @@ import java.util.Map;
 
 import cn.joy.plugin.hibernate3.db.DbException;
 import cn.joy.plugin.hibernate3.db.RuleDao;
-import cn.joy.plugin.hibernate3.db.SpringDb;
+import cn.joy.plugin.hibernate3.db.DbResource;
 /**
  * DB资源注入
  * @author liyy
  * @date 2014-07-06
  */
-public class DbResource {
+public class ResourceInject {
 	private static RuleDao ruleDao;
-	private static SpringDb mainDb;
+	private static DbResource mainDb;
 	
-	private static Map<String, SpringDb> dbMap = new HashMap();
+	private static Map<String, DbResource> dbMap = new HashMap<>();
 	
-	public static SpringDb getDb(String dbName) {
-		SpringDb db = dbMap.get(dbName);
+	public static DbResource getDb(String dbName) {
+		DbResource db = dbMap.get(dbName);
 		if(db==null)
 			throw new DbException("No DB with name "+dbName);
 		return db;
 	}
 
-	public static SpringDb getMainDb() {
+	public static DbResource getMainDb() {
 		return mainDb;
 	}
 
-	public void setMainDb(SpringDb mainDb) {
-		DbResource.mainDb = mainDb;
+	public void setMainDb(DbResource mainDb) {
+		ResourceInject.mainDb = mainDb;
 	}
 
 	public static RuleDao getRuleDao() {
@@ -37,7 +37,7 @@ public class DbResource {
 	}
 
 	public void setRuleDao(RuleDao ruleDao) {
-		DbResource.ruleDao = ruleDao;
+		ResourceInject.ruleDao = ruleDao;
 	}
 
 }

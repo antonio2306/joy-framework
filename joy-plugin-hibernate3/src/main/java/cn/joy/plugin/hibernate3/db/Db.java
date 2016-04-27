@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import cn.joy.framework.kits.StringKit;
-import cn.joy.plugin.hibernate3.DbResource;
+import cn.joy.plugin.hibernate3.ResourceInject;
 /**
  * 数据库操作工具类
  * @author liyy
@@ -17,14 +17,14 @@ import cn.joy.plugin.hibernate3.DbResource;
 public class Db {
 	private static Logger logger = Logger.getLogger(Db.class);
 	
-	private static SpringDb use(){
+	private static DbResource use(){
 		return use(null);
 	}
 	
-	public static SpringDb use(String dbName){
+	public static DbResource use(String dbName){
 		if(StringKit.isEmpty(dbName))
-			return DbResource.getMainDb();
-		return DbResource.getDb(dbName);
+			return ResourceInject.getMainDb();
+		return ResourceInject.getDb(dbName);
 	}
 	
 	public static Session getSession() {

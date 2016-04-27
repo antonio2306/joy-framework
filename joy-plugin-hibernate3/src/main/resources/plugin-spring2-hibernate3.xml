@@ -20,7 +20,7 @@
 		</property>
 	</bean>
 	
-	<bean id="joySpringDb" class="cn.joy.plugin.hibernate3.db.SpringDb">
+	<bean id="joyDb" class="cn.joy.plugin.hibernate3.db.DbResource">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	
@@ -32,9 +32,9 @@
 		<property name="target" ref="joyRuleDao" />
 	</bean>
 
-	<bean id="springResource" class="cn.joy.plugin.hibernate3.DbResource">
+	<bean id="resourceInject" class="cn.joy.plugin.hibernate3.ResourceInject">
 		<property name="ruleDao" ref="joyRuleDaoProxy" />
-		<property name="mainDb" ref="joySpringDb" />
+		<property name="mainDb" ref="joyDb" />
 	</bean>
 
 	<bean id="appConfig" class="com.xxx.AppConfig" init-method="init" destroy-method="destroy">

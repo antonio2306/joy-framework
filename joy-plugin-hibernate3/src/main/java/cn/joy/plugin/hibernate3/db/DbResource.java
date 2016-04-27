@@ -22,8 +22,8 @@ import org.hibernate.transform.Transformers;
  * @author liyy
  * @date 2014-07-06
  */
-public class SpringDb {
-	private Logger logger = Logger.getLogger(SpringDb.class);
+public class DbResource {
+	private Logger logger = Logger.getLogger(DbResource.class);
 	private SessionFactory sessionFactory = null;
 	private final ThreadLocal<LinkedList<Session>> threadLocal = new ThreadLocal<LinkedList<Session>>();
 	
