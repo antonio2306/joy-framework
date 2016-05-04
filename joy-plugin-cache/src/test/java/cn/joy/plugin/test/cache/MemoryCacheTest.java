@@ -1,5 +1,6 @@
 package cn.joy.plugin.test.cache;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.testng.Assert;
@@ -116,5 +117,49 @@ public class MemoryCacheTest {
 		
 		Assert.assertEquals(cache.get("aa"), "load expire aa");
 		
+	}
+	
+	@Test(enabled = false)
+	public void testFrequence(){
+		CacheProvider</* IP */String, Map<String, Integer>> cache = CacheProvider.use("smsIpInvoke", new JoyCallback() {
+			@Override
+			public Object run(Object... params) throws Exception {
+				Map<String, Integer> countInfo = new HashMap<>();
+				countInfo.put("c", 0);
+				return countInfo;
+			}
+		}, 6);
+		
+		checkIpInvokeFrequency(cache, "192.168.1.100");
+		checkIpInvokeFrequency(cache, "192.168.1.100");
+		checkIpInvokeFrequency(cache, "192.168.1.100");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		checkIpInvokeFrequency(cache, "192.168.1.100");
+		Assert.assertTrue(checkIpInvokeFrequency(cache, "192.168.1.100"));
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		Assert.assertFalse(checkIpInvokeFrequency(cache, "192.168.1.100"));
+		try {
+			Thread.sleep(4100);
+		} catch (InterruptedException e) {
+		}
+		Assert.assertTrue(checkIpInvokeFrequency(cache, "192.168.1.100"));
+		Assert.assertTrue(checkIpInvokeFrequency(cache, "192.168.1.100"));
+	}
+	
+	private boolean checkIpInvokeFrequency(CacheProvider<String, Map<String, Integer>> cache, String ip){
+		Map<String, Integer> countInfo = cache.get(ip);
+		System.out.println(countInfo);
+		Integer count = countInfo.get("c");
+		count++;
+		if(count>5)
+			return false;
+		countInfo.put("c", count);
+		return true;
 	}
 }

@@ -21,8 +21,8 @@ public class RuleResult {
 	private static final RuleResult NULL_RULE_RESULT;
 	public static final String FLAG_EMPTY_RESULT = "EMPTY";
 	public static final String KEY_DATA_MAP = "_key_data_map";
-	private boolean result;
-	private String rMessage;
+	private boolean result = false;
+	private String rMessage = "";
 	private Object rContent;
 	private RuleExtraData rExtra;
 	private MainError rError;
@@ -52,23 +52,32 @@ public class RuleResult {
 	}
 	
 	public RuleResult success(){
-		return success("");
+		this.result = true;
+		return this;
 	}
 	
 	public RuleResult success(String message){
-		return success(message, null);
+		this.result = true;
+		this.rMessage = message;
+		return this;
 	}
 	
 	public RuleResult success(Map<String, Object> content){
-		return success("", content);
+		this.result = true;
+		this.rContent = content;
+		return this;
 	}
 	
 	public RuleResult success(JoyMap<String, Object> content){
-		return success("", content.map());
+		this.result = true;
+		this.rContent = content;
+		return this;
 	}
 	
 	public RuleResult success(List<Map<String, Object>> content){
-		return success("", content);
+		this.result = true;
+		this.rContent = content;
+		return this;
 	}
 	
 	public RuleResult success(String message, Object content){
@@ -79,7 +88,8 @@ public class RuleResult {
 	}
 	
 	public RuleResult fail(){
-		return fail("");
+		this.result = false;
+		return this;
 	}
 	
 	public RuleResult fail(IErrorType errorType){

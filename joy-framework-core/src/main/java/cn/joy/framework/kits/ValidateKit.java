@@ -313,6 +313,13 @@ public class ValidateKit {
 		else
 			return match(V_GLOBAL_MOBILE, value);
 	}
+	
+	/**
+	 * 判断是不是中国的国家代号
+	 */
+	public static boolean isNotChinese(String areaCode){
+		return StringKit.isNotEmpty(areaCode) && !areaCode.matches("^(\\+)?(0{1,2})?86$");
+	}
 
 	/**
 	 * 验证是不是负浮点数

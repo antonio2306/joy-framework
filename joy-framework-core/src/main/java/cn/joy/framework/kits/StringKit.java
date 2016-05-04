@@ -52,15 +52,15 @@ public class StringKit {
 	}
 	
 	public static String trim(String str, String trim){
-		return str.trim().replaceFirst("^"+trim, "").replaceFirst(trim+"$", "");
+		return getString(str).replaceFirst("^"+trim, "").replaceFirst(trim+"$", "");
 	}
 	
 	public static String rTrim(String str, String trim){
-		return str.trim().replaceFirst(trim+"$", "");
+		return getString(str).replaceFirst(trim+"$", "");
 	}
 	
 	public static String lTrim(String str, String trim){
-		return str.trim().replaceFirst("^"+trim, "");
+		return getString(str).replaceFirst("^"+trim, "");
 	}
 	
 	public static String capitalize(String s){

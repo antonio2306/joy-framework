@@ -23,9 +23,11 @@ public abstract class JoyModule {
 	private Prop moduleConfig = null;
 	
 	public String getModuleProperty(String key){
-		if(moduleConfig!=null)
-			return moduleConfig.get(key);
-		return null;
+		return moduleConfig.get(key);
+	}
+	
+	public Prop getModuleConfig(){
+		return moduleConfig;
 	}
 	
 	public static JoyModule create(String moduleKey, Class<?> moduleDefineClass){
@@ -68,6 +70,8 @@ public abstract class JoyModule {
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}
+		if(moduleConfig==null)
+			this.moduleConfig = new Prop();
 	}
 	
 	public void destroy() {
