@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.joy</groupId>
 	<artifactId>joy-framework</artifactId>
@@ -9,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<joy.version>1.3.0</joy.version>
+		<joy.version>1.0.0</joy.version>
 		<httpclient.version>4.1.3</httpclient.version>
 		<jackson.version>2.3.2</jackson.version>
 		<protostuff.version>1.0.9</protostuff.version>
@@ -32,6 +33,22 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>cn.joy</groupId>
+				<artifactId>joy-framework-core</artifactId>
+				<version>${joy.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.joy</groupId>
+				<artifactId>joy-framework-test</artifactId>
+				<version>${joy.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.10</version>
+			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -153,6 +170,7 @@
 		<module>joy-plugin-quartz</module>
 		<module>joy-plugin-serialize</module>
 		<module>joy-plugin-redis</module>
-    <module>joy-plugin-cache</module>
-  </modules>
+		<module>joy-plugin-cache</module>
+		<module>joy-plugin-mail</module>
+	</modules>
 </project>

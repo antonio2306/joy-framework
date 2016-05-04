@@ -20,7 +20,6 @@
 		<dependency>
 			<groupId>cn.joy</groupId>
 			<artifactId>joy-framework-core</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 
 		<dependency>
