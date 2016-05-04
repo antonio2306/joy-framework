@@ -51,19 +51,21 @@ public class JoyManager {
 	private static RouteStore routeStore;
 	
 	public static PluginManager plugin(){
+		if(pluginMgr==null)
+			pluginMgr = PluginManager.build();
 		return pluginMgr;
 	}
 	
 	public static JoyPlugin plugin(String pluginKey){
-		return pluginMgr.getPlugin(pluginKey);
+		return plugin().getPlugin(pluginKey);
 	}
 	
 	public static JoyProvider provider(Class<? extends JoyProvider> providerClass){
-		return pluginMgr.getProvider(providerClass);
+		return plugin().getProvider(providerClass);
 	}
 	
 	public static JoyProvider provider(Class<? extends JoyProvider> providerClass, String key){
-		return pluginMgr.getProvider(providerClass, key);
+		return plugin().getProvider(providerClass, key);
 	}
 	
 	public static SecurityManager getSecurityManager() {

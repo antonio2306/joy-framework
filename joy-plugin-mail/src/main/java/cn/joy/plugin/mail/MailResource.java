@@ -29,7 +29,7 @@ public class MailResource extends PluginResource {
 	public Session getSession(){
 		return this.session;
 	}
-
+	
 	public void sendTextMail(String subject, String to, String content) {
 		// 获得Transport实例对象
 		Transport transport = null;
@@ -41,7 +41,7 @@ public class MailResource extends PluginResource {
 			// 设置邮件主题
 			message.setSubject(subject);
 			// 设置收件人
-			message.setRecipient(RecipientType.TO, new InternetAddress(to));
+			message.setRecipients(RecipientType.TO, InternetAddress.parse(to));
 			// 设置发送时间
 			message.setSentDate(new Date());
 			// 设置纯文本内容为邮件正文

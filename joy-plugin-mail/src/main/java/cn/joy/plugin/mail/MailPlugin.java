@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.mail.Session;
 
 import cn.joy.framework.annotation.Plugin;
+import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.Prop;
 import cn.joy.framework.plugin.ResourcePlugin;
@@ -55,6 +56,15 @@ public class MailPlugin extends ResourcePlugin<MailResourceBuilder, MailResource
 	public void stop() {
 		sessionMap.clear();
 	}
+	
+	public void addSession(String key, Prop prop){
+		sessionMap.put(key, Session.getInstance(prop.getProperties(), new MailAuthenticator(prop.get("mail.smtp.user"),
+						prop.get("mail.smtp.password"))));
+	}
+	
+	public Session getSession(String key){
+		return sessionMap.get(key);
+	}
 
 	public static MailResource use() {
 		return plugin().useResource();
@@ -63,11 +73,15 @@ public class MailPlugin extends ResourcePlugin<MailResourceBuilder, MailResource
 	public static MailResource use(String name) {
 		return plugin().useResource(name);
 	}
+	
+	public static MailResource use(String name, JoyCallback missCallback) {
+		return plugin().useResource(name, missCallback);
+	}
 
 	public static void unuse(String name) {
 		plugin().unuseResource(name);
 	}
-
+	
 	public static void sendTextMail(String subject, String to, String content) {
 		use().sendTextMail(subject, to, content);
 	}

@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.kits.StringKit;
 
 public abstract class ResourcePlugin<B extends PluginResourceBuilder<R>, R extends PluginResource> extends JoyPlugin{
@@ -42,6 +43,21 @@ public abstract class ResourcePlugin<B extends PluginResourceBuilder<R>, R exten
 				throw new RuntimeException(e);
 			}
 			resourceMap.put(name, resource);
+		}
+		return resource;
+	}
+	
+	public R useResource(String name, JoyCallback missCallback){
+		if(StringKit.isEmpty(name))
+			return mainResource;
+		R resource = resourceMap.get(name);
+		if(resource==null && missCallback!=null){
+			try {
+				resource = (R)missCallback.run(name);
+				resourceMap.put(name, resource);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 		return resource;
 	}
