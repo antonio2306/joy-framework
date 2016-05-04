@@ -171,6 +171,6 @@
 		<module>joy-plugin-serialize</module>
 		<module>joy-plugin-redis</module>
 		<module>joy-plugin-cache</module>
-		<module>joy-plugin-mail</module>
+		<module>joy-plugin-mail</module> 
 	</modules>
 </project>
