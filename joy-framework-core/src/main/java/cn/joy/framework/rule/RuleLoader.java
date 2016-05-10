@@ -25,16 +25,8 @@ public class RuleLoader {
 	
 	private Set<String> debugRuleSet = new HashSet<String>();
 	
-	private static RuleLoader rLoader;
-	
-	private RuleLoader(){
+	RuleLoader(){
 		
-	}
-	
-	public static RuleLoader singleton(){
-		if(rLoader==null)
-			rLoader = new RuleLoader();
-		return rLoader;
 	}
 	
 	public void startDebug(String ruleURI){

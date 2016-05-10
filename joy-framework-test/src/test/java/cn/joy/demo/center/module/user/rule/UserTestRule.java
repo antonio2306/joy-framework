@@ -12,7 +12,7 @@ public class UserTestRule extends BaseRule{
 	public RuleResult testOK(RuleContext rContext, RuleParam rParam, HttpServletRequest request) throws Exception{
 		RuleResult ruleResult = RuleResult.create();
 		
-		logger.debug("testOK, user="+rContext.getLoginId());
+		logger.debug("testOK, user="+rContext.user());
 		
 		return ruleResult.success("test ok");
 	}
@@ -20,7 +20,7 @@ public class UserTestRule extends BaseRule{
 	public RuleResult testOKAsyn(RuleContext rContext, RuleParam rParam, HttpServletRequest request) throws Exception{
 		RuleResult ruleResult = RuleResult.create();
 		
-		logger.debug("testOKAsyn, user="+rContext.getLoginId());
+		logger.debug("testOKAsyn, user="+rContext.user());
 		RuleExecutorTest.asynResultMap.put("testAsyn", "OK");
 		
 		return ruleResult.success("test ok asyn");
@@ -29,7 +29,7 @@ public class UserTestRule extends BaseRule{
 	public RuleResult testError(RuleContext rContext, RuleParam rParam, HttpServletRequest request) throws Exception{
 		RuleResult ruleResult = RuleResult.create();
 		
-		logger.debug("testError, user="+rContext.getLoginId());
+		logger.debug("testError, user="+rContext.user());
 		
 		return ruleResult.fail("test error");
 	}

@@ -18,7 +18,7 @@ public class EventManagerTest {
 	}
 
 	public void publishUserUpdateEvent() {
-		RuleContext rContext = RuleContext.createSingle("user1");
+		RuleContext rContext = RuleContext.create().user("user1");
 		User oldUser = new User();
 		oldUser.setName("用户");
 		User newUser = new User();
@@ -27,6 +27,6 @@ public class EventManagerTest {
 		UserUpdateEvent event = new UserUpdateEvent(newUser, rContext).setOldUser(oldUser);
 		EventManager.publishEvent(event);
 		
-		Assert.assertTrue(RuleKit.getBooleanParam(event.getRuleContext().getExtra().getDatas(), "nameChange"));
+		Assert.assertTrue(RuleKit.getBooleanParam(event.getEventContext().getDatas(), "nameChange"));
 	}
 }

@@ -25,7 +25,7 @@ public abstract class BaseRule {
 	 * 规则内部方法转调
 	 */
 	RuleResult handleExecuteInternal(RuleContext rContext, RuleParam rParam) throws Exception{
-		String ruleURI = rParam.getString(RuleParam.KEY_RULE_URI);
+		String ruleURI = rContext.ruleURI();
 		int idx = ruleURI.indexOf("#");
 		String action = "execute";
 		if(idx>0){
@@ -106,7 +106,7 @@ public abstract class BaseRule {
 	 */
 	protected Object[] getActionMethodParam(RuleContext rContext, RuleParam rParam) {
 		if(!this.getClass().getSimpleName().endsWith("ServiceRule"))
-			return new Object[]{rContext, rParam, rContext.getRequest()};
+			return new Object[]{rContext, rParam, rContext.request()};
 		else
 			return new Object[]{rContext, rParam};
 	}

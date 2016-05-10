@@ -11,13 +11,19 @@ import cn.joy.framework.rule.RuleContext;
 public abstract class JoyEvent extends EventObject {
 
     private RuleContext rContext;
+    private EventContext eventContext;
 
     public JoyEvent(Object source, RuleContext rContext) {
         super(source);
         this.rContext = rContext;
+        this.eventContext = EventContext.create();
     }
 
     public RuleContext getRuleContext() {
         return rContext;
+    }
+    
+    public EventContext getEventContext(){
+    	return eventContext;
     }
 }

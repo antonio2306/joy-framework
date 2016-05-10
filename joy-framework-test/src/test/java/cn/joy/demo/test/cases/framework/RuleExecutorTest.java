@@ -6,8 +6,8 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.rule.RuleContext;
-import cn.joy.framework.rule.RuleExecutor;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
 import cn.joy.framework.test.TestExecutor;
@@ -21,17 +21,13 @@ public class RuleExecutorTest {
 	}
 	
 	public void executeLocalRule() {
-		RuleContext rContext = RuleContext.createSingle("user1");
-
-		RuleResult ruleResult = RuleExecutor.create(rContext).execute("user.userService#testSyn",
+		RuleResult ruleResult = JoyManager.getRuleExecutor().execute(RuleContext.create().user("user1").ruleURI("user.userService#testSyn"), 
 				RuleParam.create().put("param1", "p1"));
 		Assert.assertTrue(ruleResult.isSuccess());
 	}
 
 	public void executeLocalAsynRule() {
-		RuleContext rContext = RuleContext.createSingle("user1");
-
-		RuleResult ruleResult = RuleExecutor.create(rContext).execute("user.userService#testAsyn",
+		RuleResult ruleResult = JoyManager.getRuleExecutor().execute(RuleContext.create().user("user1").ruleURI("user.userService#testAsyn"), 
 				RuleParam.create().put("param1", "p1"));
 		Assert.assertTrue(ruleResult.isSuccess());
 		try {

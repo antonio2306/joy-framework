@@ -18,37 +18,18 @@ import cn.joy.framework.kits.StringKit;
  */
 @SuppressWarnings("unchecked")
 public class RuleResult {
-	private static final RuleResult NULL_RULE_RESULT;
-	public static final String FLAG_EMPTY_RESULT = "EMPTY";
-	public static final String KEY_DATA_MAP = "_key_data_map";
 	private boolean result = false;
 	private String rMessage = "";
 	private Object rContent;
 	private RuleExtraData rExtra;
 	private MainError rError;
 	
-	static{
-		NULL_RULE_RESULT = RuleResult.create().fail(FLAG_EMPTY_RESULT);
-		NULL_RULE_RESULT.rExtra = RuleExtraData.NULL_RULE_EXTRA;
-	}
-
 	private RuleResult(){
 		rExtra = RuleExtraData.create();
 	}
 	
 	public static RuleResult create(){
 		return new RuleResult();
-	}
-	
-	public static RuleResult empty(){
-		return NULL_RULE_RESULT.fail(FLAG_EMPTY_RESULT).clearExtra();
-	}
-	
-	public static RuleResult create(boolean result, String message){
-		RuleResult sResult = create();
-		sResult.result = result;
-		sResult.rMessage = message;
-		return sResult;
 	}
 	
 	public RuleResult success(){

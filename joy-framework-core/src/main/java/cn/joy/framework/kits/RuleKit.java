@@ -14,8 +14,6 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.rule.RuleContext;
-import cn.joy.framework.rule.RuleExecutor;
-import cn.joy.framework.rule.RuleInvokeConfig;
 import cn.joy.framework.rule.RuleParam;
 import cn.joy.framework.rule.RuleResult;
 
@@ -229,12 +227,6 @@ public class RuleKit {
 	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String sceneKey, String ruleURI, RuleParam rParam, boolean isAsyn){
 		if(StringKit.isEmpty(sceneKey) && request!=null)
 			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());
-		if(ruleURI.contains("@")){
-			return RuleExecutor.createRemote(RuleContext.createSingle(StringKit.getString(loginId, "NONE"), companyCode, sceneKey), RuleInvokeConfig.create().setAsyn(isAsyn))
-					.execute(ruleURI, rParam);
-		}else{
-			return RuleExecutor.create(RuleContext.createSingle(StringKit.getString(loginId, "NONE"), companyCode, sceneKey), RuleInvokeConfig.create().setAsyn(isAsyn))
-					.execute(ruleURI, rParam);
-		}
+		return JoyManager.getRuleExecutor().execute(RuleContext.create().user(loginId).company(companyCode).sceneKey(sceneKey).ruleURI(ruleURI), rParam, isAsyn);
 	}
 }

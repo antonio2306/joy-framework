@@ -22,6 +22,7 @@ import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.JoyPlugin;
 import cn.joy.framework.plugin.PluginManager;
 import cn.joy.framework.provider.JoyProvider;
+import cn.joy.framework.rule.RuleExecutor;
 import cn.joy.framework.rule.RuleLoader;
 import cn.joy.framework.server.AppServer;
 import cn.joy.framework.server.CenterServer;
@@ -43,7 +44,7 @@ public class JoyManager {
 	private static List<String> modules = new ArrayList<>();
 	private static Map<String, JoyModule> moduleDefines = new HashMap<>();
 	
-	private static RuleLoader rLoader;
+	private static RuleExecutor ruleExecutor;
 	private static JoyServer server;
 	private static PluginManager pluginMgr;
 	private static SecurityManager securityManager;
@@ -98,8 +99,8 @@ public class JoyManager {
 		JoyManager.routeStore = routeStore;
 	}
 	
-	public static RuleLoader getRuleLoader() {
-		return rLoader;
+	public static RuleExecutor getRuleExecutor() {
+		return ruleExecutor;
 	}
 	
 	public static JoyServer getServer(){
@@ -143,7 +144,7 @@ public class JoyManager {
 		pluginMgr = PluginManager.build();
 		pluginMgr.init();
 		
-		rLoader = RuleLoader.singleton();
+		ruleExecutor = RuleExecutor.singleton();
 		
 		getRouteStore().initRoute();
 		

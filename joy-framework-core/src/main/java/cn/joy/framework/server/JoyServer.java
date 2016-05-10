@@ -105,8 +105,16 @@ public abstract class JoyServer {
 		return this.getVariable("param_scenekeyinsession", "sceneKeyInSession");
 	}
 	
+	public String getAppIdParam(){
+		return this.getVariable("param_appid", "appId");
+	}
+	
 	public String getAccessTokenParam(){
 		return this.getVariable("param_accesstoken", "accessToken");
+	}
+	
+	public String getSourceIPParam(){
+		return this.getVariable("param_sourceip", "sourceIP");
 	}
 	
 	public String getCharset(){

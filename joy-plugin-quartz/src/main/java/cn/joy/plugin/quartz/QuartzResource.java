@@ -58,6 +58,10 @@ public class QuartzResource extends PluginResource{
 		schedule(jobClass, jobName, jobGroup, cron, null, triggerOnceAfterSchedule);
 	}
 	
+	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas){
+		schedule(jobClass, jobName, jobGroup, cron, datas, false);
+	}
+	
 	public void schedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas, boolean triggerOnceAfterSchedule){
 		if(scheduler==null)
 			return;
@@ -85,6 +89,10 @@ public class QuartzResource extends PluginResource{
 	
 	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, boolean triggerOnceAfterSchedule){
 		reSchedule(jobClass, jobName, jobGroup, cron, null, triggerOnceAfterSchedule);
+	}
+	
+	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas){
+		reSchedule(jobClass, jobName, jobGroup, cron, datas, false);
 	}
 	
 	public void reSchedule(Class<? extends ScheduleTask> jobClass, String jobName, String jobGroup, String cron, Map<String, Object> datas, boolean triggerOnceAfterSchedule){

@@ -8,6 +8,7 @@ import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
+import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 /**
@@ -17,65 +18,35 @@ import cn.joy.framework.kits.StringKit;
  */
 public class RuleContext {
 	private static Logger logger = Logger.getLogger(RuleContext.class);
-	public static final String UNKNOWN_LOGINID = "UNKNOWN";
-	public static final String NOLOGIN_LOGINID = "NO_LOGIN";
+	public static final String NONE_LOGINID = "NONE";
 	public static final String SYSTEM_LOGINID = "SYSTEM";
-	public static final String TRANSPORT_LOGINID = "TRANSPORT";
-	public static final String TRANSPORT_SINGLE = "SINGLE";
-	public static final String NONE_LOGINID = "NONE";	 //有时不需要用户信息，如组织的操作
-	
 	public static final String LOGINID_IN_REQUEST = "LOGINID_IN_REQUEST";	 
-	
-	private HttpServletRequest request;
-	
-	private RuleExecutor rExecutor;
-	
-	private String accessToken;
 	
 	//用户主帐号，代表用户的个人身份
 	private String loginId;
-	
 	//用户组织号，代表用户的组织身份
 	private String companyCode;
-	
 	private String sceneKey;
 	private String trimSceneKey;	//trim 'test'
-	
-	private RuleExtraData rExtra;
+	private String ip;
+	private String sourceIP;
+	private String appId;
+	//非传递属性
+	private String ruleURI;
+	private HttpServletRequest request;
 	
 	private RuleContext(){
 		
 	}
 	
-	public static RuleContext createSingle(String loginId){
-		return createSingle(loginId, "", "");
-	}
-	
-	public static RuleContext createSingle(String loginId, String companyCode){
-		return createSingle(loginId, companyCode, "");
-	}
-	
-	public static RuleContext createSingle(String loginId, String companyCode, String sceneKey){
+	public static RuleContext create(){
 		RuleContext rContext = new RuleContext();
-		rContext.loginId = StringKit.getString(loginId, TRANSPORT_SINGLE);
-		rContext.companyCode = StringKit.getString(companyCode);
-		rContext.sceneKey = StringKit.getString(sceneKey, JoyManager.getServer().getDefaultSceneKey());
-		if(rContext.sceneKey.endsWith("test"))
-			rContext.trimSceneKey = rContext.sceneKey.substring(0, rContext.sceneKey.length()-4);
-		else
-			rContext.trimSceneKey = rContext.sceneKey;
-		
-		rContext.rExtra = RuleExtraData.create();
-		if(logger.isDebugEnabled())
-			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode+", sceneKey="+rContext.sceneKey);
+		rContext.loginId = NONE_LOGINID;
 		return rContext;
 	}
 	
 	public static RuleContext create(HttpServletRequest request){
 		RuleContext rContext = new RuleContext();
-		rContext.request = request;
-
-		rContext.accessToken = RuleKit.getStringParam(request, JoyManager.getServer().getAccessTokenParam());
 		
 		rContext.loginId = RuleKit.getStringParam(request, JoyManager.getServer().getLoginIdParam());
 		if(StringKit.isEmpty(rContext.loginId))
@@ -92,25 +63,22 @@ public class RuleContext {
 			rContext.trimSceneKey = rContext.sceneKey.substring(0, rContext.sceneKey.length()-4);
 		else
 			rContext.trimSceneKey = rContext.sceneKey;
+		rContext.ip = HttpKit.getClientIP(request); 
+		//调用service rule时从当前context里获取sourceIP，如果没有则获取ip，然后作为sourceIP参数传递
+		rContext.sourceIP = RuleKit.getStringParam(request, JoyManager.getServer().getSourceIPParam());
+		rContext.appId = RuleKit.getStringParam(request, JoyManager.getServer().getAppIdParam());
 		
-		rContext.rExtra = RuleExtraData.create();
+		rContext.request = request;
 		if(logger.isDebugEnabled())
-			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode+", sceneKey="+rContext.sceneKey);
+			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode+", sceneKey="+rContext.sceneKey
+					+", ip="+rContext.ip+", sourceIP="+rContext.sourceIP+", appId="+rContext.appId);
 		return rContext;
-	}
-	
-	RuleContext(RuleContextParam params){
-		//TODO
-	}
-	
-	void bindExecutor(RuleExecutor rExecutor){
-		this.rExecutor = rExecutor;
 	}
 	
 	/**
 	 * 规则中调用其它规则时，可以通过config指定在克隆的上下文中新的当前操作者身份
 	 */
-	void configAs(RuleInvokeConfig config) {
+	/*void configAs(RuleInvokeConfig config) {
 		if(config!=null){
 			if(config.isChangePerson()){
 				String loginId = config.getLoginId();
@@ -124,34 +92,55 @@ public class RuleContext {
 			if(logger.isDebugEnabled())
 				logger.debug("configAs, loginId="+loginId+", companyCode="+companyCode);
 		}
-	}
-	
-	/**
-	 * 远程HTTP调用时，将指定的操作者身份属性拼接为URL参数
-	 */
-	public String prepareRemoteContextParam() {
-		StringBuilder params = new StringBuilder();
-		params.append("&"+JoyManager.getServer().getLoginIdParam()+"=").append(loginId);
-		if(StringKit.isNotEmpty(companyCode))
-			params.append("&"+JoyManager.getServer().getCompanyCodeParam()+"=").append(companyCode);
-		if(StringKit.isNotEmpty(sceneKey))
-			params.append("&"+JoyManager.getServer().getSceneKeyParam()+"=").append(sceneKey);
-		if(logger.isDebugEnabled())
-			logger.debug("prepareRemoteContextParam, params="+params);
-		return params.toString();
-	}
+	}*/
 	
 	/**
 	 * 规则中调用其它规则
 	 */
 	public RuleResult invokeRule(String ruleURI, RuleParam rParam) throws Exception{
-		return this.invokeRule(ruleURI, rParam, RuleInvokeConfig.create().setAsyn(false));
+		return invoke(ruleURI, rParam, null, null, false);
+	}
+	
+	public RuleResult invokeRule(String ruleURI, RuleParam rParam, String user) throws Exception{
+		return invoke(ruleURI, rParam, user, null, false);
+	}
+	
+	public RuleResult invokeRule(String ruleURI, RuleParam rParam, String user, String company) throws Exception{
+		return invoke(ruleURI, rParam, user, company, false);
+	}
+	
+	public RuleResult invokeRuleAsyn(String ruleURI, RuleParam rParam) throws Exception{
+		return invoke(ruleURI, rParam, null, null, true);
+	}
+	
+	public RuleResult invokeRuleAsyn(String ruleURI, RuleParam rParam, String user) throws Exception{
+		return invoke(ruleURI, rParam, user, null, true);
+	}
+	
+	public RuleResult invokeRuleAsyn(String ruleURI, RuleParam rParam, String user, String company) throws Exception{
+		return invoke(ruleURI, rParam, user, company, true);
+	}
+	
+	private RuleResult invoke(String ruleURI, RuleParam rParam, String user, String company, boolean asyn) throws Exception{
+		RuleContext cloneContext = this.cloneContext().ruleURI(ruleURI);
+		if(StringKit.isNotEmpty(user))
+			cloneContext.loginId = user;
+		if(StringKit.isNotEmpty(company))
+			cloneContext.companyCode = company;
+		
+		if(!asyn){
+			RuleResult ruleResult = JoyManager.getRuleExecutor().execute(cloneContext, rParam);
+			if(!ruleResult.isSuccess())
+				throw new RuleException(ruleResult);
+			return ruleResult;
+		}else
+			return JoyManager.getRuleExecutor().executeAsyn(cloneContext, rParam);
 	}
 	
 	/**
 	 * 规则中调用其它规则，支持config参数，用于指定新的操作者身份、是否异步调用等
 	 */
-	public RuleResult invokeRule(String ruleURI, RuleParam rParam, RuleInvokeConfig config) throws Exception{
+	/*public RuleResult invokeRule(String ruleURI, RuleParam rParam, RuleInvokeConfig config) throws Exception{
 		if(StringKit.isEmpty(ruleURI))
 			return RuleResult.create().fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
 		boolean isRemote = ruleURI.indexOf("@")>=0;
@@ -170,7 +159,7 @@ public class RuleContext {
 				return this.getExecutor().executeInner(ruleURI, rParam);
 			}
 		}
-	}
+	}*/
 	
 	private RuleContext cloneContext(){
 		RuleContext context = new RuleContext();
@@ -179,59 +168,120 @@ public class RuleContext {
 		context.companyCode = this.companyCode;
 		context.sceneKey = this.sceneKey;
 		context.trimSceneKey = this.trimSceneKey;
+		context.ip = this.ip;
+		context.sourceIP = StringKit.getString(this.sourceIP, this.ip);
+		context.appId = this.appId;
 		return context;
 	}
 	
-	public void clear(){
-		this.request = null;
-		this.rExecutor = null;
-		this.loginId = null;
-		this.companyCode = null;
-		this.sceneKey = null;
-		this.trimSceneKey = null;
-		this.rExtra = null;
+	/**
+	 * 远程HTTP调用时，将指定的操作者身份属性拼接为URL参数
+	 */
+	String prepareRemoteContextParam() {
+		StringBuilder params = new StringBuilder();
+		params.append("&"+JoyManager.getServer().getLoginIdParam()+"=").append(loginId);
+		if(StringKit.isNotEmpty(companyCode))
+			params.append("&"+JoyManager.getServer().getCompanyCodeParam()+"=").append(companyCode);
+		if(StringKit.isNotEmpty(sceneKey))
+			params.append("&"+JoyManager.getServer().getSceneKeyParam()+"=").append(sceneKey);
+		if(StringKit.isNotEmpty(sourceIP))
+			params.append("&"+JoyManager.getServer().getSourceIPParam()+"=").append(sourceIP);
+		if(StringKit.isNotEmpty(appId))
+			params.append("&"+JoyManager.getServer().getAppIdParam()+"=").append(appId);
+		if(logger.isDebugEnabled())
+			logger.debug("prepareRemoteContextParam, params="+params);
+		return params.toString();
 	}
 	
-	public HttpServletRequest getRequest() {
-		return request;
+	public void release(){
+		this.request = null;
 	}
-
-	public RuleExecutor getExecutor() {
-		return rExecutor;
+	
+	public RuleContext user(String loginId){
+		if(StringKit.isNotEmpty(loginId))
+			this.loginId = loginId;
+		return this;
 	}
-
+	
+	public RuleContext company(String companyCode){
+		if(StringKit.isNotEmpty(companyCode))
+			this.companyCode = companyCode;
+		return this;
+	}
+	
+	public RuleContext sceneKey(String sceneKey){
+		this.sceneKey = sceneKey;
+		return this;
+	}
+	
+	public RuleContext sourceIP(String sourceIP){
+		this.sourceIP = sourceIP;
+		return this;
+	}
+	
+	public RuleContext appId(String appId){
+		this.appId = appId;
+		return this;
+	}
+	
+	public RuleContext ruleURI(String ruleURI){
+		this.ruleURI = ruleURI;
+		return this;
+	}
+	
+	public String user() {
+		return loginId;
+	}
+	
+	public String company() {
+		return companyCode;
+	}
+	
+	public String sceneKey() {
+		return sceneKey;
+	}
+	
+	public String trimSceneKey() {
+		return trimSceneKey;
+	}
+	
+	@Deprecated
 	public String getCompanyCode() {
 		return companyCode;
 	}
 	
+	@Deprecated
 	public String getLoginId() {
 		return loginId;
 	}
 	
+	@Deprecated
 	public String getSceneKey() {
 		return sceneKey;
 	}
 	
+	@Deprecated
 	public String getTrimSceneKey() {
 		return trimSceneKey;
 	}
 
-	public RuleExtraData getExtra(){
-		return rExtra;
-	}
-	
-	public RuleContext clearExtra(){
-		rExtra.clear();
-		return this;
-	}
-	
-	public RuleContext putData(String key, Object value){
-		rExtra.put(key, value);
-		return this;
-	}
-	
-	public Object getData(String key){
-		return this.getExtra().get(key);
+	public String ip(){
+		return ip;
 	}
 
+	public String sourceIP(){
+		return sourceIP;
+	}
+	
+	public String appId(){
+		return appId;
+	}
+	
+	public HttpServletRequest request(){
+		return request;
+	}
+	
+	public String ruleURI(){
+		return ruleURI;
+	}
 }
