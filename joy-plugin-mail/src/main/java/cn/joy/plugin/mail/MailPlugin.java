@@ -35,14 +35,19 @@ public class MailPlugin extends ResourcePlugin<MailResourceBuilder, MailResource
 			sessionProp.putAll(prop.getMapTrimPrefix(resource + "."));
 
 			Session session = null;
-			if (mainSession == null) {
+			//getDefaultInstance可能出现Access to default session denied的错误
+			/*if (mainSession == null) {
 				session = Session.getDefaultInstance(sessionProp, new MailAuthenticator(
 						prop.get(resource + ".mail.smtp.user"), prop.get(resource + ".mail.smtp.password")));
 				mainSession = session;
 			} else {
 				session = Session.getInstance(sessionProp, new MailAuthenticator(prop.get(resource + ".mail.smtp.user"),
 						prop.get(resource + ".mail.smtp.password")));
-			}
+			}*/
+			session = Session.getInstance(sessionProp, new MailAuthenticator(prop.get(resource + ".mail.smtp.user"),
+					prop.get(resource + ".mail.smtp.password")));
+			if (mainSession == null) 
+				mainSession = session;
 
 			sessionMap.put(resource, session);
 		}
