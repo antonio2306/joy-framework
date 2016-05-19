@@ -8,7 +8,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class ZipKit {
     /**
-     * 字符串的压缩
+     * 使用gzip压缩字符串
      * 
      * @param str
      *            待压缩的字符串
@@ -31,7 +31,7 @@ public class ZipKit {
     }
     
     /**
-     * 字符串的解压
+     * 使用gzip解压字符串
      * 
      * @param str
      *            对字符串解压
@@ -42,6 +42,16 @@ public class ZipKit {
     	return gzipUnCompress(str, null);
     }
     
+    /**
+     * 使用gzip解压字符串
+     * 
+     * @param str
+     *            对字符串解压
+     * @param charset
+     *            指定输出的字符集编码
+     * @return    返回解压缩后的字符串
+     * @throws IOException
+     */
     public static String gzipUnCompress(String str, String charset) throws IOException {
         if (null == str || str.length() <= 0) {
             return str;

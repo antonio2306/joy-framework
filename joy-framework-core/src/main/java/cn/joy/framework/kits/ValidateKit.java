@@ -305,7 +305,13 @@ public class ValidateKit {
 	
 	/**
 	 * 验证是不是手机号码，支持国际手机号
-	 * @param areaCode	国家地区代码
+	 * 
+	 * 国内手机号要求11位，国际手机号只要求不少于7位
+	 * 
+	 * @param areaCode	
+	 * 				国家地区代码
+	 * 
+	 * @return 如果是符合格式的字符串,返回 <b>true </b>,否则为 <b>false </b>
 	 */
 	public static boolean isGlobalMobile(String value, String areaCode) {
 		if(StringKit.isEmpty(areaCode) || "86".equals(areaCode) || "086".equals(areaCode) || "+86".equals(areaCode))
@@ -315,7 +321,12 @@ public class ValidateKit {
 	}
 	
 	/**
-	 * 判断是不是中国的国家代号
+	 * 判断是不是中国地区的国家地区代码
+	 * 
+	 * @param areaCode	
+	 * 				国家地区代码
+	 * 
+	 * @return 如果是符合格式的字符串,返回 <b>true </b>,否则为 <b>false </b>
 	 */
 	public static boolean isNotChinese(String areaCode){
 		return StringKit.isNotEmpty(areaCode) && !areaCode.matches("^(\\+)?(0{1,2})?86$");
@@ -465,6 +476,8 @@ public class ValidateKit {
 	}
 
 	/**
+	 * 验证是否匹配给定正则表达式
+	 * 
 	 * @param regex
 	 *            正则表达式字符串
 	 * @param str
@@ -477,6 +490,12 @@ public class ValidateKit {
 		return matcher.matches();
 	}
 	
+	/**
+	 * 验证是否空对象
+	 * 
+	 * @param obj
+	 * @return 如果obj是null，或是空的集合、Map、数组，或是空字符串，返回true，否则返回false
+	 */
 	public static boolean isEmptyObj(Object obj){
 		if(obj==null)
 			return true;

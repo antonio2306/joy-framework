@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import cn.joy.demo.center.module.user.event.UserUpdateEvent;
 import cn.joy.demo.center.module.user.model.User;
 import cn.joy.framework.event.EventManager;
-import cn.joy.framework.kits.RuleKit;
+import cn.joy.framework.kits.TypeKit;
 import cn.joy.framework.rule.RuleContext;
 import cn.joy.framework.test.TestExecutor;
 
@@ -27,6 +27,6 @@ public class EventManagerTest {
 		UserUpdateEvent event = new UserUpdateEvent(newUser, rContext).setOldUser(oldUser);
 		EventManager.publishEvent(event);
 		
-		Assert.assertTrue(RuleKit.getBooleanParam(event.getEventContext().getDatas(), "nameChange"));
+		Assert.assertTrue(TypeKit.toBoolean(event.getEventContext().getDatas().get("nameChange")));
 	}
 }

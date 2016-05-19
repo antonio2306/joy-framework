@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -25,46 +24,91 @@ import javax.xml.bind.DatatypeConverter;
 import cn.joy.framework.core.JoyConstants;
 
 public class EncryptKit {
-	/**
-	 * 16进制数值
-	 */
+	private static final SecureRandom defaultRandom = new SecureRandom();
 	private static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 	/**
-	 * 生成MD5加密校验码
+	 * md5加密字节数组
 	 */
 	public static byte[] md5(byte[] data){  
-        MessageDigest md5 = getEncrypt("MD5");  
-        md5.update(data);  
-        return md5.digest();  
+        return encryptBytes(getEncrypt("MD5"), data);
     }  
 
 	/**
-	 * 生成MD5加密校验码
+	 * md5加密字符串
 	 */
 	public static String md5(String str) {
 		return encryptString(getEncrypt("MD5"), str);
 	}
 
 	/**
-	 * 生成MD5加密校验码
+	 * md5加密文件
 	 */
 	public static String md5(File file) {
 		return encryptFile(getEncrypt("MD5"), file);
 	}
 
 	/**
-	 * 生成SHA1加密校验码
+	 * sha1加密字符串
 	 */
 	public static String sha1(String str) {
-		return encryptString(getEncrypt("SHA1"), str);
+		return encryptString(getEncrypt("SHA-1"), str);
 	}
 
 	/**
-	 * 生成SHA1加密校验码
+	 * sha1加密字符串
 	 */
 	public static String sha1(File file) {
-		return encryptFile(getEncrypt("SHA1"), file);
+		return encryptFile(getEncrypt("SHA-1"), file);
+	}
+	
+	/**
+	 * sha256加密字符串
+	 */
+	public static String sha256(String str){
+		return encryptString(getEncrypt("SHA-256"), str);
+	}
+	
+	/**
+	 * sha384加密字符串
+	 */
+	public static String sha384(String str){
+		return encryptString(getEncrypt("SHA-384"), str);
+	}
+	
+	/**
+	 * sha512加密字符串
+	 */
+	public static String sha512(String str){
+		return encryptString(getEncrypt("SHA-512"), str);
+	}
+	
+	/**
+	 * sha加密字节数组
+	 */
+	public static byte[] sha(byte[] data) throws Exception {
+		return encryptBytes(getEncrypt("SHA"), data);
+	}
+	
+	/**
+	 * 按指定算法计算字符串的hash
+	 */
+	public static String hash(String algorithm, String str) {
+		return encryptString(getEncrypt(algorithm), str);
+	}
+	
+	/**
+	 * 按指定算法计算文件的hash
+	 */
+	public static String hash(String algorithm, File file) {
+		return encryptFile(getEncrypt(algorithm), file);
+	}
+	
+	/**
+	 * 按指定算法计算字节数组的hash
+	 */
+	public static byte[] hash(String algorithm, byte[] data) {
+		return encryptBytes(getEncrypt(algorithm), data);
 	}
 
 	/**
@@ -80,9 +124,9 @@ public class EncryptKit {
 	}
 
 	/**
-	 * 计算结果转为16进制表示
+	 * 字节数组转换为16进制字符串
 	 */
-	private static String bytesToHex(byte[] bytes) {
+	public static String bytesToHex(byte[] bytes) {
 		int length = bytes.length;
 		StringBuilder sb = new StringBuilder(2 * length);
 		for (int i = 0; i < length; i++) {
@@ -119,10 +163,21 @@ public class EncryptKit {
 	private static String encryptString(MessageDigest digest, String str) {
 		try {
 			return bytesToHex(digest.digest(str.getBytes(JoyConstants.CHARSET_UTF8)));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		return null;
+	}
+	
+	/**
+	 * 使用加密器对目标字节数组进行加密
+	 */
+	private static byte[] encryptBytes(MessageDigest digest, byte[] data) {
+		try {
+			digest.update(data);  
+	        return digest.digest();  
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -153,6 +208,11 @@ public class EncryptKit {
 		return bytesToHex(digest.digest());
 	}
 
+	/**
+	 * md5加密小文件
+	 * @param file
+	 * @return
+	 */
 	public static String md5SmallFile(File file) {
 		String value = null;
 		FileInputStream in = null;
@@ -178,68 +238,82 @@ public class EncryptKit {
 	}
 
 	/**
-	 * 强随机数
+	 * 生成指定数值上限内的强随机数
+	 * @param n 指定数值上限，生成的随机数范围[0,n)
 	 */
-	public int getSecureRandomInt(int n) {
+	public static int getSecureRandomInt(int n) {
 		// SecureRandom random = new SecureRandom();
 		SecureRandom random;
 		try {
 			random = SecureRandom.getInstance("SHA1PRNG");
 		} catch (NoSuchAlgorithmException e) {
-			random = new SecureRandom();
+			random = defaultRandom;
 		}
 		// random.setSeed(123123123123L);
 		// byte bytes[] = new byte[20];
 		// random.nextBytes(bytes);
 		return random.nextInt(n);
 	}
-
+	
 	/**
-	 * SHA加密
+	 * 生成用于增强加密的salt盐
+	 * @param numberOfBytes 字节数
 	 */
-	public static byte[] sha(byte[] data) throws Exception {
-		MessageDigest sha = getEncrypt("SHA");
-		sha.update(data);
-		return sha.digest();
+	public static String generateSalt(int numberOfBytes) {
+		byte[] salt = new byte[numberOfBytes];
+		defaultRandom.nextBytes(salt);
+		return bytesToHex(salt);
 	}
 
 	/**
-	 * 初始化HMAC密钥
+	 * 生成hmac-md5密钥
 	 */
-	public static String initMacKey() throws Exception {
+	public static String getHmacMD5Key() throws Exception {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacMD5");
 		SecretKey secretKey = keyGenerator.generateKey();
 		return base64Encode(secretKey.getEncoded());
 	}
 
 	/**
-	 * HMAC加密
+	 * hmac-md5加密字节数组
+	 * @param data  要加密的字节数组
+	 * @param key hmac-md5密钥
 	 */
-	public static byte[] hmac(byte[] data, String str) throws Exception {
-		SecretKey secretKey = new SecretKeySpec(base64Decode(str), "HmacMD5");
+	public static byte[] hmacMd5(byte[] data, String key) throws Exception {
+		SecretKey secretKey = new SecretKeySpec(base64Decode(key), "HmacMD5");
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
 		mac.init(secretKey);
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * BASE64加密
+	 * base64加密字节数组
 	 */
 	public static String base64Encode(byte[] str){
 		return DatatypeConverter.printBase64Binary(str);
 	}
 
 	/**
-	 * BASE64解密
+	 * base64解密
 	 */
 	public static byte[] base64Decode(String str){
 		return DatatypeConverter.parseBase64Binary(str);
 	}
 	
+	/**
+	 * des加密字节数组
+	 * @param data 要加密的字节数组
+	 * @param key 密钥
+	 */
 	public static byte[] encryptDES(byte[] data, String key) throws Exception {
 		return DES(data, key.getBytes(), Cipher.ENCRYPT_MODE);
 	}
 	
+	/**
+	 * des解密字节数组
+	 * @param data 要解密的字节数组
+	 * @param key 密钥
+	 */
 	public static byte[] decryptDES(byte[] data, String key) throws Exception {
 		return DES(data, key.getBytes(), Cipher.DECRYPT_MODE);
 	}
@@ -293,11 +367,11 @@ public class EncryptKit {
 		// 验证SHA对于同一内容加密是否一致
 		System.out.println(new BigInteger(sha(inputData)).equals(new BigInteger(sha(inputData))));
 
-		String key = initMacKey();
-		System.out.println("Mac密钥:\n" + key);
+		String key = getHmacMD5Key();
+		System.out.println("HMAC-MD5密钥:\n" + key);
 
 		// 验证HMAC对于同一内容，同一密钥加密是否一致
-		System.out.println(new BigInteger(hmac(inputData, key)).equals(new BigInteger(hmac(inputData, key))));
+		System.out.println(new BigInteger(hmacMd5(inputData, key)).equals(new BigInteger(hmacMd5(inputData, key))));
 
 		BigInteger md5 = new BigInteger(md5(inputData));
 		System.out.println("MD5:\n" + md5.toString(16));
@@ -305,7 +379,7 @@ public class EncryptKit {
 		BigInteger sha = new BigInteger(sha(inputData));
 		System.out.println("SHA:\n" + sha.toString(32));
 
-		BigInteger mac = new BigInteger(hmac(inputData, inputStr));
-		System.out.println("HMAC:\n" + mac.toString(16));
+		BigInteger mac = new BigInteger(hmacMd5(inputData, inputStr));
+		System.out.println("HMAC-MD5:\n" + mac.toString(16));
 	}
 }

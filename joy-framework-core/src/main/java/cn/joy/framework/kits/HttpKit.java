@@ -125,6 +125,12 @@ public class HttpKit {
 
 	}
 
+	/**
+	 * 以post方式发送字符串到指定URL
+	 * @param url 要请求的URL
+	 * @param data 要发送的字符串
+	 * @return 请求响应结果
+	 */
 	public static String post(String url, String data) {
 		HttpClient httpClient = createHttpClient();
 		HttpPost httpPost = new HttpPost(url);
@@ -139,6 +145,13 @@ public class HttpKit {
 		return handleResponse(httpClient, httpPost);
 	}
 
+	/**
+	 * 以post方式发送字符串到指定URL
+	 * @param url 要请求的URL
+	 * @param data 要发送的字符串
+	 * @param contentType 指定请求header中的Content-Type，如xml
+	 * @return 请求响应结果
+	 */
 	public static String post(String url, String data, String contentType) {
 		HttpClient httpClient = createHttpClient();
 		HttpPost httpPost = new HttpPost(url);
@@ -157,6 +170,13 @@ public class HttpKit {
 		return handleResponse(httpClient, httpPost);
 	}
 
+	/**
+	 * 以post方式发送字节数组到指定URL
+	 * @param url 要请求的URL
+	 * @param data 要发送的字节数组
+	 * @param contentType 指定请求header中的Content-Type，如xml、file
+	 * @return 请求响应结果
+	 */
 	public static String post(String url, byte[] data, String contentType) {
 		HttpClient httpClient = createHttpClient();
 		HttpPost httpPost = new HttpPost(url);
@@ -177,6 +197,12 @@ public class HttpKit {
 		return handleResponse(httpClient, httpPost);
 	}
 
+	/**
+	 * 以post方式发送请求到指定URL
+	 * @param url 要请求的URL
+	 * @param datas post请求参数
+	 * @return 请求响应结果
+	 */
 	public static String post(String url, Map<String, Object> datas) {
 		HttpClient httpClient = createHttpClient();
 		HttpPost httpPost = new HttpPost(url);
@@ -200,6 +226,13 @@ public class HttpKit {
 		return handleResponse(httpClient, httpPost);
 	}
 
+	/**
+	 * 以post方式发送请求到指定URL
+	 * @param url 要请求的URL
+	 * @param datas post请求参数
+	 * @param files post请求中包含的文件，形式为<参数key:文件对象>
+	 * @return 请求响应结果
+	 */
 	public static String post(String url, Map<String, Object> datas, Map<String, File> files) {
 		HttpClient httpClient = createHttpClient();
 		HttpPost httpPost = new HttpPost(url);
@@ -229,19 +262,29 @@ public class HttpKit {
 		return handleResponse(httpClient, httpPost);
 	}
 
+	/**
+	 * 以get方式发送请求到指定URL
+	 * @param url 要请求的URL
+	 * @return 请求响应结果
+	 */
 	public static String get(String url) {
 		HttpClient httpClient = createHttpClient();
 		HttpGet httpGet = new HttpGet(url);
 		return handleResponse(httpClient, httpGet);
 	}
 
+	/**
+	 * 以get方式发送请求到指定URL，请求返回字节数组
+	 * @param url 要请求的URL
+	 * @return 请求响应结果
+	 */
 	public static byte[] getBytes(String url) {
 		HttpClient httpClient = createHttpClient();
 		HttpGet httpGet = new HttpGet(url);
 		return handleBytesResponse(httpClient, httpGet);
 	}
 
-	public static String handleResponse(HttpClient client, HttpRequestBase request) {
+	private static String handleResponse(HttpClient client, HttpRequestBase request) {
 		String responseText = "";
 		try {
 			request.setHeader("Connection", "close");
@@ -269,7 +312,7 @@ public class HttpKit {
 		return responseText;
 	}
 
-	public static byte[] handleBytesResponse(HttpClient client, HttpRequestBase request) {
+	private static byte[] handleBytesResponse(HttpClient client, HttpRequestBase request) {
 		byte[] responseText = null;
 		try {
 			request.setHeader("Connection", "close");
@@ -332,6 +375,9 @@ public class HttpKit {
 		}
 	}
 
+	/**
+	 * 向response中写入字符串
+	 */
 	public static void writeResponse(HttpServletResponse response, String content) {
 		try {
 			response.setCharacterEncoding("utf-8");
@@ -342,6 +388,10 @@ public class HttpKit {
 		}
 	}
 
+	/**
+	 * 对URL参数进行UTF8编码
+	 * @see java.net.URLEncoder#encode
+	 */
 	public static String encodeParam(String param) {
 		try {
 			return URLEncoder.encode(param, "UTF-8");
@@ -351,10 +401,22 @@ public class HttpKit {
 		return param;
 	}
 
+	/**
+	 * 从request中获取所有参数key和value构成的Map
+	 * 参数对应值有多个时，转为逗号隔开的字符串作为参数值
+	 */
 	public static Map<String, String> getParameterMap(HttpServletRequest request) {
 		return getParameterMap(request, null);
 	}
 
+	/**
+	 * 从request中获取所有参数key和value构成的Map
+	 * 参数对应值有多个时，转为逗号隔开的字符串作为参数值
+	 * 
+	 * @param request
+	 * @param namePrefix 指定参数key的前缀，为空则取所有参数
+	 * @return
+	 */
 	public static Map<String, String> getParameterMap(HttpServletRequest request, String namePrefix) {
 		// 参数Map
 		Map<String, String[]> params = request.getParameterMap();
@@ -383,6 +445,9 @@ public class HttpKit {
 		return returnMap;
 	}
 
+	/**
+	 * 获取客户端真实IP
+	 */
 	public static String getClientIP(HttpServletRequest request) {
 		String ip = request.getHeader("X-Forwarded-For");
 		if (StringKit.isEmpty(ip) || "unknown".equalsIgnoreCase(ip))
@@ -414,6 +479,9 @@ public class HttpKit {
 		return ip;
 	}
 
+	/**
+	 * 设置CORS的response header
+	 */
 	public static void setCORS(HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
@@ -421,20 +489,4 @@ public class HttpKit {
 		response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
 	}
 
-	public static Cookie getCookie(HttpServletRequest request, String name) {
-		return null;
-	}
-
-	public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, Cookie cookie) {
-
-	}
-
-	public static void setCookie(HttpServletRequest request, HttpServletResponse response, String name, String value) {
-
-	}
-
-	public static void setCookie(HttpServletRequest request, HttpServletResponse response, String name, String value,
-			int maxAge) {
-
-	}
 }

@@ -16,20 +16,27 @@ import java.util.jar.JarFile;
 
 import cn.joy.framework.kits.LogKit.Log;
 /**
- * Class操作工具类
+ * 类操作
  * @author liyy
  * @date 2014-07-05
  */
 public class ClassKit {
 	private static Log log = LogKit.getLog(ClassKit.class);
+	
+	/**
+	 * 获取当前线程上下文的类加载器
+	 * @see java.lang.Thread#getContextClassLoader()
+	 * @return
+	 */
 	public static ClassLoader getClassLoader() {
 		return Thread.currentThread().getContextClassLoader();
 	}
 	
-	public static boolean isJavaClass(Class<?> clz) {
-		return clz != null && clz.getClassLoader() == null;
-	}
-	
+	/**
+	 * 加载指定全名的类
+	 * @param clazz 类全名
+	 * @return Class对象
+	 */
 	public static Class getClass(String clazz){
 		ClassLoader loader = getClassLoader();
 		if (loader != null) {
@@ -48,32 +55,58 @@ public class ClassKit {
 	}
 
 	/**
-	 * 取得所有实现某接口或继承某类的类
-	 * */
-	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c) {
-		return listClassBySuper(packageName, c, true, "", false);
+	 * 获取指定包下面继承或实现了指定类型的类列表，递归子包
+	 * @param packageName 指定包名
+	 * @param clazz	指定父类型或接口类型
+	 * @return
+	 */
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class clazz) {
+		return listClassBySuper(packageName, clazz, true, "", false);
 	}
 	
-	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, String pattern) {
-		return listClassBySuper(packageName, c, true, pattern, false);
+	/**
+	 * 获取指定包下面继承或实现了指定类型，且类文件名匹配指定格式的类列表，递归子包
+	 * @param packageName 指定包名
+	 * @param clazz	指定父类型或接口类型
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @return
+	 */
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class clazz, String pattern) {
+		return listClassBySuper(packageName, clazz, true, pattern, false);
 	}
 	
-	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, boolean recursive) {
-		return listClassBySuper(packageName, c, recursive, "", false);
+	/**
+	 * 获取指定包下面继承或实现了指定类型的类列表
+	 * @param packageName 指定包名
+	 * @param clazz	指定父类型或接口类型
+	 * @param recursive 是否递归子包
+	 * @return
+	 */
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class clazz, boolean recursive) {
+		return listClassBySuper(packageName, clazz, recursive, "", false);
 	}
 	
-	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class c, boolean recursive, String pattern, boolean ignoreNotFound) {
+	/**
+	 * 获取指定包下面继承或实现了指定类型的类列表
+	 * @param packageName 指定包名
+	 * @param clazz	指定父类型或接口类型
+	 * @param recursive 是否递归子包
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @param ignoreNotFound 是否忽略ClassNotFound异常
+	 * @return
+	 */
+	public static <T> List<Class<? extends T>> listClassBySuper(String packageName, Class clazz, boolean recursive, String pattern, boolean ignoreNotFound) {
 		List<Class<? extends T>> returnClassList = new ArrayList<>();
 
 		// 获取当前包下以及子包下所以的类
 		List<Class> allClass = listClass(packageName, recursive, pattern, ignoreNotFound);
 		if (allClass != null) {
-			for (Class classes : allClass) {
+			for (Class clz : allClass) {
 				// 判断是否是同一个接口
-				if (c.isAssignableFrom(classes)) {
+				if (clazz.isAssignableFrom(clz)) {
 					// 本身不加入进去
-					if (!c.equals(classes)) {
-						returnClassList.add(classes);
+					if (!clazz.equals(clz)) {
+						returnClassList.add(clz);
 					}
 				}
 			}
@@ -82,26 +115,55 @@ public class ClassKit {
 		return returnClassList;
 	}
 	
-	public static List<Class> listClassByAnnotation(String packageName, Class c) {
-		return listClassByAnnotation(packageName, c, true);
+	/**
+	 * 获取指定包下面包含指定注释类型的类列表，递归子包
+	 * @param packageName 指定包名
+	 * @param clazz	指定注释类型
+	 * @return
+	 */
+	public static List<Class> listClassByAnnotation(String packageName, Class clazz) {
+		return listClassByAnnotation(packageName, clazz, true);
 	}
 	
-	public static List<Class> listClassByAnnotation(String packageName, Class c, String pattern) {
-		return listClassByAnnotation(packageName, c, true, pattern, false);
+	/**
+	 * 获取指定包下面包含指定注释类型的类列表，且类文件名匹配指定格式的类列表，递归子包
+	 * @param packageName 指定包名
+	 * @param clazz	指定注释类型
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @return
+	 */
+	public static List<Class> listClassByAnnotation(String packageName, Class clazz, String pattern) {
+		return listClassByAnnotation(packageName, clazz, true, pattern, false);
 	}
 	
-	public static List<Class> listClassByAnnotation(String packageName, Class c, boolean recursive) {
-		return listClassByAnnotation(packageName, c, recursive, "", false);
+	/**
+	 * 获取指定包下面包含指定注释类型的类列表
+	 * @param packageName 指定包名
+	 * @param clazz	指定注释类型
+	 * @param recursive	是否递归子包
+	 * @return
+	 */
+	public static List<Class> listClassByAnnotation(String packageName, Class clazz, boolean recursive) {
+		return listClassByAnnotation(packageName, clazz, recursive, "", false);
 	}
 	
-	public static List<Class> listClassByAnnotation(String packageName, Class c, boolean recursive, String pattern, boolean ignoreNotFound) {
+	/**
+	 * 获取指定包下面包含指定注释类型的类列表
+	 * @param packageName 指定包名
+	 * @param clazz	指定注释类型
+	 * @param recursive 是否递归子包
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @param ignoreNotFound 是否忽略ClassNotFound异常
+	 * @return
+	 */
+	public static List<Class> listClassByAnnotation(String packageName, Class clazz, boolean recursive, String pattern, boolean ignoreNotFound) {
 		List<Class> returnClassList = new ArrayList<Class>();
 		
 		List<Class> allClass = listClass(packageName, recursive, pattern, ignoreNotFound);
 		if (allClass != null) {
-			for (Class clazz : allClass) {
-				if (clazz.getAnnotation(c)!=null) {
-					returnClassList.add(clazz);
+			for (Class clz : allClass) {
+				if (clz.getAnnotation(clazz)!=null) {
+					returnClassList.add(clz);
 				}
 			}
 		}
@@ -109,28 +171,57 @@ public class ClassKit {
 		return returnClassList;
 	}
 	
-	public static Class getClassBySuper(String packageName, Class c) {
-		return getClassBySuper(packageName, c, true, "", false);
+	/**
+	 * 获取指定包下面包含指定注释类型的第一个类，递归子包
+	 * @param packageName 指定包名
+	 * @param clazz	指定注释类型
+	 * @return
+	 */
+	public static Class getClassBySuper(String packageName, Class clazz) {
+		return getClassBySuper(packageName, clazz, true, "", false);
 	}
 	
-	public static Class getClassBySuper(String packageName, Class c, String pattern) {
-		return getClassBySuper(packageName, c, true, pattern, false);
+	/**
+	 * 获取指定包下面继承或实现了指定类型，且类文件名匹配指定格式的第一个类，递归子包
+	 * @param packageName 指定包名
+	 * @param clazz	指定父类型或接口类型
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @return
+	 */
+	public static Class getClassBySuper(String packageName, Class clazz, String pattern) {
+		return getClassBySuper(packageName, clazz, true, pattern, false);
 	}
 	
-	public static Class getClassBySuper(String packageName, Class c, boolean recursive) {
-		return getClassBySuper(packageName, c, recursive, "", false);
+	/**
+	 * 获取指定包下面继承或实现了指定类型的第一个类
+	 * @param packageName 指定包名
+	 * @param clazz	指定父类型或接口类型
+	 * @param recursive 是否递归子包
+	 * @return
+	 */
+	public static Class getClassBySuper(String packageName, Class clazz, boolean recursive) {
+		return getClassBySuper(packageName, clazz, recursive, "", false);
 	}
 
-	public static Class getClassBySuper(String packageName, Class c, boolean recursive, String pattern, boolean ignoreNotFound) {
+	/**
+	 * 获取指定包下面继承或实现了指定类型的第一个类
+	 * @param packageName 指定包名
+	 * @param clazz	指定父类型或接口类型
+	 * @param recursive 是否递归子包
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @param ignoreNotFound 是否忽略ClassNotFound异常
+	 * @return
+	 */
+	public static Class getClassBySuper(String packageName, Class clazz, boolean recursive, String pattern, boolean ignoreNotFound) {
 		// 获取当前包下以及子包下所以的类
 		List<Class> allClass = listClass(packageName, recursive, pattern, ignoreNotFound);
 		if (allClass != null) {
-			for (Class clazz : allClass) {
+			for (Class clz : allClass) {
 				// 判断是否是同一个接口
-				if (c.isAssignableFrom(clazz)) {
+				if (clazz.isAssignableFrom(clz)) {
 					// 本身不加入进去
-					if (!c.equals(clazz)) {
-						return clazz;
+					if (!clazz.equals(clz)) {
+						return clz;
 					}
 				}
 			}
@@ -139,20 +230,42 @@ public class ClassKit {
 	}
 	
 	/**
-	 * 从包package中获取所有的Class
+	 * 获取指定包下面的类列表，递归子包
+	 * @param packageName 指定包名
+	 * @return
 	 */
 	public static List<Class> listClass(String packageName) {
 		return listClass(packageName, true, "", false);
 	}
 	
+	/**
+	 * 获取指定包下面类文件名匹配指定格式的类列表，递归子包
+	 * @param packageName 指定包名
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @return
+	 */
 	public static List<Class> listClass(String packageName, String pattern) {
 		return listClass(packageName, true, pattern, false);
 	}
 	
+	/**
+	 * 获取指定包下面的类列表
+	 * @param packageName 指定包名
+	 * @param recursive 是否递归子包
+	 * @return
+	 */
 	public static List<Class> listClass(String packageName, boolean recursive) {
 		return listClass(packageName, recursive, "", false);
 	}
 
+	/**
+	 * 获取指定包下面的类列表
+	 * @param packageName 指定包名
+	 * @param recursive 是否递归子包
+	 * @param pattern 指定类文件名要匹配的格式，一般为正则表达式
+	 * @param ignoreNotFound 是否忽略ClassNotFound异常
+	 * @return
+	 */
 	public static List<Class> listClass(String packageName, boolean recursive, String pattern, boolean ignoreNotFound) {
 		// 第一个class类的集合
 		List<Class> classes = new ArrayList<Class>();

@@ -18,9 +18,9 @@ import cn.joy.framework.kits.FileKit;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.LogKit;
-import cn.joy.framework.kits.NumberKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
+import cn.joy.framework.kits.TypeKit;
 import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.RouteManager;
 
@@ -220,7 +220,7 @@ public class RuleDispatcher{
 		if(!checkResult.isSuccess()){
 			Map<String, Object> checkResultContent = checkResult.getMapFromContent();
 			if(checkResultContent != null && checkResultContent.containsKey("statusCode"))
-				response.setStatus(NumberKit.getInteger(checkResultContent.get("statusCode"), 500));
+				response.setStatus(TypeKit.toInt(checkResultContent.get("statusCode"), 500));
 
 			HttpKit.writeResponse(response, checkResult.getMsg());
 			return null;
@@ -312,7 +312,7 @@ public class RuleDispatcher{
 		if(!checkResult.isSuccess()){
 			Map<String, Object> checkResultContent = checkResult.getMapFromContent();
 			if(checkResultContent != null && checkResultContent.containsKey("statusCode"))
-				response.setStatus(NumberKit.getInteger(checkResultContent.get("statusCode"), 500));
+				response.setStatus(TypeKit.toInt(checkResultContent.get("statusCode"), 500));
 
 			HttpKit.writeResponse(response, checkResult.getMsg());
 			return null;

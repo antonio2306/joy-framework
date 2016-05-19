@@ -16,6 +16,9 @@ public class LogKit{
 	
 	private LogKit() {}
 	
+	/**
+	 * 使用默认的Log对象
+	 */
 	public static Log use() {
 		return use("joy");
 	}
@@ -24,6 +27,9 @@ public class LogKit{
 		LogKit.debug("111");
 	}
 	
+	/**
+	 * 使用指定key的Log对象，无则创建
+	 */
 	public static Log use(String logKey) {
 		Log result = map.get(logKey);
 		if (result == null) {
@@ -40,6 +46,9 @@ public class LogKit{
 		return result;
 	}
 	
+	/**
+	 * 创建指定类型的Log对象
+	 */
 	public static Log getLog(Class<?> clazz){
 		return new Log(clazz);
 	}
@@ -117,72 +126,123 @@ public class LogKit{
 		}
 	}
 	
+	/**
+	 * 默认Log是否输出Debug级别日志
+	 */
 	public static boolean isDebugEnabled(){
 		return use().isDebugEnabled();
 	}
 	
+	/**
+	 * 默认Log是否输出Info级别日志
+	 */
 	public static boolean isInfoEnabled(){
 		return use().isInfoEnabled();
 	}
 	
+	/**
+	 * 默认Log是否输出Warn级别日志
+	 */
 	public static boolean isWarnEnabled(){
 		return use().isWarnEnabled();
 	}
 	
+	/**
+	 * 默认Log是否输出Error级别日志
+	 */
 	public static boolean isErrorEnabled(){
 		return use().isErrorEnabled();
 	}
 	
+	/**
+	 * 使用默认Log输出Debug级别日志
+	 */
 	public static void debug(String msg){
 		if(use().isDebugEnabled())
 			use().debug(msg);
 	}
 	
+	/**
+	 * 使用默认Log输出Debug级别日志，支持参数格式化
+	 * @see java.lang.String#format(String, Object...)
+	 */
 	public static void debug(String format, Object... params){
 		if(use().isDebugEnabled())
 			use().debug(format, params);
 	}
 	
+	/**
+	 * 使用默认Log输出Info级别日志
+	 */
 	public static void info(String msg){
 		if(use().isInfoEnabled())
 			use().info(msg);
 	}
 	
+	/**
+	 * 使用默认Log输出Info级别日志，支持参数格式化
+	 * @see java.lang.String#format(String, Object...)
+	 */
 	public static void info(String format, Object... params){
 		if(use().isInfoEnabled())
 			use().info(format, params);
 	}
 	
+	/**
+	 * 使用默认Log输出Warn级别日志
+	 */
 	public static void warn(String msg){
 		if(use().isWarnEnabled())
 			use().warn(msg);
 	}
 	
+	/**
+	 * 使用默认Log输出Warn级别日志，支持参数格式化
+	 * @see java.lang.String#format(String, Object...)
+	 */
 	public static void warn(String format, Object... params){
 		if(use().isWarnEnabled())
 			use().warn(format, params);
 	}
 	
+	/**
+	 * 使用默认Log输出Error级别日志
+	 */
 	public static void error(String msg){
 		if(use().isErrorEnabled())
 			use().error(msg);
 	}
 	
+	/**
+	 * 使用默认Log输出Error级别日志，支持参数格式化
+	 * @see java.lang.String#format(String, Object...)
+	 */
 	public static void error(String format, Object... params){
 		if(use().isErrorEnabled())
 			use().error(format, params);
 	}
 	
+	/**
+	 * 使用默认Log输出Error级别日志
+	 */
 	public static void error(String msg, Throwable t){
 		if(use().isErrorEnabled())
 			use().error(msg, t);;
 	}
 	
+	/**
+	 * 使用默认Log输出Error级别日志
+	 */
 	public static void error(Throwable t){
 		if(use().isErrorEnabled())
 			use().error("", t);;
 	}
 	
+	/**
+	 * 获取指定名称的基于log4j的Logger对象
+	 * 
+	 * 如果没有配置appender，则按默认策略生成一个DailyRollingFileAppender
+	 */
 	public static org.apache.log4j.Logger getDailyLogger(String name) {  
 		org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(name);  
         if(!logger.getAllAppenders().hasMoreElements()){

@@ -48,10 +48,25 @@ public class RuleKit {
 		return request.getParameter(key);
 	}
 	
+	/**
+	 * 根据key获取request参数的字符串值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @return 如果是null，返回空字符串
+	 */
 	public static String getStringParam(HttpServletRequest request, String key){
 		return getStringParam(request, key, "");
 	}
 	
+	/**
+	 * 根据key获取request参数的字符串值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @param defaultValue 默认值
+	 * @return 如果是null，返回默认值
+	 */
 	public static String getStringParam(HttpServletRequest request, String key, String defaultValue){
 		String value = getParam(request, key);
 		if(value==null)
@@ -59,10 +74,25 @@ public class RuleKit {
 		return value;
 	}
 	
+	/**
+	 * 根据key获取request参数的长整型值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @return 
+	 */
 	public static Long getLongParam(HttpServletRequest request, String key){
 		return getLongParam(request, key, null);
 	}
 	
+	/**
+	 * 根据key获取request参数的长整型值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @param defaultValue 默认值
+	 * @return 如果是null，返回默认值
+	 */
 	public static Long getLongParam(HttpServletRequest request, String key, Long defaultValue){
 		String value = getParam(request, key);
 		try {
@@ -72,10 +102,25 @@ public class RuleKit {
 		return defaultValue;
 	}
 	
+	/**
+	 * 根据key获取request参数的整型值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @return 
+	 */
 	public static Integer getIntParam(HttpServletRequest request, String key){
 		return getIntParam(request, key, null);
 	}
 	
+	/**
+	 * 根据key获取request参数的整型值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @param defaultValue 默认值
+	 * @return 如果是null，返回默认值
+	 */
 	public static Integer getIntParam(HttpServletRequest request, String key, Integer defaultValue){
 		String value = getParam(request, key);
 		try {
@@ -85,10 +130,25 @@ public class RuleKit {
 		return defaultValue;
 	}
 	
+	/**
+	 * 根据key获取request参数的布尔值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @return 
+	 */
 	public static Boolean getBooleanParam(HttpServletRequest request, String key){
 		return getBooleanParam(request, key, null);
 	}
 	
+	/**
+	 * 根据key获取request参数的布尔值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @param defaultValue 默认值
+	 * @return 如果是null，返回默认值
+	 */
 	public static Boolean getBooleanParam(HttpServletRequest request, String key, Boolean defaultValue){
 		String value = getParam(request, key);
 		try {
@@ -98,10 +158,25 @@ public class RuleKit {
 		return defaultValue;
 	}
 	
+	/**
+	 * 根据key获取request属性的字符串值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @return 如果是null，返回空字符串
+	 */
 	public static String getStringAttribute(HttpServletRequest request, String key){
 		return getStringAttribute(request, key, "");
 	}
 	
+	/**
+	 * 根据key获取request属性的字符串值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @param defaultValue 默认值
+	 * @return 如果是null，返回默认值
+	 */
 	public static String getStringAttribute(HttpServletRequest request, String key, String defaultValue){
 		String value = StringKit.getString(request.getAttribute(key));
 		if(StringKit.isEmpty(value))
@@ -111,60 +186,55 @@ public class RuleKit {
 		return value;
 	}
 	
+	/**
+	 * 根据key获取request属性的长整型值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @return 
+	 */
 	public static Long getLongAttribute(HttpServletRequest request, String key){
 		return getLongAttribute(request, key, null);
 	}
 	
+	/**
+	 * 根据key获取request属性的长整型值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @param defaultValue 默认值
+	 * @return 如果是null，返回默认值
+	 */
 	public static Long getLongAttribute(HttpServletRequest request, String key, Long defaultValue){
-		Long value = NumberKit.getLong(request.getAttribute(key));
+		Long value = TypeKit.toLong(request.getAttribute(key));
 		if(value==null)
-			value = NumberKit.getLong(request.getSession().getAttribute(key));
-		if(value==null)
-			return defaultValue;
-		return defaultValue;
-	}
-	
-	public static String getStringParam(Map params, String key){
-		return getStringParam(params, key, "");
-	}
-	
-	public static String getStringParam(Map params, String key, String defaultValue){
-		String value = StringKit.getString(params.get(key));
+			value = TypeKit.toLong(request.getSession().getAttribute(key));
 		if(value==null)
 			return defaultValue;
-		return value;
-	}
-	
-	public static Long getLongParam(Map params, String key){
-		return getLongParam(params, key, null);
-	}
-	
-	public static Long getLongParam(Map params, String key, Long defaultValue){
-		String value = StringKit.getString(params.get(key));
-		try {
-			return Long.parseLong(value);
-		} catch (NumberFormatException e) {
-		}
 		return defaultValue;
 	}
 	
-	public static Boolean getBooleanParam(Map params, String key){
-		return getBooleanParam(params, key, null);
-	}
-	
-	public static Boolean getBooleanParam(Map params, String key, Boolean defaultValue){
-		String value = StringKit.getString(params.get(key));
-		try {
-			return Boolean.valueOf(value);
-		} catch (NumberFormatException e) {
-		}
-		return defaultValue;
-	}
-	
+	/**
+	 * 计算签名
+	 * 
+	 * @param rParam 参与计算的参数
+	 * @param signKey 用于计算签名的密钥
+	 * @return
+	 */
 	public static String getSign(RuleParam rParam, String signKey){
 		return getSign(rParam.getDatas(), signKey);
 	}
 	
+	/**
+	 * 计算签名
+	 * 
+	 * 计算方法：排除掉_sign和以__开头的参数名，排除掉值为空和值不是java原生类型的，剩余参数按参数名的字母序升序排列后，通过=和&拼接，
+	 * 			再加上&key=密钥后计算md5并转为小写
+	 * 
+	 * @param rParam 参与计算的参数
+	 * @param signKey 用于计算签名的密钥
+	 * @return
+	 */
 	public static String getSign(Map<String, ?> params, String signKey){
 		if(logger.isDebugEnabled())
 			logger.debug("params="+params+", signKey="+signKey);
@@ -179,7 +249,7 @@ public class RuleKit {
 			if(key.equals(SIGNATURE_PARAM_NAME) || key.startsWith(IGNORE_SIGNATURE_PARAM_NAME_PREFIX))
 				continue;
 			Object value = params.get(key);
-			if(StringKit.isNotEmpty(value) && ClassKit.isJavaClass(value.getClass()))
+			if(StringKit.isNotEmpty(value) && TypeKit.isJavaType(value.getClass()))
 				str.append(key).append("=").append(value.toString().trim()).append("&");
 		}
 		if(str.length() > 0)
@@ -191,10 +261,26 @@ public class RuleKit {
 		return sign;
 	}
 	
+	/**
+	 * 验证签名
+	 * 
+	 * @param rParam 参与验证的参数
+	 * @param signKey 用于验证签名的密钥
+	 * @return
+	 */
 	public static RuleResult checkSign(RuleParam rParam, String signKey){
 		return checkSign(rParam.getDatas(), signKey);
 	}
 	
+	/**
+	 * 验证签名
+	 * 
+	 * 使用签名计算方法计算签名，再与参数集中的_sign的值进行比较
+	 * 
+	 * @param rParam 参与验证的参数
+	 * @param signKey 用于验证签名的密钥
+	 * @return
+	 */
 	public static RuleResult checkSign(Map<String, ?> params, String signKey){
 		RuleResult result = RuleResult.create();
 		
@@ -208,6 +294,14 @@ public class RuleKit {
 		return result.success();
 	}
 	
+	/**
+	 * 对规则返回结果进行签名
+	 * 
+	 * 签名结果放在RuleResult的extraData中，key为_sign
+	 * 
+	 * @param signKey
+	 * @param result
+	 */
 	public static void signResult(String signKey, RuleResult result){
 		Map<String, String> resultMap = new HashMap<String, String>();
 		resultMap.put("result", StringKit.getString(result.isSuccess()));
@@ -216,14 +310,44 @@ public class RuleKit {
 		result.putExtraData(SIGNATURE_PARAM_NAME, getSign(resultMap, signKey));
 	}
 	
+	/**
+	 * 以给定用户的身份调用规则
+	 * 
+	 * @param request
+	 * @param loginId 调用者的用户帐号
+	 * @param ruleURI 要调用规则的路径
+	 * @param rParam 要传递的参数
+	 * @return
+	 */
 	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String ruleURI, RuleParam rParam){
 		return invokeRule(request, loginId, "", "", ruleURI, rParam, false);
 	}
 	
+	/**
+	 * 以给定群组用户的身份调用规则
+	 * 
+	 * @param request
+	 * @param loginId 调用者的用户帐号
+	 * @param companyCode 调用者的所在群组
+	 * @param ruleURI 要调用规则的路径
+	 * @param rParam 要传递的参数
+	 * @return
+	 */
 	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String ruleURI, RuleParam rParam){
 		return invokeRule(request, loginId, companyCode, null, ruleURI, rParam, false);
 	}
 	
+	/**
+	 * 以给定场景中群组用户的身份调用规则
+	 * 
+	 * @param request
+	 * @param loginId 调用者的用户帐号
+	 * @param companyCode 调用者的所在群组
+	 * @param sceneKey 调用场景名
+	 * @param ruleURI 要调用规则的路径
+	 * @param rParam 要传递的参数
+	 * @return
+	 */
 	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String sceneKey, String ruleURI, RuleParam rParam, boolean isAsyn){
 		if(StringKit.isEmpty(sceneKey) && request!=null)
 			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());

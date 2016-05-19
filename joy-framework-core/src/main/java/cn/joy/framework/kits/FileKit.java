@@ -30,6 +30,9 @@ import javax.servlet.http.HttpServletResponse;
 
 public class FileKit {
 
+	/**
+	 * 使用NIO复制文件
+	 */
 	public void copyFileByNIO(File source, File target) {
 		FileInputStream fi = null;
 		FileOutputStream fo = null;
@@ -55,6 +58,9 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 使用NIO Buffer复制文件
+	 */
 	public static void copyFileByNIOBuffer(File source, File target) {
 		FileInputStream fi = null;
 		FileOutputStream fo = null;
@@ -85,6 +91,9 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 使用输入输出流复制文件
+	 */
 	public static void copyFile(File source, File target) {
 		InputStream fis = null;
 		OutputStream fos = null;
@@ -108,10 +117,16 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 删除指定路径的文件或目录
+	 */
 	public static boolean delete(String path) {
 		return delete(new File(path));
 	}
 
+	/**
+	 * 删除指定的文件或目录
+	 */
 	public static boolean delete(File f) {
 		boolean deleted = false;
 		if (f.exists()) {
@@ -130,10 +145,21 @@ public class FileKit {
 		return deleted;
 	}
 
+	/**
+	 * 获取指定路径下的文件列表，按指定文件名后缀过滤，不递归子目录
+	 * @param path 指定路径
+	 * @param suffix 过滤掉文件名以suffix结尾的
+	 */
 	public static List<File> filerFiles(String path, String suffix) {
 		return filterFiles(path, suffix, false);
 	}
 
+	/**
+	 * 获取指定路径下的文件列表，按后缀过滤
+	 * @param path 指定路径
+	 * @param suffix 过滤掉文件名以suffix结尾的
+	 * @param recusive 是否递归子目录
+	 */
 	public static List<File> filterFiles(String path, String suffix, boolean recusive) {
 		File f = new File(path);
 		if (!f.exists()) {
@@ -161,6 +187,9 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 从文件路径中获取文件名
+	 */
 	public static String getFileName(String filePath) {
 		if (filePath == null) {
 			return null;
@@ -179,6 +208,11 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 从文件路径或文件名中获取文件扩展名
+	 * 
+	 * 截取最后一个.号后面的字符作为扩展名，没有则返回null
+	 */
 	public static String getFileExt(String fileName) {
 		int index = fileName.lastIndexOf('.');
 		if (index >= 0) {
@@ -188,6 +222,10 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 获取规范的路径
+	 * 如果路径最后不是以路径分隔符结尾的，则补上分隔符
+	 */
 	public static String getRegularPath(String path) {
 		if (path == null || path.length() < 1) {
 			return path;
@@ -201,6 +239,9 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 读取指定路径的文件到字节数组
+	 */
 	public static byte[] readFileBytes(String filePath) throws IOException {
 		File f = new File(filePath);
 		if (!f.exists()) {
@@ -231,6 +272,9 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 使用NIO读取指定路径的文件到字节数组
+	 */
 	public static byte[] readFileBytesByNIO(String filePath) throws IOException {
 		File f = new File(filePath);
 		if (!f.exists()) {
@@ -265,12 +309,15 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 使用NIO文件内存映射读取指定路径的文件到字节数组
+	 */
 	public static byte[] readFileBytesByMapped(String filePath) throws IOException {
 		FileChannel fc = null;
 		try {
 			fc = new RandomAccessFile(filePath, "r").getChannel();
 			MappedByteBuffer byteBuffer = fc.map(MapMode.READ_ONLY, 0, fc.size()).load();
-			System.out.println(byteBuffer.isLoaded());
+			//System.out.println(byteBuffer.isLoaded());
 			byte[] result = new byte[(int) fc.size()];
 			if (byteBuffer.remaining() > 0) {
 				// System.out.println("remain");
@@ -289,6 +336,9 @@ public class FileKit {
 		}
 	}
 
+	/**
+	 * 读取指定文件的内容到字符串
+	 */
 	public static String readFile(String filePath) throws IOException {
 		File file = new File(filePath);
 		if (!file.exists() || file.isDirectory())
@@ -313,6 +363,12 @@ public class FileKit {
 		return sb.toString();
 	}
 
+	/**
+	 * 按指定字符集编码读取指定文件的内容到字符串
+	 * 
+	 * @param filePath 要读取的文件路径
+	 * @param charset 指定字符集编码，默认UTF-8
+	 */
 	public static String readFile(String filePath, String charset) throws IOException {
 		File file = new File(filePath);
 		if (!file.exists() || file.isDirectory())
@@ -339,6 +395,9 @@ public class FileKit {
 		return sb.toString();
 	}
 	
+	/**
+	 * 创建指定路径的文件
+	 */
 	public static File createFile(String filePath){
 		File file = new File(filePath);
 		if(file.exists())
@@ -355,12 +414,18 @@ public class FileKit {
 		return null;
 	}
 
-	public static void writeInfoToFile(String info, String filePath) {
+	/**
+	 * 将字符串覆盖写入指定路径的文件
+	 * 
+	 * @param content 要写入的字符串
+	 * @param filePath 要写入的文件路径，没有文件会先创建
+	 */
+	public static void writeInfoToFile(String content, String filePath) {
 		FileOutputStream fos = null;
 		try {
 			File file = createFile(filePath);
 			fos = new FileOutputStream(file);
-			fos.write(info.getBytes());
+			fos.write(content.getBytes());
 			fos.flush();
 		} catch (Exception e) {
 		} finally {
@@ -372,12 +437,19 @@ public class FileKit {
 		}
 	}
 	
-	public static void writeInfoToFile(String info, String filePath, boolean isAppend) {
+	/**
+	 * 将字符串写入指定路径的文件
+	 * 
+	 * @param content 要写入的字符串
+	 * @param filePath 要写入的文件路径，没有文件会先创建
+	 * @param isAppend 是否追加
+	 */
+	public static void writeInfoToFile(String content, String filePath, boolean isAppend) {
 		FileOutputStream fos = null;
 		try {
 			File file = createFile(filePath);
 			fos = new FileOutputStream(file, isAppend);
-			fos.write(info.getBytes());
+			fos.write(content.getBytes());
 			fos.flush();
 		} catch (Exception e) {
 		} finally {
@@ -389,14 +461,22 @@ public class FileKit {
 		}
 	}
 
-	public static void writeInfoToFile(String info, String filePath, String charset) {
+	/**
+	 * 按指定字符集编码将字符串写入指定路径的文件
+	 * 
+	 * @param content 要写入的字符串
+	 * @param filePath 要写入的文件路径，没有文件会先创建
+	 * @param isAppend 是否追加
+	 * @param charset 指定字符集编码，默认UTF-8
+	 */
+	public static void writeInfoToFile(String content, String filePath, boolean isAppend, String charset) {
 		BufferedWriter output = null;
 		try {
 			if (charset == null || charset.length() == 0)
 				charset = "UTF-8";
 			File file = createFile(filePath);
-			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), charset));
-			output.write(info);
+			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, isAppend), charset));
+			output.write(content);
 		} catch (Exception e) {
 		} finally {
 			try {
@@ -407,7 +487,13 @@ public class FileKit {
 		}
 	}
 
-	public static void changeFileCharset(String filePath, String srcCharset, String targetCharset) {
+	/**
+	 * 更改文件的字符集编码
+	 * @param filePath 要更改的文件路径
+	 * @param sourceCharset 原字符集编码
+	 * @param targetCharset 目标字符集编码
+	 */
+	public static void changeFileCharset(String filePath, String sourceCharset, String targetCharset) {
 		File file = new File(filePath);
 		if (!file.exists())
 			return;
@@ -423,7 +509,7 @@ public class FileKit {
 		try {
 			in = new FileInputStream(tmpFile);
 			out = new FileOutputStream(file);
-			r = new BufferedReader(new InputStreamReader(in, srcCharset));
+			r = new BufferedReader(new InputStreamReader(in, sourceCharset));
 			w = new BufferedWriter(new OutputStreamWriter(out, targetCharset));
 
 			char[] buffer = new char[4096];
@@ -442,6 +528,13 @@ public class FileKit {
 		tmpFile.delete();
 	}
 
+	/**
+	 * 下载文件
+	 * @param response http响应对象
+	 * @param fileInfo 下载的文件信息，包括：
+	 * 			file：File文件对象，必需
+	 * 			displayName：下载文件显示名称，没有则使用file的name
+	 */
 	public static void downloadFile(HttpServletResponse response, Map<String, Object> fileInfo) {
 		String contentType = StringKit.getString(fileInfo.get("contentType"), "application/x-msdownload");
 		response.setContentType(contentType); // response.setContentType("application/force-download");

@@ -1,6 +1,5 @@
 package cn.joy.framework.kits;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,30 +13,45 @@ import org.apache.commons.lang.CharUtils;
  * @date 2014-05-20
  */
 public class StringKit {
+	/**
+	 * 判断字符串是否为空（null或空字符串）
+	 */
 	public static boolean isEmpty(Object info) {
 		if (info == null)
 			return true;
 		return info.toString().trim().length() == 0;
 	}
 
+	/**
+	 * 判断字符串是否非空（不为null且不是空字符串）
+	 */
 	public static boolean isNotEmpty(Object info) {
 		if (info == null)
 			return false;
 		return info.toString().trim().length() > 0;
 	}
 
+	/**
+	 * 将给定对象转换为去掉前后空白的字符串，如果为null，则返回空字符串
+	 */
 	public static String getString(Object s) {
 		if (s == null)
 			return "";
 		return s.toString().trim();
 	}
 	
+	/**
+	 * 将给定对象转换为去掉前后空白的字符串，如果为null，则返回给定的默认值
+	 */
 	public static String getString(Object s, String defaultValue) {
 		if (isEmpty(s))
 			return defaultValue;
 		return s.toString().trim();
 	}
 	
+	/**
+	 * 将给定对象转换为去掉前后空白的字符串，如果为null，则返回给定的默认值中第一个非空的
+	 */
 	public static String getString(Object s, String... defaultValues) {
 		if (isEmpty(s)){
 			if(defaultValues!=null){
@@ -51,22 +65,49 @@ public class StringKit {
 			return s.toString().trim();
 	}
 	
+	/**
+	 * 去掉字符串前后的给定字符
+	 * @param str 要处理的字符串
+	 * @param trim 要去掉的字符
+	 * @return
+	 */
 	public static String trim(String str, String trim){
 		return getString(str).replaceFirst("^"+trim, "").replaceFirst(trim+"$", "");
 	}
 	
+	/**
+	 * 去掉字符串结尾的给定字符
+	 * @param str 要处理的字符串
+	 * @param trim 要去掉的字符
+	 * @return
+	 */
 	public static String rTrim(String str, String trim){
 		return getString(str).replaceFirst(trim+"$", "");
 	}
 	
+	/**
+	 * 去掉字符串开头的给定字符
+	 * @param str 要处理的字符串
+	 * @param trim 要去掉的字符
+	 * @return
+	 */
 	public static String lTrim(String str, String trim){
 		return getString(str).replaceFirst("^"+trim, "");
 	}
 	
-	public static String capitalize(String s){
-		 return new StringBuilder().append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
+	/**
+	 * 将字符串首字母转为大写
+	 */
+	public static String capitalize(String str){
+		 return new StringBuilder().append(Character.toUpperCase(str.charAt(0))).append(str.substring(1)).toString();
 	}
 	
+	/**
+	 * 查找给定字符在字符串中第几次出现的位置索引
+	 * @param src 要查找的字符串
+	 * @param find 要查找的字符
+	 * @param times 第几次出现
+	 */
 	public static int getOccurIndexOf(String src, String find, int times) {
 		if (src == null || src.length() == 0)
 			return -1;
@@ -81,6 +122,12 @@ public class StringKit {
 		return -1;
 	}
 	
+	/**
+	 * 查找给定字符在字符串中出现的次数
+	 * @param src 要查找的字符串
+	 * @param find 要查找的字符
+	 * @return
+	 */
 	public static int getOccurCount(String src, String find) {
 		if (src == null || src.length() == 0)
 			return 0;
@@ -94,6 +141,9 @@ public class StringKit {
 		return count;
 	}
 	
+	/**
+	 * 将集合中的元素按给定分隔符拼接成一个字符串
+	 */
 	public static String joinCollection(Collection c, String delimiter){
 		String result = "";
 		StringBuilder s = new StringBuilder();
@@ -108,8 +158,11 @@ public class StringKit {
 		return result;
 	}
 	
-	public static boolean contains4ByteChar(String source) throws Exception{
-		byte[] t1 = source.getBytes("UTF-8");  
+	/**
+	 * 判断给定字符串中是否包含4字节字符
+	 */
+	public static boolean contains4ByteChar(String str) throws Exception{
+		byte[] t1 = str.getBytes("UTF-8");  
         for (int i = 0; i < t1.length;) {  
             byte tt = t1[i];  
             if (CharUtils.isAscii((char) tt)) {  
@@ -140,6 +193,9 @@ public class StringKit {
         return false;
 	}
 	
+	/**
+	 * 过滤掉给定字符串中的4字节字符
+	 */
 	public static String filter4ByteChar(String source) throws Exception{
 		StringBuilder s = new StringBuilder();
 		byte[] t1 = source.getBytes("UTF-8");  
@@ -193,11 +249,19 @@ public class StringKit {
         return s.toString();
 	}
 	
+	/**
+	 * 判断给定字符串是否表示真
+	 * 
+	 * 只有true、yes、y、1表示真，忽略大小写
+	 */
 	public static boolean isTrue(Object obj){
 		String str = getString(obj);
 		return "true".equalsIgnoreCase(str) || "yes".equalsIgnoreCase(str) || "y".equalsIgnoreCase(str) || "1".equalsIgnoreCase(str);
 	}
 	
+	/**
+	 * 获取给定字符串中匹配给定正则表达式的所有部分
+	 */
 	public static List<String> matchAll(String str, String regex){
 		List<String> matches = new ArrayList();
 		Pattern pattern = Pattern.compile(regex);
@@ -210,6 +274,9 @@ public class StringKit {
 		return matches;
 	}
 	
+	/**
+	 * 获取给定字符串中匹配给定正则表达式的第一处
+	 */
 	public static String matchOne(String str, String regex){
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(str);
@@ -220,7 +287,10 @@ public class StringKit {
 	}
 	
 	/**
-     * 替换固定格式的字符串（支持正则表达式）
+     * 替换字符串匹配正则表达式的部分
+     * @param str 要替换的字符串
+     * @param regex 要匹配的正则表达式
+     * @param replacement 匹配的部分要替换成的内容
      */
     public static String replaceAll(String str, String regex, String replacement) {
         Pattern p = Pattern.compile(regex);

@@ -17,7 +17,7 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
 import cn.joy.framework.kits.CollectionKit;
-import cn.joy.framework.kits.NumberKit;
+import cn.joy.framework.kits.TypeKit;
 import cn.joy.framework.provider.CacheProvider;
 
 public class MemoryProvider<K, V> extends CacheProvider<K, V> {
@@ -28,7 +28,7 @@ public class MemoryProvider<K, V> extends CacheProvider<K, V> {
 	public void init(Properties prop) { 
 		CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
 
-		long expire = NumberKit.getLong(prop.get("expire"), 0L);
+		long expire = TypeKit.toLong(prop.get("expire"), 0L);
 		if(expire>0)
 			cacheBuilder.expireAfterWrite(expire, TimeUnit.SECONDS);
 		if(expireCallback!=null)

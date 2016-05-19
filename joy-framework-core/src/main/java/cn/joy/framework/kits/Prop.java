@@ -98,29 +98,27 @@ public class Prop {
 	}
 	
 	public Integer getInt(String key) {
-		return NumberKit.getInteger(properties.getProperty(key));
+		return TypeKit.toInt(properties.getProperty(key));
 	}
 	
 	public Integer getInt(String key, Integer defaultValue) {
-		return NumberKit.getInteger(properties.getProperty(key), defaultValue);
+		return TypeKit.toInt(properties.getProperty(key), defaultValue);
 	}
 	
 	public Long getLong(String key) {
-		return NumberKit.getLong(properties.getProperty(key));
+		return TypeKit.toLong(properties.getProperty(key));
 	}
 	
 	public Long getLong(String key, Long defaultValue) {
-		return NumberKit.getLong(properties.getProperty(key), defaultValue);
+		return TypeKit.toLong(properties.getProperty(key), defaultValue);
 	}
 	
 	public Boolean getBoolean(String key) {
-		String value = get(key);
-		return (value != null) ? Boolean.parseBoolean(value) : null;
+		return TypeKit.toBoolean(properties.getProperty(key));
 	}
 	
 	public Boolean getBoolean(String key, Boolean defaultValue) {
-		String value = get(key);
-		return (value != null) ? Boolean.parseBoolean(value) : defaultValue;
+		return TypeKit.toBoolean(properties.getProperty(key), defaultValue);
 	}
 	
 	public Map<String, String> getMap(String prefix) {
@@ -149,6 +147,11 @@ public class Prop {
 	
 	public Prop remove(String key){
 		properties.remove(key);
+		return this;
+	}
+	
+	public Prop removeAll(){
+		properties.clear();
 		return this;
 	}
 	

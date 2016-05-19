@@ -74,12 +74,18 @@ public class JsonKit {
 		System.out.println(mst.get("t1").getName());*/
 	}
 	
+	/**
+	 * 添加自定义序列化实现
+	 */
 	public static void addSerializer(JsonSerializer<?> ser){
 		SimpleModule module = new SimpleModule();
 		module.addSerializer(ser);
 		mapper.registerModule(module);
 	}
 	
+	/**
+	 * 为指定类型添加自定义序列化实现
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void addSerializer(Class type, JsonSerializer<?> ser){
 		SimpleModule module = new SimpleModule();
@@ -87,6 +93,9 @@ public class JsonKit {
 		mapper.registerModule(module);
 	}
 	
+	/**
+	 * 批量添加自定义序列化实现
+	 */
 	public static void addSerializers(JsonSerializer<?>... sers){
 		if(sers==null && sers.length>0){
 			SimpleModule module = new SimpleModule();
@@ -97,6 +106,9 @@ public class JsonKit {
 		}
 	}
 
+	/**
+	 * 对象转换为json字符串
+	 */
 	public static String object2Json(Object object) {
 		StringWriter writer = new StringWriter();
 		try {
@@ -108,6 +120,9 @@ public class JsonKit {
 		return writer.toString();
 	}
 	
+	/**
+	 * 对象转换为格式化的json字符串
+	 */
 	public static String object2FormatJson(Object object) {
 		StringWriter writer = new StringWriter();
 		try {
@@ -119,6 +134,9 @@ public class JsonKit {
 		return writer.toString();
 	}
 	
+	/**
+	 * json字符串转换为指定类型的对象
+	 */
 	public static Object json2Object(String json, Class klass) {
 		Object object = null;
 		try {
@@ -130,6 +148,9 @@ public class JsonKit {
 		return object;
 	}
 
+	/**
+	 * json字符串转换为Map对象
+	 */
 	public static Map json2Map(String json) {
 		Map m = null;
 		try {
@@ -141,6 +162,9 @@ public class JsonKit {
 		return m;
 	}
 
+	/**
+	 * json字符串转换为元素为Map的List对象
+	 */
 	public static List<Map> json2ListMap(String json) {
 		List m = null;
 		try {
@@ -152,6 +176,9 @@ public class JsonKit {
 		return m;
 	}
 	
+	/**
+	 * json字符串转换为元素为指定类型的List对象
+	 */
 	public static List json2ListBean(String json, Class beanClass) {
 		List m = null;
 		try {
@@ -165,6 +192,9 @@ public class JsonKit {
 		return m;
 	}
 	
+	/**
+	 * json字符串转换为指定key和value类型的Map
+	 */
 	public static Map json2MapBean(String json, Class keyClass, Class beanClass) {
 		Map m = null;
 		try {
