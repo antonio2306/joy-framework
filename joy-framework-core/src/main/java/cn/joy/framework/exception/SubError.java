@@ -4,7 +4,6 @@ import java.util.EnumMap;
 import java.util.Locale;
 
 import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.kits.I18NKit;
 /**
  * 子错误定义，一个主错误中可包含若干个子错误
  * @author liyy
@@ -51,7 +50,7 @@ public class SubError {
 	}
 
 	public static SubError create(SubErrorType subErrorType, Locale locale, Object... params) {
-		return new SubError(getSubErrorCode(subErrorType, params), I18NKit.getText(subErrorType.value(), locale, params));
+		return new SubError(getSubErrorCode(subErrorType, params), String.format(subErrorType.value(), params));//I18NKit.getText(subErrorType.value(), locale, params));
 	}
 	
 	public static MainError createMain(SubErrorType subErrorType, Object... params) {
@@ -60,7 +59,7 @@ public class SubError {
 
 	public static MainError createMain(SubErrorType subErrorType, Locale locale, Object... params) {
 		MainError mainError = getMainError(subErrorType, locale);
-		SubError subError = new SubError(getSubErrorCode(subErrorType, params), I18NKit.getText(subErrorType.value(), locale, params));
+		SubError subError = new SubError(getSubErrorCode(subErrorType, params), String.format(subErrorType.value(), params));//I18NKit.getText(subErrorType.value(), locale, params));
 		mainError.addSubError(subError);
 		return mainError;
 	}

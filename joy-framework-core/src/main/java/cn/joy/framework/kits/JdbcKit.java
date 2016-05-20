@@ -10,6 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 
+/**
+ * jdbc操作工具类
+ */
 public class JdbcKit {
 	// 私有变量，初始化连接参数
 	private static String url = "jdbc:mysql://localhost:3306/jdbc";
@@ -38,16 +41,30 @@ public class JdbcKit {
 		}
 	}
 
-	// 静态方法，创建连接
+	/**
+	 * 获取默认连接
+	 * @return
+	 * @throws SQLException
+	 */
 	public static Connection getConnection() throws SQLException {
 		return DriverManager.getConnection(url, user, password);
 	}
 
+	/**
+	 * 根据URL、用户名和密码获取默认连接
+	 * @return
+	 * @throws SQLException
+	 */
 	public static Connection getConnection(String url, String user, String password) throws SQLException {
 		return DriverManager.getConnection(url, user, password);
 	}
 
-	// 静态方法，释放资源
+	/**
+	 * 释放连接资源
+	 * @param rs
+	 * @param st
+	 * @param conn
+	 */
 	public static void free(ResultSet rs, Statement st, Connection conn) {
 		try {
 			if (rs != null) {
@@ -84,6 +101,10 @@ public class JdbcKit {
 			e.printStackTrace();
 	}
 
+	/**
+	 * 关闭连接
+	 * @param con
+	 */
 	public static void closeConnection(Connection con) {
 		if (con != null) {
 			try {
@@ -96,6 +117,10 @@ public class JdbcKit {
 		}
 	}
 
+	/**
+	 * 关闭Statement
+	 * @param stmt
+	 */
 	public static void closeStatement(Statement stmt) {
 		if (stmt != null) {
 			try {
@@ -108,6 +133,10 @@ public class JdbcKit {
 		}
 	}
 
+	/**
+	 * 关闭ResultSet
+	 * @param rs
+	 */
 	public static void closeResultSet(ResultSet rs) {
 		if (rs != null) {
 			try {
@@ -120,6 +149,11 @@ public class JdbcKit {
 		}
 	}
 
+	/**
+	 * 从结果集中获取值
+	 * @param rs
+	 * @param index
+	 */
 	public static Object getResultSetValue(ResultSet rs, int index) throws SQLException {
 		Object obj = rs.getObject(index);
 		if (obj instanceof Blob) {
@@ -143,6 +177,11 @@ public class JdbcKit {
 		return obj;
 	}
 
+	/**
+	 * 判断是否支持批量更新操作
+	 * @param con
+	 * @return
+	 */
 	public static boolean supportsBatchUpdates(Connection con) {
 		try {
 			DatabaseMetaData dbmd = con.getMetaData();
@@ -162,6 +201,11 @@ public class JdbcKit {
 		return false;
 	}
 
+	/**
+	 * 判断是否是数值字段类型
+	 * @param sqlType
+	 * @return
+	 */
 	public static boolean isNumeric(int sqlType) {
 		return Types.BIT == sqlType || Types.BIGINT == sqlType || Types.DECIMAL == sqlType || Types.DOUBLE == sqlType
 				|| Types.FLOAT == sqlType || Types.INTEGER == sqlType || Types.NUMERIC == sqlType

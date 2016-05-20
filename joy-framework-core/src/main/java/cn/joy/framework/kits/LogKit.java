@@ -10,6 +10,9 @@ import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 日志工具类
+ */
 public class LogKit{
 	private static Log log = null;
 	private static final Map<String, Log> map = new HashMap<String, Log>();

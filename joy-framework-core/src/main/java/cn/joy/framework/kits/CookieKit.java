@@ -4,7 +4,17 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Cookie操作工具类
+ */
 public class CookieKit {
+	/**
+	 * 
+	 * @param request
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 */
 	public static String getCookie(HttpServletRequest request, String name, String defaultValue) {
 		Cookie cookie = getCookieObject(request, name);
 		return cookie != null ? cookie.getValue() : defaultValue;

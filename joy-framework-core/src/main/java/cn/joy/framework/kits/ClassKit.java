@@ -16,7 +16,7 @@ import java.util.jar.JarFile;
 
 import cn.joy.framework.kits.LogKit.Log;
 /**
- * 类操作
+ * 类操作工具类
  * @author liyy
  * @date 2014-07-05
  */

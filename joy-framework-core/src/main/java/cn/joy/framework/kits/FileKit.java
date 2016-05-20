@@ -28,6 +28,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * 文件操作工具类
+ */
 public class FileKit {
 
 	/**

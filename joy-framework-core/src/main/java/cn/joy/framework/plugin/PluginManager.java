@@ -12,7 +12,7 @@ import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.LogKit;
 import cn.joy.framework.kits.LogKit.Log;
-import cn.joy.framework.kits.Prop;
+import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.provider.JoyProvider;
 

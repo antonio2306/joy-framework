@@ -11,7 +11,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
 /**
- * 类实例操作
+ * 类实例操作工具类
  * @author liyy
  * @date 2014-05-20
  */

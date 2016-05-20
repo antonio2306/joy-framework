@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.kits.I18NKit;
 import cn.joy.framework.kits.JsonKit;
 /**
  * 主错误定义
@@ -36,9 +35,9 @@ public class MainError {
 	}
 
 	public static MainError create(MainErrorType mainErrorType, Locale locale) {
-		String errorMessage = I18NKit.getText(ERROR_CODE_PREFIX + mainErrorType.value(), locale);
-		String errorSolution = I18NKit.getText(ERROR_CODE_PREFIX
-				+ mainErrorType.value() + ERROR_SOLUTION_SUBFIX, locale);
+		String errorMessage = ERROR_CODE_PREFIX + mainErrorType.value();//I18NKit.getText(ERROR_CODE_PREFIX + mainErrorType.value(), locale);
+		String errorSolution = ERROR_CODE_PREFIX
+				+ mainErrorType.value() + ERROR_SOLUTION_SUBFIX;//I18NKit.getText(ERROR_CODE_PREFIX	+ mainErrorType.value() + ERROR_SOLUTION_SUBFIX, locale);
 		return new MainError(mainErrorType.value(), errorMessage, errorSolution);
 	}
 	

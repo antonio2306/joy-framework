@@ -2,6 +2,9 @@ package cn.joy.framework.kits;
 
 import java.math.BigDecimal;
 
+/**
+ * 数学运算工具类
+ */
 public class MathKit {
 	// 默认除法运算精度
 	private static final int DEF_DIV_SCALE = 10;

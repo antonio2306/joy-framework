@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * 压缩工具类
+ */
 public class ZipKit {
     /**
      * 使用gzip压缩字符串

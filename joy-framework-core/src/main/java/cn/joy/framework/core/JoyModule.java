@@ -6,8 +6,8 @@ import cn.joy.framework.annotation.Module;
 import cn.joy.framework.kits.BeanKit;
 import cn.joy.framework.kits.LogKit;
 import cn.joy.framework.kits.LogKit.Log;
-import cn.joy.framework.kits.Prop;
 import cn.joy.framework.kits.PropKit;
+import cn.joy.framework.kits.PropKit.Prop;
 
 public abstract class JoyModule {
 	protected Log log = LogKit.getLog(JoyModule.class);
