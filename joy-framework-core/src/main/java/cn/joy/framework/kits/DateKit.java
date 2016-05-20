@@ -15,6 +15,9 @@ import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+/**
+ * 日期操作工具类
+ */
 public class DateKit {
 	private static String[] pattern = new String[]{"yyyy-MM","yyyyMM","yyyy/MM",   
             "yyyyMMdd","yyyy-MM-dd","yyyy/MM/dd",   

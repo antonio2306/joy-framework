@@ -231,7 +231,7 @@ public class RuleKit {
 	 * 计算方法：排除掉_sign和以__开头的参数名，排除掉值为空和值不是java原生类型的，剩余参数按参数名的字母序升序排列后，通过=和&拼接，
 	 * 			再加上&key=密钥后计算md5并转为小写
 	 * 
-	 * @param rParam 参与计算的参数
+	 * @param params 参与计算的参数
 	 * @param signKey 用于计算签名的密钥
 	 * @return
 	 */
@@ -277,7 +277,7 @@ public class RuleKit {
 	 * 
 	 * 使用签名计算方法计算签名，再与参数集中的_sign的值进行比较
 	 * 
-	 * @param rParam 参与验证的参数
+	 * @param params 参与验证的参数
 	 * @param signKey 用于验证签名的密钥
 	 * @return
 	 */

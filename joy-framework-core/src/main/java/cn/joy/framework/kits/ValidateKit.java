@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 校验工具类
+ */
 public class ValidateKit {
 	/** 整数 */
 	private static final String V_INTEGER = "^-?[1-9]\\d*$";

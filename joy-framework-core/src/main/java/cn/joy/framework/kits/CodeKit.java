@@ -2,6 +2,9 @@ package cn.joy.framework.kits;
 
 import java.util.UUID;
 
+/**
+ * 编码工具类
+ */
 public class CodeKit {
 	/**
 	 * 获取编码

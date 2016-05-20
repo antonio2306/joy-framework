@@ -23,6 +23,9 @@ import javax.xml.bind.DatatypeConverter;
 
 import cn.joy.framework.core.JoyConstants;
 
+/**
+ * 加密工具类
+ */
 public class EncryptKit {
 	private static final SecureRandom defaultRandom = new SecureRandom();
 	private static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };

@@ -9,8 +9,8 @@ import cn.joy.framework.kits.ClassKit;
 import cn.joy.framework.kits.LogKit;
 import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.PathKit;
-import cn.joy.framework.kits.Prop;
 import cn.joy.framework.kits.PropKit;
+import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.kits.StringKit;
 
 public abstract class JoyPlugin {

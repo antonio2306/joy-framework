@@ -9,7 +9,7 @@ import javax.mail.Session;
 import cn.joy.framework.annotation.Plugin;
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.kits.Prop;
+import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.plugin.ResourcePlugin;
 
 @Plugin(key = "mail")

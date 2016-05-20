@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 集合操作工具类
+ */
 public class CollectionKit {
 	/**
 	 * 转置Map，key和value互换
