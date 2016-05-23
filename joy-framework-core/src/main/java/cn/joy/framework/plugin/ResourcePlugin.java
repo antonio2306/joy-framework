@@ -62,6 +62,10 @@ public abstract class ResourcePlugin<B extends PluginResourceBuilder<R>, R exten
 		return resource;
 	}
 	
+	public R useResource(String name, R resource){
+		return resourceMap.put(name, resource);
+	}
+	
 	public void unuseResource(String name){
 		if(StringKit.isEmpty(name))
 			return;

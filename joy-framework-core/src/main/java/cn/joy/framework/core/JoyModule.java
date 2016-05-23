@@ -71,7 +71,7 @@ public abstract class JoyModule {
 			log.warn(e.getMessage());
 		}
 		if(moduleConfig==null)
-			this.moduleConfig = new Prop();
+			this.moduleConfig = PropKit.empty();
 	}
 	
 	public void destroy() {

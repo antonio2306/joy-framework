@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="joyTest">
+  <test name="joyTest">
+  	<groups>
+	    <run>
+	      <include name="case.*"></include>
+	    </run>
+    </groups>
+  	<packages>
+  		<package name="cn.joy.framework.test.*"></package>
+  		<package name="cn.joy.plugin.test.*"></package>
+  	</packages>
+    <!-- <classes>
+    </classes> -->
+  </test>
+</suite>

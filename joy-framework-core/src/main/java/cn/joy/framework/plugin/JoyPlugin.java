@@ -56,7 +56,7 @@ public abstract class JoyPlugin {
 	protected void loadConfig(){
 		try {
 			String pluginKey = StringKit.trim(getClass().getSimpleName().toLowerCase(), "plugin");
-			this.config = new Prop();
+			this.config = PropKit.empty();
 			//先加载默认配置
 			try {
 				InputStream inputStream = ClassKit.getClassLoader().getResourceAsStream("plugins/"+pluginKey+"-default.properties");

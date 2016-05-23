@@ -18,7 +18,7 @@ public class BeetlResource extends PluginResource {
 		try {
 			template.renderTo(outputStream);
 		} catch (Exception e) {
-			log.error("", e);
+			logger.error("", e);
 		}
 	}
 

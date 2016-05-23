@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.joy.framework.annotation.Plugin;
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.core.JoyManager;
-import cn.joy.framework.kits.Prop;
+import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.plugin.ResourcePlugin;
 import redis.clients.jedis.Jedis;

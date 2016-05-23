@@ -47,6 +47,27 @@ public abstract class JoyGeneric {
 			return (T)this;
 		}
 		
+		public T putNotEmpty(K key, V value) {
+	        if (StringKit.isNotEmpty(value)) {
+	        	mMap.put(key, value);
+	        }
+	        return (T)this;
+	    }
+
+	    public T putNotNull(K key, V value) {
+	        if (value != null) {
+	        	mMap.put(key, value);
+	        }
+	        return (T)this;
+	    }
+
+	    public T putWhen(boolean when, K key, V value) {
+	        if (when) {
+	        	mMap.put(key, value);
+	        }
+	        return (T)this;
+	    }
+		
 		public boolean containsKey(K key){
 			return mMap.containsKey(key);
 		}
@@ -242,6 +263,38 @@ public abstract class JoyGeneric {
 			if (items != null){
 				for(V item:items){
 					mList.add(item);
+				}
+			}
+			return (T)this;
+		}
+		
+		public T addNotEmpty(V... items){
+			if (items != null){
+				for(V item:items){
+					if(StringKit.isNotEmpty(item))
+						mList.add(item);
+				}
+			}
+			return (T)this;
+		}
+		
+		public T addNotNull(V... items){
+			if (items != null){
+				for(V item:items){
+					if(item!=null)
+						mList.add(item);
+				}
+			}
+			return (T)this;
+		}
+		
+		public T addWhen(boolean when, V... items) {
+			if (when){
+				if (items != null){
+					for(V item:items){
+						if(item!=null)
+							mList.add(item);
+					}
 				}
 			}
 			return (T)this;

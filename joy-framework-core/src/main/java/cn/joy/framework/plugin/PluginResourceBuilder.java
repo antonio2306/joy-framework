@@ -1,16 +1,15 @@
 package cn.joy.framework.plugin;
 
-import java.util.Properties;
-
 import cn.joy.framework.kits.LogKit;
 import cn.joy.framework.kits.LogKit.Log;
+import cn.joy.framework.kits.PropKit.Prop;
 
 public abstract class PluginResourceBuilder<R extends PluginResource> {
-	protected Log log = LogKit.getLog(PluginResourceBuilder.class);
+	protected Log logger = LogKit.getLog(PluginResourceBuilder.class);
 	protected String name;
-	protected Properties prop;
+	protected Prop prop;
 	
-	public PluginResourceBuilder<R> prop(Properties prop){
+	public PluginResourceBuilder<R> prop(Prop prop){
 		this.prop = prop;
 		return this;
 	}

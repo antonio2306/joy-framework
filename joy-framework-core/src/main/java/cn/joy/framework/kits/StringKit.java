@@ -14,7 +14,7 @@ import org.apache.commons.lang.CharUtils;
  */
 public class StringKit {
 	/**
-	 * 判断字符串是否为空（null或空字符串）
+	 * 判断对象的字符串值是否为空（null或空字符串）
 	 */
 	public static boolean isEmpty(Object info) {
 		if (info == null)
@@ -23,7 +23,7 @@ public class StringKit {
 	}
 
 	/**
-	 * 判断字符串是否非空（不为null且不是空字符串）
+	 * 判断对象的字符串值是否非空（不为null且不是空字符串）
 	 */
 	public static boolean isNotEmpty(Object info) {
 		if (info == null)

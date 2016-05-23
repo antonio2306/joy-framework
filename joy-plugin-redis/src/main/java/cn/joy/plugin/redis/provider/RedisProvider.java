@@ -5,13 +5,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.joy.framework.kits.StringKit;
+import cn.joy.framework.kits.TypeKit;
+import cn.joy.framework.provider.CacheProvider;
+import cn.joy.plugin.redis.Redis;
+import cn.joy.plugin.redis.RedisResource;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
-import cn.joy.framework.kits.NumberKit;
-import cn.joy.framework.kits.StringKit;
-import cn.joy.framework.provider.CacheProvider;
-import cn.joy.plugin.redis.RedisResource;
-import cn.joy.plugin.redis.Redis;
 
 public class RedisProvider<K, V> extends CacheProvider<K, V> {
 	private RedisResource cache;
@@ -23,7 +23,7 @@ public class RedisProvider<K, V> extends CacheProvider<K, V> {
 	public void init(Properties prop) {
 		this.cacheName = prop.getProperty("cacheName");
 		cache = Redis.use(cacheName);
-		expire = NumberKit.getInteger(prop.get("expire"), 0);
+		expire = TypeKit.toInt(prop.get("expire"), 0);
 		if (expireCallback != null) {
 			expireCallbackJedis = cache.getPool().getResource();
 			new Thread(new Runnable() {

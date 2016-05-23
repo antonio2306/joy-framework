@@ -16,6 +16,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.plugin.PluginResource;
 import cn.joy.plugin.quartz.task.ScheduleTask;
 
@@ -25,7 +26,7 @@ public class QuartzResource extends PluginResource{
 	
 	private QuartzResource(){}
 	
-	QuartzResource(String name, Properties prop){
+	QuartzResource(String name, Prop prop){
 		Properties quartzProp = new Properties();
 		quartzProp.put("org.quartz.scheduler.instanceName", name);
 		quartzProp.put("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
@@ -35,7 +36,7 @@ public class QuartzResource extends PluginResource{
 		quartzProp.put("org.quartz.scheduler.skipUpdateCheck", true);
 		
 		if(prop!=null)
-			quartzProp.putAll(prop);
+			quartzProp.putAll(prop.getProperties());
 
 		try {
 			StdSchedulerFactory schedFact = new StdSchedulerFactory(quartzProp);
@@ -173,7 +174,7 @@ public class QuartzResource extends PluginResource{
 		try {
 			scheduler.shutdown();
 		} catch (SchedulerException e) {
-			log.error("scheduler shutdown fail.", e);
+			logger.error("scheduler shutdown fail.", e);
 		}
 	}
 }

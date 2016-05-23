@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -22,6 +22,14 @@ public class PropKit {
 	private static final Map<String, Prop> map = new ConcurrentHashMap<String, Prop>();
 	
 	private PropKit() {}
+	
+	/**
+	 * 创建一个空的Prop
+	 * @return
+	 */
+	public static Prop empty() {
+		return new Prop();
+	}
 	
 	/**
 	 * 使用指定文件对应的Prop，无则从文件中读取并创建
@@ -210,21 +218,21 @@ public class PropKit {
 	}
 	
 	/**
-	 * 从默认Prop中获取按key前缀过滤的Map
+	 * 从默认Prop中获取按key前缀过滤的子Prop
 	 * @param keyPrefix 指定key的前缀
-	 * @return 获取符合给定前缀的所有key，使用这些key及其value构成Map
+	 * @return 获取符合给定前缀的所有key，使用这些key及其value构成Prop
 	 */
-	public static Map<String, String> getMap(String keyPrefix) {
-		return getProp().getMap(keyPrefix);
+	public static Prop getSubProp(String keyPrefix) {
+		return getProp().getSubProp(keyPrefix);
     }
 	
 	/**
-	 * 从默认Prop中获取按key前缀过滤的Map
+	 * 从默认Prop中获取按key前缀过滤的子Prop
 	 * @param keyPrefix
-	 * @return 获取符合给定前缀的所有key，使用这些key去掉前缀后，再和其value构成Map
+	 * @return 获取符合给定前缀的所有key，使用这些key去掉前缀后，再和其value构成Prop
 	 */
-	public Map<String, String> getMapTrimPrefix(String keyPrefix) {
-		return getProp().getMapTrimPrefix(keyPrefix);
+	public Prop getSubPropTrimPrefix(String keyPrefix) {
+		return getProp().getSubPropTrimPrefix(keyPrefix);
     }
 	
 	/**
@@ -281,16 +289,32 @@ public class PropKit {
 		return getProp().setAll(prop);
 	}
 	
+	/**
+	 * 判断默认Prop中的属性集
+	 * @return
+	 */
+	public Properties getProperties(){
+		return getProp().getProperties();
+	}
+	
+	/**
+	 * 判断默认Prop是否为空
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return getProp().isEmpty();
+	}
+	
 	public static class Prop {
 		public static final String encoding = "UTF-8";
 		private Properties properties = null;
 		
-		Prop(String fileName) {
-			this(fileName, encoding);
+		Prop(){
+			properties = new Properties();
 		}
 		
-		public Prop(){
-			properties = new Properties();
+		Prop(String fileName) {
+			this(fileName, encoding);
 		}
 		
 		public Prop(InputStream inputStream) {
@@ -390,28 +414,28 @@ public class PropKit {
 			return TypeKit.toBoolean(properties.getProperty(key), defaultValue);
 		}
 		
-		public Map<String, String> getMap(String prefix) {
-	        Map<String, String> kvMap = new LinkedHashMap<>();
+		public Prop getSubProp(String prefix) {
+			Prop subProp = new Prop();
 	        Set<String> keySet = properties.stringPropertyNames();
 	        for (String key : keySet) {
 	            if (key.startsWith(prefix)) {
 	                String value = properties.getProperty(key);
-	                kvMap.put(key, value);
+	                subProp.set(key, value);
 	            }
 	        }
-	        return kvMap;
+	        return subProp;
 	    }
 		
-		public Map<String, String> getMapTrimPrefix(String prefix) {
-	        Map<String, String> kvMap = new LinkedHashMap<>();
+		public Prop getSubPropTrimPrefix(String prefix) {
+			Prop subProp = new Prop();
 	        Set<String> keySet = properties.stringPropertyNames();
 	        for (String key : keySet) {
 	            if (key.startsWith(prefix)) {
 	                String value = properties.getProperty(key);
-	                kvMap.put(key.substring(prefix.length()), value);
+	                subProp.set(key.substring(prefix.length()), value);
 	            }
 	        }
-	        return kvMap;
+	        return subProp;
 	    }
 		
 		public Prop remove(String key){
@@ -453,6 +477,20 @@ public class PropKit {
 		
 		public Properties getProperties() {
 			return properties;
+		}
+		
+		public boolean isEmpty() {
+			return properties.isEmpty();
+		}
+		
+		public Map<String, Object> toMap(){
+			Map<String, Object> map = new HashMap<>();
+			Set<String> keySet = properties.stringPropertyNames();
+	        for (String key : keySet) {
+                String value = properties.getProperty(key);
+                map.put(key, value);
+	        }
+	        return map;
 		}
 	}
 }

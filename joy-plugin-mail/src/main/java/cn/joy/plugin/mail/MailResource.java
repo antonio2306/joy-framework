@@ -56,7 +56,7 @@ public class MailResource extends PluginResource {
 			transport.sendMessage(message, message.getAllRecipients());*/
 			Transport.send(message, session.getProperty("mail.smtp.user"), session.getProperty("mail.smtp.password"));
 		}catch(Exception e){
-			log.error("", e);
+			logger.error("", e);
 			throw new RuntimeException(e);
 		}finally{
 			try {
@@ -79,7 +79,7 @@ public class MailResource extends PluginResource {
 			// 发送邮件
 			Transport.send(message, session.getProperty("mail.smtp.user"), session.getProperty("mail.smtp.password"));
 		}catch(Exception e){
-			log.error("", e);
+			logger.error("", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -142,7 +142,7 @@ public class MailResource extends PluginResource {
 
 			Transport.send(message, session.getProperty("mail.smtp.user"), session.getProperty("mail.smtp.password"));
 		} catch (Exception e) {
-			log.error("", e);
+			logger.error("", e);
 			throw new RuntimeException(e);
 		}
 	}
