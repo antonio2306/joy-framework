@@ -73,9 +73,9 @@ public class RuleDispatcher{
 						rParam.remove(RuleKit.SERVER_PROXY_PARAM_NAME);
 						if(logger.isDebugEnabled())
 							logger.debug("proxy invoke " + ruleURI);
-						result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).ruleURI(serverProxy+"@"+ruleURI), rParam);
+						result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(serverProxy+"@"+ruleURI), rParam);
 					}else
-						result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).ruleURI(ruleURI), rParam);
+						result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
 				} catch(RuleException e){
 					result = e.getFailResult();
 				}
@@ -150,7 +150,7 @@ public class RuleDispatcher{
 
 		RuleResult result = null;
 		try{
-			result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).ruleURI(ruleURI), rParam);
+			result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
 		} catch(RuleException e){
 			result = e.getFailResult();
 		}
@@ -251,7 +251,7 @@ public class RuleDispatcher{
 				// 执行分离，事务分离，合并结果
 				RuleResult result = null;
 				try{
-					result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).ruleURI(ruleURI), rParam);
+					result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
 				} catch(RuleException e){
 					result = e.getFailResult();
 				}
@@ -262,7 +262,7 @@ public class RuleDispatcher{
 			}
 			HttpKit.writeResponse(response, JsonKit.object2Json(mergeResult));
 		} else{
-			RuleResult result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).ruleURI(ruleURI), rParam);
+			RuleResult result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
 			String toRender = (String)result.getExtraData("toRender");
 			if(StringKit.isNotEmpty(toRender)){
 				return toRender;
@@ -280,7 +280,7 @@ public class RuleDispatcher{
 						if(logger.isDebugEnabled())
 							logger.debug("business controller rule invoke, mergeRequestRuleURI=" + ruleURI);
 						
-						RuleResult mergeRequestRuleResult = JoyManager.getRuleExecutor().execute(RuleContext.create(request).ruleURI(ruleURI), rParam);
+						RuleResult mergeRequestRuleResult = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
 						if(!mergeRequestRuleResult.isSuccess()){
 							result = mergeRequestRuleResult;
 							break;
@@ -327,7 +327,7 @@ public class RuleDispatcher{
 		if(rParam == null)
 			rParam = RuleParam.create();
 
-		RuleResult result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).ruleURI(ruleURI), rParam);
+		RuleResult result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
 		if(result.isSuccess()){
 			FileKit.downloadFile(response, result.getMapFromContent());
 		} else

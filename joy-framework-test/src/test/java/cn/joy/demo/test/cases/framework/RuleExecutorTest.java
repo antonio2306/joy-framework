@@ -21,13 +21,13 @@ public class RuleExecutorTest {
 	}
 	
 	public void executeLocalRule() {
-		RuleResult ruleResult = JoyManager.getRuleExecutor().execute(RuleContext.create().user("user1").ruleURI("user.userService#testSyn"), 
+		RuleResult ruleResult = JoyManager.getRuleExecutor().execute(RuleContext.create().user("user1").uri("user.userService#testSyn"), 
 				RuleParam.create().put("param1", "p1"));
 		Assert.assertTrue(ruleResult.isSuccess());
 	}
 
 	public void executeLocalAsynRule() {
-		RuleResult ruleResult = JoyManager.getRuleExecutor().execute(RuleContext.create().user("user1").ruleURI("user.userService#testAsyn"), 
+		RuleResult ruleResult = JoyManager.getRuleExecutor().execute(RuleContext.create().user("user1").uri("user.userService#testAsyn"), 
 				RuleParam.create().put("param1", "p1"));
 		Assert.assertTrue(ruleResult.isSuccess());
 		try {

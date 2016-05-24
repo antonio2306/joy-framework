@@ -48,7 +48,7 @@ public class RuleExecutor {
 	}
 	
 	public RuleResult execute(RuleContext rContext, RuleParam rParam, boolean asyn) {
-		String ruleURI = rContext.ruleURI();
+		String ruleURI = rContext.uri();
 		if(logger.isDebugEnabled())
 			logger.debug("执行规则【"+ruleURI+"】, params="+rParam+", asyn="+asyn);
 		if(rParam==null)
@@ -93,9 +93,9 @@ public class RuleExecutor {
 					if(serverURL.equals(localServerURL)){
 						if(logger.isDebugEnabled())
 							logger.debug("规则【"+ruleURI+"】转为本地调用");
-						ruleResult = executeLocalRule(rContext.ruleURI(ruleURI.substring(idx+1)), rParam, asyn);
+						ruleResult = executeLocalRule(rContext.uri(ruleURI.substring(idx+1)), rParam, asyn);
 					}else{
-						ruleResult = executeRemoteRule(rContext.ruleURI(ruleURI.substring(idx+1)), serverURL, rParam, serverKey, asyn);
+						ruleResult = executeRemoteRule(rContext.uri(ruleURI.substring(idx+1)), serverURL, rParam, serverKey, asyn);
 					}
 				}else
 					ruleResult.fail(SubError.createMain(SubErrorType.ISP_SERVICE_UNAVAILABLE, ruleURI));
@@ -117,7 +117,7 @@ public class RuleExecutor {
 	}
 	
 	private RuleResult executeLocalRule(final RuleContext rContext, final RuleParam rParam, boolean asyn) throws Exception{
-		String ruleURI = rContext.ruleURI();
+		String ruleURI = rContext.uri();
 		final BaseRule rule = rLoader.loadRule(ruleURI);
 		if (rule != null){
 			if(logger.isDebugEnabled())
@@ -143,7 +143,7 @@ public class RuleExecutor {
 	
 	private RuleResult executeRemoteRule(final RuleContext rContext, final String serverURL, 
 			final RuleParam rParam, final String serverKey, boolean asyn) throws Exception{
-		final String remoteRuleURI = rContext.ruleURI();
+		final String remoteRuleURI = rContext.uri();
 		final String contextParam = rContext.prepareRemoteContextParam();
 		if(logger.isDebugEnabled())
 			logger.debug("远程执行规则【"+remoteRuleURI+"】, url="+serverURL+"/"+contextParam);

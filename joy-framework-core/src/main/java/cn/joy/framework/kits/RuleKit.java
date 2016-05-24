@@ -48,6 +48,17 @@ public class RuleKit {
 		return request.getParameter(key);
 	}
 	
+	private static String[] getSplitArrayParam(HttpServletRequest request, String key){
+		return getSplitArrayParam(request, key, ",");
+	}
+	
+	private static String[] getSplitArrayParam(HttpServletRequest request, String key, String separator){
+		String value = request.getParameter(key);
+		if(value==null)
+			return null;
+		return value.split(separator);
+	}
+	
 	/**
 	 * 根据key获取request参数的字符串值
 	 * 
@@ -57,6 +68,29 @@ public class RuleKit {
 	 */
 	public static String getStringParam(HttpServletRequest request, String key){
 		return getStringParam(request, key, "");
+	}
+	
+	/**
+	 * 根据key获取request参数的字符串数组值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @return 根据key获取到value后，按逗号分隔成数组；如果是null，返回空字符串数组
+	 */
+	public static String[] getStringArrayParam(HttpServletRequest request, String key){
+		return getSplitArrayParam(request, key);
+	}
+	
+	/**
+	 * 根据key获取request参数的字符串数组值
+	 * 
+	 * @param request
+	 * @param key 参数名
+	 * @param separator 指定分隔符
+	 * @return 根据key获取到value后，按指定分隔符分隔成数组；如果是null，返回空字符串数组
+	 */
+	public static String[] getStringArrayParam(HttpServletRequest request, String key, String separator){
+		return getSplitArrayParam(request, key, separator);
 	}
 	
 	/**
@@ -311,6 +345,18 @@ public class RuleKit {
 	}
 	
 	/**
+	 * 调用无需提供用户身份的规则
+	 * 
+	 * @param request
+	 * @param ruleURI 要调用规则的路径
+	 * @param rParam 要传递的参数
+	 * @return
+	 */
+	public static RuleResult invokeRule(HttpServletRequest request, String ruleURI, RuleParam rParam){
+		return invokeRule(request, null, null, null, ruleURI, rParam, false);
+	}
+	
+	/**
 	 * 以给定用户的身份调用规则
 	 * 
 	 * @param request
@@ -320,7 +366,7 @@ public class RuleKit {
 	 * @return
 	 */
 	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String ruleURI, RuleParam rParam){
-		return invokeRule(request, loginId, "", "", ruleURI, rParam, false);
+		return invokeRule(request, loginId, null, null, ruleURI, rParam, false);
 	}
 	
 	/**
@@ -338,6 +384,21 @@ public class RuleKit {
 	}
 	
 	/**
+	 * 以给定群组用户的身份调用规则
+	 * 
+	 * @param request
+	 * @param loginId 调用者的用户帐号
+	 * @param companyCode 调用者的所在群组
+	 * @param sceneKey 调用场景名
+	 * @param ruleURI 要调用规则的路径
+	 * @param rParam 要传递的参数
+	 * @return
+	 */
+	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String sceneKey, String ruleURI, RuleParam rParam){
+		return invokeRule(request, loginId, companyCode, sceneKey, ruleURI, rParam, false);
+	}
+	
+	/**
 	 * 以给定场景中群组用户的身份调用规则
 	 * 
 	 * @param request
@@ -351,6 +412,6 @@ public class RuleKit {
 	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String sceneKey, String ruleURI, RuleParam rParam, boolean isAsyn){
 		if(StringKit.isEmpty(sceneKey) && request!=null)
 			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());
-		return JoyManager.getRuleExecutor().execute(RuleContext.create().user(loginId).company(companyCode).sceneKey(sceneKey).ruleURI(ruleURI), rParam, isAsyn);
+		return JoyManager.getRuleExecutor().execute(RuleContext.create().user(loginId).company(companyCode).sceneKey(sceneKey).uri(ruleURI), rParam, isAsyn);
 	}
 }

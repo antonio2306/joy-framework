@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
-import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.RuleKit;
@@ -18,6 +17,7 @@ import cn.joy.framework.kits.StringKit;
  */
 public class RuleContext {
 	private static Logger logger = Logger.getLogger(RuleContext.class);
+	public static final String CLEAR = "CLEAR";
 	public static final String NONE_LOGINID = "NONE";
 	public static final String SYSTEM_LOGINID = "SYSTEM";
 	public static final String LOGINID_IN_REQUEST = "LOGINID_IN_REQUEST";	 
@@ -122,10 +122,15 @@ public class RuleContext {
 	}
 	
 	private RuleResult invoke(String ruleURI, RuleParam rParam, String user, String company, boolean asyn) throws Exception{
-		RuleContext cloneContext = this.cloneContext().ruleURI(ruleURI);
-		if(StringKit.isNotEmpty(user))
+		RuleContext cloneContext = this.cloneContext().uri(ruleURI);
+		if(CLEAR.equals(user))
+			cloneContext.loginId = NONE_LOGINID;
+		else if(StringKit.isNotEmpty(user))
 			cloneContext.loginId = user;
-		if(StringKit.isNotEmpty(company))
+		
+		if(CLEAR.equals(company))
+			cloneContext.companyCode = null;
+		else if(StringKit.isNotEmpty(company))
 			cloneContext.companyCode = company;
 		
 		if(!asyn){
@@ -224,7 +229,7 @@ public class RuleContext {
 		return this;
 	}
 	
-	public RuleContext ruleURI(String ruleURI){
+	public RuleContext uri(String ruleURI){
 		this.ruleURI = ruleURI;
 		return this;
 	}
@@ -281,7 +286,7 @@ public class RuleContext {
 		return request;
 	}
 	
-	public String ruleURI(){
+	public String uri(){
 		return ruleURI;
 	}
 }

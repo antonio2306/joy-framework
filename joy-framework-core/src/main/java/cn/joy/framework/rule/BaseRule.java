@@ -25,7 +25,7 @@ public abstract class BaseRule {
 	 * 规则内部方法转调
 	 */
 	RuleResult handleExecuteInternal(RuleContext rContext, RuleParam rParam) throws Exception{
-		String ruleURI = rContext.ruleURI();
+		String ruleURI = rContext.uri();
 		int idx = ruleURI.indexOf("#");
 		String action = "execute";
 		if(idx>0){
