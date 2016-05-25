@@ -131,8 +131,11 @@ public class RouteManager {
 		if (StringKit.isEmpty(serverURL) && !JoyManager.getServer().isPrivateMode()) {
 			if (JoyManager.getServer() instanceof CenterServer) {
 				serverURL = JoyManager.getRouteStore().getServerURL(routeKey);
-				if (StringKit.isEmpty(serverURL))
-					throw new RuleException("App Server URL for "+routeKey+" need init");
+				if (StringKit.isEmpty(serverURL)){
+					//throw new RuleException("App Server URL for "+routeKey+" need init");
+					logger.warn("App Server URL for "+routeKey+" need init");
+					return "";
+				}
 			} else {
 				String centerURL = getCenterServerURL();
 				if(StringKit.isNotEmpty(centerURL)){

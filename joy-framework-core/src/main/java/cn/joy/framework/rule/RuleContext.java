@@ -46,13 +46,14 @@ public class RuleContext {
 	}
 	
 	public static RuleContext create(HttpServletRequest request){
+		if(request==null)
+			return create();
 		RuleContext rContext = new RuleContext();
 		
-		rContext.loginId = RuleKit.getStringParam(request, JoyManager.getServer().getLoginIdParam());
-		if(StringKit.isEmpty(rContext.loginId))
-			rContext.loginId = RuleKit.getStringAttribute(request, LOGINID_IN_REQUEST);
-		if(StringKit.isEmpty(rContext.loginId))
-			throw new RuleException(SubErrorType.ISV_MISSING_PARAMETER, "loginId");
+		rContext.loginId = StringKit.getString(RuleKit.getStringParam(request, JoyManager.getServer().getLoginIdParam()),
+				RuleKit.getStringAttribute(request, LOGINID_IN_REQUEST), NONE_LOGINID);
+		//if(StringKit.isEmpty(rContext.loginId))
+			//throw new RuleException(SubErrorType.ISV_MISSING_PARAMETER, "loginId");
 		
 		rContext.companyCode = RuleKit.getStringParam(request, JoyManager.getServer().getCompanyCodeParam());
 		String sceneKey = RuleKit.getStringParam(request, JoyManager.getServer().getSceneKeyParam());
@@ -176,6 +177,9 @@ public class RuleContext {
 		context.ip = this.ip;
 		context.sourceIP = StringKit.getString(this.sourceIP, this.ip);
 		context.appId = this.appId;
+		if(logger.isDebugEnabled())
+			logger.debug("cloneContext, loginId="+context.loginId+", companyCode="+context.companyCode+", sceneKey="+context.sceneKey
+					+", ip="+context.ip+", sourceIP="+context.sourceIP+", appId="+context.appId);
 		return context;
 	}
 	
@@ -215,7 +219,8 @@ public class RuleContext {
 	}
 	
 	public RuleContext sceneKey(String sceneKey){
-		this.sceneKey = sceneKey;
+		if(StringKit.isNotEmpty(sceneKey))
+			this.sceneKey = sceneKey;
 		return this;
 	}
 	

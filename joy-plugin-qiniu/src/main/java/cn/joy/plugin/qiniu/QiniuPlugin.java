@@ -54,4 +54,16 @@ public class QiniuPlugin extends ResourcePlugin<QiniuResourceBuilder, QiniuResou
 	public static void unuse(String name) {
 		plugin().unuseResource(name);
 	}
+	
+	public static String getUploadToken(String fileType){
+		return use().getUploadToken(fileType);
+	}
+	
+	public static String getDownloadURL(String fileKey){
+		return use().getDownloadURL(fileKey);
+	}
+	
+	public static String getDownloadURL(String fileKey, long expires){
+		return use().getDownloadURL(fileKey, expires);
+	}
 }

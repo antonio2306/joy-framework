@@ -410,8 +410,6 @@ public class RuleKit {
 	 * @return
 	 */
 	public static RuleResult invokeRule(HttpServletRequest request, String loginId, String companyCode, String sceneKey, String ruleURI, RuleParam rParam, boolean isAsyn){
-		if(StringKit.isEmpty(sceneKey) && request!=null)
-			sceneKey = RuleKit.getStringAttribute(request, JoyManager.getServer().getSessionSceneKeyParam());
-		return JoyManager.getRuleExecutor().execute(RuleContext.create().user(loginId).company(companyCode).sceneKey(sceneKey).uri(ruleURI), rParam, isAsyn);
+		return JoyManager.getRuleExecutor().execute(RuleContext.create(request).user(loginId).company(companyCode).sceneKey(sceneKey).uri(ruleURI), rParam, isAsyn);
 	}
 }
