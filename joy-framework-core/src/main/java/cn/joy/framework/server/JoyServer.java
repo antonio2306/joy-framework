@@ -5,40 +5,107 @@ import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
+import cn.joy.framework.kits.PropKit;
+import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.kits.StringKit;
 /**
  * 服务器定义，加载服务器配置，支持一个中心服务器、多个应用服务器的部署结构
  * @author liyy
  * @date 2014-07-06
  */
-public abstract class JoyServer {
-	private Properties serverVariables = new Properties();
+public class JoyServer {
+	private static Log logger = LogKit.getLog(JoyServer.class);
+	private static JoyServer server;
+	private boolean started;
+	private Prop serverProp;
+	private String serverType;
 	
-	public void init(Properties config){
-		serverVariables = config;
-		
-		String envMode = this.getEnvMode();
-		if(!"product".equals(envMode)){
-			envMode = envMode+"_";
-			for(String propName:serverVariables.stringPropertyNames()){
-				if(propName.startsWith(envMode)){
-					serverVariables.setProperty(propName.substring(envMode.length()), serverVariables.getProperty(propName));
-				}
-			}
+	private JoyServer(){}
+	
+	public static JoyServer build(){
+		if(server==null){
+			server = new JoyServer();
+			server.serverProp = PropKit.empty().set("app_local_server_type", "none");
 		}
+		return server;
+	}
+	
+	public void start(){
+		if(started)
+			return;
+		
+		if(!loadConfig()){
+			//throw new RuntimeException("No JOY config file exists!");
+			//没有配置文件则不启用JOY框架
+			logger.warn("No JOY config file exists!");
+			return;
+		}
+		
+		logger.info(serverType+" server start, config="+serverProp.getProperties());
+		started = true;
 	}
 	
 	public void stop(){
 		
 	}
 	
+	public boolean loadConfig(){
+		if(started){
+			try {
+				String propFile = isCenterServer()?"joy-center.cnf":"joy-app.cnf";
+				PropKit.useless(propFile);
+				serverProp.setAll(PropKit.use(propFile));
+			} catch (Exception e) {
+				return false;
+			}
+		}else{
+			try {
+				serverProp = PropKit.use("joy-center.cnf");
+				serverType = "center";
+			} catch (Exception e) {
+				try {
+					serverProp = PropKit.use("joy-app.cnf");
+					serverType = "app";
+				} catch (Exception e1) {
+				}
+			}
+			
+			if(serverProp==null)
+				return false;
+		}
+		
+		String envMode = getEnvMode();
+		if(!"product".equals(envMode)){
+			envMode = envMode+"_";
+			for(String propName:serverProp.keys()){
+				if(propName.startsWith(envMode)){
+					serverProp.set(propName.substring(envMode.length()), serverProp.get(propName));
+				}
+			}
+		}
+		return true;
+	}
+	
+	public Prop getConfig(){
+		return serverProp;
+	}
+	
+	public boolean isCenterServer(){
+		return "center".equals(serverType);
+	}
+	
+	public boolean isAppServer(){
+		return !"center".equals(serverType);
+	}
+	
 	public void setVariable(String key, String value){
-		serverVariables.setProperty(key, value);
+		serverProp.set(key, value);
 	}
 	
 	public String getVariable(String key){
@@ -46,7 +113,7 @@ public abstract class JoyServer {
 	}
 	
 	public String getVariable(String key, String defaultValue){
-		return StringKit.getString(serverVariables.getProperty(key), defaultValue);
+		return serverProp.get(key, defaultValue);
 	}
 	
 	public String getBasePackage(){

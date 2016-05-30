@@ -219,8 +219,13 @@ public class RuleContext {
 	}
 	
 	public RuleContext sceneKey(String sceneKey){
-		if(StringKit.isNotEmpty(sceneKey))
+		if(StringKit.isNotEmpty(sceneKey)){
 			this.sceneKey = sceneKey;
+			if(sceneKey.endsWith("test"))
+				this.trimSceneKey = sceneKey.substring(0, sceneKey.length()-4);
+			else
+				this.trimSceneKey = sceneKey;
+		}
 		return this;
 	}
 	

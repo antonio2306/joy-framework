@@ -21,7 +21,6 @@ import cn.joy.framework.kits.LogKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.kits.TypeKit;
-import cn.joy.framework.server.CenterServer;
 import cn.joy.framework.server.RouteManager;
 
 /**
@@ -56,7 +55,7 @@ public class RuleDispatcher{
 			RuleParam rParam = (RuleParam)JsonKit.json2Object(request.getParameter("params"), RuleParam.class);
 			
 			String serverKey = "";
-			if(JoyManager.getServer() instanceof CenterServer)
+			if(JoyManager.getServer().isCenterServer())
 				serverKey = rParam.getString(RuleKit.SERVER_KEY_PARAM_NAME);
 			else
 				serverKey = RouteManager.getLocalRouteKey();
@@ -69,7 +68,7 @@ public class RuleDispatcher{
 					String serverProxy = rParam.getString(RuleKit.SERVER_PROXY_PARAM_NAME);
 					if(logger.isDebugEnabled())
 						logger.debug("serverProxy=" + serverProxy);
-					if(JoyManager.getServer() instanceof CenterServer && StringKit.isNotEmpty(serverProxy)){
+					if(JoyManager.getServer().isCenterServer() && StringKit.isNotEmpty(serverProxy)){
 						rParam.remove(RuleKit.SERVER_PROXY_PARAM_NAME);
 						if(logger.isDebugEnabled())
 							logger.debug("proxy invoke " + ruleURI);
@@ -174,7 +173,7 @@ public class RuleDispatcher{
 			logger.debug("getConfig, type=" + configType + ", key=" + configKey);
 
 		String content = "";
-		if(JoyManager.getServer() instanceof CenterServer){
+		if(JoyManager.getServer().isCenterServer()){
 			String serverKey = request.getParameter(RuleKit.SERVER_KEY_PARAM_NAME);
 			
 			boolean isPrivateMode = "private".equals(RouteManager.getServerProp(serverKey, "deployMode"));

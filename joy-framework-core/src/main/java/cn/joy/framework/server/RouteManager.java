@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
+import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 
@@ -25,6 +26,61 @@ public class RouteManager {
 	private static Logger logger = Logger.getLogger(RouteManager.class);
 	private static Map<String, String> routes = new HashMap<String, String>();
 	private static Map<String, Properties> serverProps = new HashMap<String, Properties>();
+	private static RouteStore routeStore = new DefaultRouteStore();
+	private static boolean started;
+	
+	public static RouteStore getRouteStore() {
+		//if(routeStore==null)
+		//	routeStore = new DefaultRouteStore();
+		return routeStore;
+	}
+
+	public static void setRouteStore(RouteStore routeStore) {
+		RouteManager.routeStore = routeStore;
+	}
+	
+	public static void start(){
+		if(started)
+			return;
+		
+		if(!loadFromLocalStore())
+			loadFromRemoteStore();
+		
+		started = true;
+	}
+	
+	public static boolean loadFromLocalStore(){
+		List routes = routeStore.listRoute();
+		if(routes==null || routes.isEmpty())
+			return false;
+		
+		routeStore.loadLocalRoute(routes);
+		return true;
+	}
+	
+	public static boolean loadFromRemoteStore(){
+		if(JoyManager.getServer().isCenterServer())
+			return false;
+			
+		Map<String, Map> routeInfo = syncRouteInfo();
+		if(routeInfo==null)
+			return false;
+		routeStore.loadCenterRoute(routeInfo);
+		return true;
+	}
+	
+	private static Map<String, Map> syncRouteInfo(){
+		String serverURL = RouteManager.getCenterServerURL();
+		if(StringKit.isNotEmpty(serverURL)){
+			String routeInfo = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(
+					RouteManager.getCenterServerURL(), "_t=route&_k=sync_route&"+RuleKit.SERVER_KEY_PARAM_NAME+"="+RouteManager.getLocalRouteKey()));
+					
+			if(logger.isDebugEnabled())
+				logger.debug("routeInfo="+routeInfo);
+			return JsonKit.json2Map(routeInfo);
+		}
+		return null;
+	}
 
 	public static List<String> getAllServerUrls(String serverType){
 		List<String> urls = new ArrayList<String>();
@@ -97,7 +153,7 @@ public class RouteManager {
 				if(getRouteKey("center", JoyManager.getServer().getCenterServerTag()).equals(routeKey)){
 					serverURL = JoyManager.getServer().getCenterServerUrl();
 				}else{
-					serverURL = JoyManager.getRouteStore().getServerURL(routeKey);
+					serverURL = routeStore.getServerURL(routeKey);
 					if (StringKit.isEmpty(serverURL))
 						serverURL = JoyManager.getServer().getCenterServerUrl();
 				}
@@ -129,8 +185,8 @@ public class RouteManager {
 	public static String getAppServerURLByKey(String routeKey) {
 		String serverURL = routes.get(routeKey);
 		if (StringKit.isEmpty(serverURL) && !JoyManager.getServer().isPrivateMode()) {
-			if (JoyManager.getServer() instanceof CenterServer) {
-				serverURL = JoyManager.getRouteStore().getServerURL(routeKey);
+			if (JoyManager.getServer().isCenterServer()) {
+				serverURL = routeStore.getServerURL(routeKey);
 				if (StringKit.isEmpty(serverURL)){
 					//throw new RuleException("App Server URL for "+routeKey+" need init");
 					logger.warn("App Server URL for "+routeKey+" need init");
@@ -143,7 +199,7 @@ public class RouteManager {
 					if(!serverURL.startsWith("http"))
 						serverURL = "";
 					else
-						JoyManager.getRouteStore().storeServerURL(routeKey, serverURL);
+						routeStore.storeServerURL(routeKey, serverURL);
 				}
 			}
 			routes.put(routeKey, serverURL);

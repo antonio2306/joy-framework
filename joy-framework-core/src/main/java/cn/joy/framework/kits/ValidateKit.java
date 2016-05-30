@@ -503,9 +503,9 @@ public class ValidateKit {
 		if(obj==null)
 			return true;
 		if(obj instanceof Collection)
-			return ((Collection) obj).size()==0;
+			return ((Collection) obj).isEmpty();
 		else if(obj instanceof Map)
-			return ((Map) obj).size()==0;
+			return ((Map) obj).isEmpty();
 		else if(obj instanceof Object[])
 			return ((Object[]) obj).length==0;
 		else

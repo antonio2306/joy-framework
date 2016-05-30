@@ -30,7 +30,7 @@ public class PluginManager{
 		return me;
 	}
 	
-	public void init(){
+	public void start(){
 		log.info("plugin manager init...");
 		scanPlugin("cn.joy.plugin");
 		
@@ -128,7 +128,7 @@ public class PluginManager{
 		return providerMap.get(StringKit.getString(providerKey, "default"));
 	}
 	
-	public void release() {
+	public void stop() {
 		for (Entry<String, JoyPlugin> entry : plugins.entry()) {
 			try {
 				entry.getValue().release();

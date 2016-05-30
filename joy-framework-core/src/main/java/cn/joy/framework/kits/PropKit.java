@@ -475,6 +475,10 @@ public class PropKit {
 			return properties.containsKey(key);
 		}
 		
+		public Set<String> keys(){
+			return properties.stringPropertyNames();
+		}
+		
 		public Properties getProperties() {
 			return properties;
 		}
@@ -491,6 +495,11 @@ public class PropKit {
                 map.put(key, value);
 	        }
 	        return map;
+		}
+		
+		@Override
+		public String toString(){
+			return properties.toString();
 		}
 	}
 }

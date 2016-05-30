@@ -27,3 +27,5 @@ hs_err_pid*
 /joy-plugin-spring2/
 /joy-plugin-spring4/
 /joy-plugin-mail/
+/joy-plugin-qiniu/
+/joy-plugin-archetype/
