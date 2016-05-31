@@ -28,8 +28,7 @@ public class TxProvider extends TransactionProvider {
 					public boolean run() throws SQLException {
 						try {
 							RuleResult txResult = (RuleResult)callback.run();
-							if(log.isDebugEnabled())
-								log.debug("doTransaction, txResult="+txResult.toJSON());
+							log.debug("doTransaction, txResult="+txResult.toJSON());
 							resultWrap.add(txResult);
 							return txResult.isSuccess();
 						} catch (Exception e) {
@@ -46,8 +45,7 @@ public class TxProvider extends TransactionProvider {
 				return RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
 			
 			ruleResult = resultWrap.get(0);
-			if(log.isDebugEnabled())
-				log.debug("doTransaction, result="+ruleResult.isSuccess());
+			log.debug("doTransaction, result="+ruleResult.isSuccess());
 			if(ruleResult.isSuccess()){
 			}else
 				throw new RuleException(ruleResult);

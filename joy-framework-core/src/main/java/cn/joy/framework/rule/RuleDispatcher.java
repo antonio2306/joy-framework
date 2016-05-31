@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
@@ -18,6 +18,8 @@ import cn.joy.framework.kits.FileKit;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
 import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
+import cn.joy.framework.kits.PathKit;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.kits.TypeKit;
@@ -30,7 +32,7 @@ import cn.joy.framework.server.RouteManager;
  * @date 2015-01-23
  */
 public class RuleDispatcher{
-	private static Logger logger = Logger.getLogger(RuleDispatcher.class);
+	private static Log logger = LogKit.get();
 	public final static String APPID_PARAM_NAME = "_appId";
 
 	/*private static boolean checkOpenServiceToken(HttpServletRequest request, HttpServletResponse response){
@@ -48,8 +50,7 @@ public class RuleDispatcher{
 
 		String content = "";
 		String ruleURI = request.getParameter("ruleURI");
-		if(logger.isDebugEnabled())
-			logger.debug("open rule invoke, uri=" + ruleURI);
+		logger.debug("open rule invoke, uri=" + ruleURI);
 
 		if(StringKit.isNotEmpty(ruleURI)){
 			RuleParam rParam = (RuleParam)JsonKit.json2Object(request.getParameter("params"), RuleParam.class);
@@ -60,18 +61,15 @@ public class RuleDispatcher{
 			else
 				serverKey = RouteManager.getLocalRouteKey();
 			RuleResult result = RuleKit.checkSign(rParam, RouteManager.getServerProp(serverKey, "signKey"));
-			if(logger.isDebugEnabled())
-				logger.debug("open rule invoke check, result=" + result.isSuccess());
+			logger.debug("open rule invoke check, result=" + result.isSuccess());
 			
 			if(result.isSuccess()){
 				try{
 					String serverProxy = rParam.getString(RuleKit.SERVER_PROXY_PARAM_NAME);
-					if(logger.isDebugEnabled())
-						logger.debug("serverProxy=" + serverProxy);
+					logger.debug("serverProxy=" + serverProxy);
 					if(JoyManager.getServer().isCenterServer() && StringKit.isNotEmpty(serverProxy)){
 						rParam.remove(RuleKit.SERVER_PROXY_PARAM_NAME);
-						if(logger.isDebugEnabled())
-							logger.debug("proxy invoke " + ruleURI);
+						logger.debug("proxy invoke " + ruleURI);
 						result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(serverProxy+"@"+ruleURI), rParam);
 					}else
 						result = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
@@ -114,10 +112,9 @@ public class RuleDispatcher{
 		String servletPath = request.getServletPath();
 		servletPath = servletPath.substring(servletPath.indexOf(JoyManager.getServer().getUrlAPI()) 
 				+ JoyManager.getServer().getUrlAPI().length()+1);
-		if(logger.isDebugEnabled())
-			logger.debug("api rule invoke, uri=" + servletPath);
+		logger.debug("api rule invoke, uri=" + servletPath);
 		
-		Logger appLogger = LogKit.getDailyLogger(appId);
+		Logger appLogger = LogKit.getDailyRollingFileLogger(appId, StringKit.getString(JoyManager.getServer().getApiLogDir(), PathKit.getWebRootPath()+"/apiLogs"));
 		if(appLogger.isDebugEnabled())
 			appLogger.debug("调用API[path="+servletPath+",appId="+appId+",reqId="+requestId+",IP="+clientIP+",start="+t1+"]，参数："+rParam);
 		if(!checkAPIRequest(appId, request, response))
@@ -144,8 +141,7 @@ public class RuleDispatcher{
 		if(StringKit.isEmpty(loginId))
 			request.setAttribute(RuleContext.LOGINID_IN_REQUEST, RuleContext.NONE_LOGINID);
 		String ruleURI = String.format("%s.%sAPI#%s", module, service, action);
-		if(logger.isDebugEnabled())
-			logger.debug("api rule invoke, ruleURI=" + ruleURI);
+		logger.debug("api rule invoke, ruleURI=" + ruleURI);
 
 		RuleResult result = null;
 		try{
@@ -169,8 +165,7 @@ public class RuleDispatcher{
 
 		String configType = request.getParameter("_t");
 		String configKey = request.getParameter("_k");
-		if(logger.isDebugEnabled())
-			logger.debug("getConfig, type=" + configType + ", key=" + configKey);
+		logger.debug("getConfig, type={}, key={}", configType, configKey);
 
 		String content = "";
 		if(JoyManager.getServer().isCenterServer()){
@@ -183,8 +178,7 @@ public class RuleDispatcher{
 			}
 			
 			RuleResult result = RuleKit.checkSign(HttpKit.getParameterMap(request), RouteManager.getServerProp(serverKey, "signKey"));
-			if(logger.isDebugEnabled())
-				logger.debug("config invoke check, result=" + result.isSuccess());
+			logger.debug("config invoke check, result=" + result.isSuccess());
 			
 			if("route".equals(configType)){
 				if("sync_route".equals(configKey)){
@@ -197,8 +191,7 @@ public class RuleDispatcher{
 			}
 		}
 
-		if(logger.isDebugEnabled())
-			logger.debug("getConfig, content=" + content);
+		logger.debug("getConfig, content=" + content);
 		HttpKit.writeResponse(response, content);
 		return null;
 	}
@@ -207,8 +200,7 @@ public class RuleDispatcher{
 		String content = "";
 		String service = request.getParameter("_s");
 		String action = request.getParameter("_m");
-		if(logger.isDebugEnabled())
-			logger.debug("business controller rule invoke, service=" + service + ", action=" + action);
+		logger.debug("business controller rule invoke, service=" + service + ", action=" + action);
 
 		if(StringKit.isEmpty(service) || StringKit.isEmpty(action)){
 			HttpKit.writeResponse(response, "CHECK PARAMETER _s OR _m FAIL");
@@ -227,20 +219,17 @@ public class RuleDispatcher{
 
 		int idx = service.lastIndexOf(".");
 		String ruleURI = service + "." + (idx==-1?service:service.substring(idx+1)) + "Controller#" + action;
-		if(logger.isDebugEnabled())
-			logger.debug("business controller rule invoke, ruleURI=" + ruleURI);
+		logger.debug("business controller rule invoke, ruleURI=" + ruleURI);
 
 		RuleParam rParam = (RuleParam)JsonKit.json2Object(request.getParameter("params"), RuleParam.class);
 		if(rParam == null)
 			rParam = RuleParam.create();
 
 		String isMergeRequest = RuleKit.getStringParam(request, "imr");
-		if(logger.isDebugEnabled())
-			logger.debug("isMergeRequest=" + isMergeRequest);
+		logger.debug("isMergeRequest=" + isMergeRequest);
 		if("y".equals(isMergeRequest)){
 			String mergeKey = RuleKit.getStringParam(request, "mk");
-			if(logger.isDebugEnabled())
-				logger.debug("mergeKey=" + mergeKey + ", keyValues=" + RuleKit.getStringParam(request, mergeKey));
+			logger.debug("mergeKey=" + mergeKey + ", keyValues=" + RuleKit.getStringParam(request, mergeKey));
 			String[] keyValues = RuleKit.getStringParam(request, mergeKey).split(",");
 			Map<String, RuleResult> mergeResult = new HashMap<String, RuleResult>();
 			for(String kv : keyValues){
@@ -255,8 +244,7 @@ public class RuleDispatcher{
 					result = e.getFailResult();
 				}
 				// content = result.toJSON();
-				if(logger.isDebugEnabled())
-					logger.debug("kv=" + kv + ", content=" + result.toJSON());
+				logger.debug("kv=" + kv + ", content=" + result.toJSON());
 				mergeResult.put(kv, result);
 			}
 			HttpKit.writeResponse(response, JsonKit.object2Json(mergeResult));
@@ -276,8 +264,7 @@ public class RuleDispatcher{
 						action = mergeRequestRule.substring(methodFlagIdx+1);
 						idx = service.lastIndexOf(".");
 						ruleURI = service + "." + (idx==-1?service:service.substring(idx+1)) + "Controller#" + action;
-						if(logger.isDebugEnabled())
-							logger.debug("business controller rule invoke, mergeRequestRuleURI=" + ruleURI);
+						logger.debug("business controller rule invoke, mergeRequestRuleURI=" + ruleURI);
 						
 						RuleResult mergeRequestRuleResult = JoyManager.getRuleExecutor().execute(RuleContext.create(request).uri(ruleURI), rParam);
 						if(!mergeRequestRuleResult.isSuccess()){
@@ -299,8 +286,7 @@ public class RuleDispatcher{
 	public static String dispatchDownloadRule(HttpServletRequest request, HttpServletResponse response){
 		String service = request.getParameter("_s");
 		String action = request.getParameter("_m");
-		if(logger.isDebugEnabled())
-			logger.debug("download controller rule invoke, service=" + service + ", action=" + action);
+		logger.debug("download controller rule invoke, service=" + service + ", action=" + action);
 
 		if(StringKit.isEmpty(service) || StringKit.isEmpty(action)){
 			HttpKit.writeResponse(response, "CHECK PARAMETER _s OR _m FAIL");
@@ -319,8 +305,7 @@ public class RuleDispatcher{
 
 		int idx = service.lastIndexOf(".");
 		String ruleURI = service + "." + (idx==-1?service:service.substring(idx+1)) + "Controller#" + action;
-		if(logger.isDebugEnabled())
-			logger.debug("download controller rule invoke, ruleURI=" + ruleURI);
+		logger.debug("download controller rule invoke, ruleURI=" + ruleURI);
 
 		RuleParam rParam = (RuleParam)JsonKit.json2Object(request.getParameter("params"), RuleParam.class);
 		if(rParam == null)
@@ -356,8 +341,7 @@ public class RuleDispatcher{
 		} else{
 			String url = JoyManager.getServer().getBusinessRequestUrl(request,
 					RouteManager.getServerURLByCompanyCode(serverCode), "");
-			if(logger.isDebugEnabled())
-				logger.debug("web proxy url=" + url + ", datas=" + datas);
+			logger.debug("web proxy url=" + url + ", datas=" + datas);
 			HttpKit.writeResponse(response, HttpKit.post(url, datas));
 		}
 

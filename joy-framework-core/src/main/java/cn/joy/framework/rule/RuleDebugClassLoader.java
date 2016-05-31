@@ -7,16 +7,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 /**
  * 调试状态的业务规则类加载器，对于指定调试的规则，每次执行都重新加载类定义并产生一个实例
  * @author liyy
  * @date 2014-05-22
  */
 public class RuleDebugClassLoader extends ClassLoader {
-	private static Logger logger = Logger.getLogger(RuleDebugClassLoader.class);
+	private static Log logger = LogKit.get();
 	
 	private String debugClassPath;
 	private ClassLoader parent;
@@ -80,8 +80,7 @@ public class RuleDebugClassLoader extends ClassLoader {
 		FileInputStream fis;
 		String fileName = debugClassPath + File.separatorChar
 				+ typeName.replace('.', File.separatorChar) + ".class";
-		if(logger.isDebugEnabled())
-			logger.debug("fileName:" + fileName);
+		logger.debug("fileName:" + fileName);
 		try {
 			fis = new FileInputStream(fileName);
 		} catch (FileNotFoundException e) {

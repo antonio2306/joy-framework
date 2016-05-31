@@ -20,8 +20,7 @@ public class TxProvider extends TransactionProvider {
 				isNew = Db.beginNewTransaction();
 			
 			ruleResult = (RuleResult)callback.run();
-			if(log.isDebugEnabled())
-				log.debug("doTransaction, transactionWay="+transactionWay+", result="+ruleResult.isSuccess());
+			log.debug("doTransaction, transactionWay="+transactionWay+", result="+ruleResult.isSuccess());
 			if(ruleResult.isSuccess()){
 				if(isNew)
 					Db.commitAndEndTransaction();

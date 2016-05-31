@@ -5,14 +5,14 @@ import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.annotation.NewTransaction;
 import cn.joy.framework.annotation.NoTransaction;
 import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.MainErrorType;
 import cn.joy.framework.exception.RuleException;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.provider.TransactionProvider;
 /**
  * 业务规则基类
@@ -20,7 +20,7 @@ import cn.joy.framework.provider.TransactionProvider;
  * @date 2014-05-20
  */
 public abstract class BaseRule {
-	protected Logger logger = Logger.getLogger(BaseRule.class);
+	protected Log logger = LogKit.get();
 	/**
 	 * 规则内部方法转调
 	 */
@@ -30,18 +30,17 @@ public abstract class BaseRule {
 		String action = "execute";
 		if(idx>0){
 			action = ruleURI.substring(idx+1);
-			if(logger.isDebugEnabled())
-				logger.debug("execute action="+action);
+			logger.debug("execute action="+action);
 		}
 
 		Method method = null;
 		try {
 			method = this.getClass().getMethod(action, this.getActionMethodParamClass());
 		} catch (SecurityException e) {
-			logger.error("", e);
+			logger.error(e);
 			return RuleResult.create().fail(MainError.create(MainErrorType.FORBIDDEN_REQUEST));
 		} catch (NoSuchMethodException e) {
-			logger.error("", e);
+			logger.error(e);
 			return RuleResult.create().fail(MainError.create(MainErrorType.INVALID_METHOD));
 		}
 		
@@ -86,8 +85,7 @@ public abstract class BaseRule {
 		}
 		if(ruleResult==null)
 			ruleResult = RuleResult.create().fail(MainError.create(MainErrorType.MISSING_RESULT));
-		if(logger.isDebugEnabled())
-			logger.debug("doInvokeActionMethod, method="+method+", result="+ruleResult.isSuccess());
+		logger.debug("doInvokeActionMethod, method={}, result={}", method, ruleResult.isSuccess());
 		return ruleResult;
 	}
 

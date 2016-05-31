@@ -5,7 +5,7 @@ import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.PropKit.Prop;
 
 public abstract class PluginResourceBuilder<R extends PluginResource> {
-	protected Log logger = LogKit.getLog(PluginResourceBuilder.class);
+	protected Log logger = LogKit.get();
 	protected String name;
 	protected Prop prop;
 	

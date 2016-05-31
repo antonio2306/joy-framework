@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 
@@ -23,7 +23,7 @@ import cn.joy.framework.kits.StringKit;
  * @date 2014-06-11
  */
 public class RouteManager {
-	private static Logger logger = Logger.getLogger(RouteManager.class);
+	private static Log logger = LogKit.get();
 	private static Map<String, String> routes = new HashMap<String, String>();
 	private static Map<String, Properties> serverProps = new HashMap<String, Properties>();
 	private static RouteStore routeStore = new DefaultRouteStore();
@@ -75,8 +75,7 @@ public class RouteManager {
 			String routeInfo = HttpKit.get(JoyManager.getServer().getConfigRequestUrl(
 					RouteManager.getCenterServerURL(), "_t=route&_k=sync_route&"+RuleKit.SERVER_KEY_PARAM_NAME+"="+RouteManager.getLocalRouteKey()));
 					
-			if(logger.isDebugEnabled())
-				logger.debug("routeInfo="+routeInfo);
+			logger.debug("routeInfo={}", routeInfo);
 			return JsonKit.json2Map(routeInfo);
 		}
 		return null;
@@ -165,8 +164,7 @@ public class RouteManager {
 				return "";
 			}
 		}
-		if (logger.isDebugEnabled())
-			logger.debug("routes: " + routes);
+		logger.debug("routes: " + routes);
 		return serverURL;
 	}
 	
@@ -204,7 +202,7 @@ public class RouteManager {
 			}
 			routes.put(routeKey, serverURL);
 		}
-		if (StringKit.isEmpty(serverURL) && logger.isDebugEnabled())
+		if (StringKit.isEmpty(serverURL))
 			logger.debug("routes: " + routes);
 		return serverURL;
 	}

@@ -209,6 +209,14 @@ public class JoyServer {
 		return this.getVariable("app_default_scene_key");
 	}
 	
+	public String getDebugLogDir() {
+		return this.getVariable("debug_log_dir");
+	}
+	
+	public String getApiLogDir() {
+		return this.getVariable("api_log_dir");
+	}
+	
 	private String getRequestUrl(String serverURL, String serviceURL, String params, Map<String, String> datas){
 		String url = serverURL+"/"+serviceURL+"?"+StringKit.getString(params);
 		if(datas!=null){

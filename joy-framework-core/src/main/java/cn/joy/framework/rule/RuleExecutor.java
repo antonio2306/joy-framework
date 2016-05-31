@@ -3,8 +3,6 @@ package cn.joy.framework.rule;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.MainError;
 import cn.joy.framework.exception.MainErrorType;
@@ -13,6 +11,8 @@ import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.HttpKit;
 import cn.joy.framework.kits.JsonKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.server.RouteManager;
@@ -24,7 +24,7 @@ import cn.joy.framework.task.TaskExecutor;
  * @date 2014-05-20
  */
 public class RuleExecutor {
-	private static Logger logger = Logger.getLogger(RuleExecutor.class);
+	private static Log logger = LogKit.get();
 	private static RuleExecutor rExecutor;
 	private RuleLoader rLoader;
 	
@@ -48,9 +48,12 @@ public class RuleExecutor {
 	}
 	
 	public RuleResult execute(RuleContext rContext, RuleParam rParam, boolean asyn) {
+		boolean isDebugLogKey = LogKit.isDebugLogKey(rContext.user());
+		if(isDebugLogKey)
+			LogKit.setMDC(LogKit.MDC_KEY, rContext.user());
+		
 		String ruleURI = rContext.uri();
-		if(logger.isDebugEnabled())
-			logger.debug("执行规则【"+ruleURI+"】, params="+rParam+", asyn="+asyn);
+		logger.debug("执行规则【{}】, params={}, asyn={}", ruleURI, rParam, asyn);
 		if(rParam==null)
 			rParam = RuleParam.create();
 
@@ -85,14 +88,12 @@ public class RuleExecutor {
 				}
 				
 				if(StringKit.isNotEmpty(serverURL)){
-					if(logger.isDebugEnabled())
-						logger.debug("规则【"+ruleURI+"】的服务器地址："+serverURL);
+					logger.debug("规则【"+ruleURI+"】的服务器地址："+serverURL);
 					//如果serverUrl就是当前服务器的URL，则转为本地调用
 					String localServerURL = RouteManager.getServerURL(JoyManager.getServer().getAppServerType(), RouteManager.getLocalServerTag());
 					
 					if(serverURL.equals(localServerURL)){
-						if(logger.isDebugEnabled())
-							logger.debug("规则【"+ruleURI+"】转为本地调用");
+						logger.debug("规则【"+ruleURI+"】转为本地调用");
 						ruleResult = executeLocalRule(rContext.uri(ruleURI.substring(idx+1)), rParam, asyn);
 					}else{
 						ruleResult = executeRemoteRule(rContext.uri(ruleURI.substring(idx+1)), serverURL, rParam, serverKey, asyn);
@@ -109,10 +110,15 @@ public class RuleExecutor {
 				logger.error("", e);
 				ruleResult.fail(MainError.create(MainErrorType.PROGRAM_ERROR));
 			}
+		} finally{
+			if(!asyn)
+				rContext.release();
 		}
 
-		if(logger.isDebugEnabled())
-			logger.debug("执行规则【"+ruleURI+"】, ruleResult="+ruleResult.toJSON());
+		logger.debug("执行规则【"+ruleURI+"】, ruleResult="+ruleResult.toJSON());
+		
+		if(isDebugLogKey)
+			LogKit.removeMDC(LogKit.MDC_KEY);
 		return ruleResult;
 	}
 	
@@ -120,8 +126,7 @@ public class RuleExecutor {
 		String ruleURI = rContext.uri();
 		final BaseRule rule = rLoader.loadRule(ruleURI);
 		if (rule != null){
-			if(logger.isDebugEnabled())
-				logger.debug("规则【"+ruleURI+"】的类加载器："+rule.getClass().getClassLoader().getClass().getSimpleName());
+			logger.debug("规则【"+ruleURI+"】的类加载器："+rule.getClass().getClassLoader().getClass().getSimpleName());
 			if(asyn){
 				TaskExecutor.execute(new JoyTask() {
 					public void run() {
@@ -145,20 +150,17 @@ public class RuleExecutor {
 			final RuleParam rParam, final String serverKey, boolean asyn) throws Exception{
 		final String remoteRuleURI = rContext.uri();
 		final String contextParam = rContext.prepareRemoteContextParam();
-		if(logger.isDebugEnabled())
-			logger.debug("远程执行规则【"+remoteRuleURI+"】, url="+serverURL+"/"+contextParam);
+		logger.debug("远程执行规则【{}】, url={}/{}", remoteRuleURI, serverURL, contextParam);
 		
 		RuleResult ruleResult = RuleResult.create();
 		if(asyn){
 			TaskExecutor.execute(new JoyTask() {
 				public void run() {
-					if(logger.isDebugEnabled())
-						logger.debug("远程异步执行规则【"+remoteRuleURI+"】, url="+serverURL+"/"+contextParam);
+					logger.debug("远程异步执行规则【{}】, url={}/{}", remoteRuleURI, serverURL, contextParam);
 					
-					String reponseText = post4OpenService(serverURL, contextParam, remoteRuleURI, rParam, serverKey);
 					try {
-						if(logger.isDebugEnabled())
-							logger.debug("远程执行规则【"+remoteRuleURI+"】, reponseText="+reponseText);
+						String reponseText = post4OpenService(serverURL, contextParam, remoteRuleURI, rParam, serverKey);
+						logger.debug("远程执行规则【{}】, reponseText={}", remoteRuleURI, reponseText);
 					} catch (Exception e) {
 						logger.error("", e);
 					} finally{
@@ -169,8 +171,7 @@ public class RuleExecutor {
 			return ruleResult.success();
 		}else{
 			String reponseText = post4OpenService(serverURL, contextParam, remoteRuleURI, rParam, serverKey);
-			if(logger.isDebugEnabled())
-				logger.debug("远程执行规则【"+remoteRuleURI+"】, reponseText="+reponseText);
+			logger.debug("远程执行规则【{}】, reponseText={}", remoteRuleURI, reponseText);
 			if(!StringKit.isEmpty(reponseText)){
 				ruleResult = (RuleResult)JsonKit.json2Object(reponseText, RuleResult.class);
 				if(ruleResult==null)
@@ -184,8 +185,7 @@ public class RuleExecutor {
 	 * 调用开放规则
 	 */
 	private String post4OpenService(String url, String contextParam, String serviceKey, RuleParam rParam, String serverKey){
-		if(logger.isDebugEnabled())
-			logger.debug("post4OpenService, serviceKey="+serviceKey+", serverKey="+serverKey);
+		logger.debug("post4OpenService, serviceKey="+serviceKey+", serverKey="+serverKey);
 		if(StringKit.isNotEmpty(serverKey)){
 			//调用center的service，需要提供调用者的serverKey，根据调用者的signKey签名
 			if(RouteManager.isCenterRouteKey(serverKey)){

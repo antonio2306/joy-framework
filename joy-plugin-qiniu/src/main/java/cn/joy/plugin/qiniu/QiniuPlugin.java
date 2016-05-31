@@ -29,7 +29,7 @@ public class QiniuPlugin extends ResourcePlugin<QiniuResourceBuilder, QiniuResou
 				this.mainResource = qiniuResource;
 		}
 
-		log.info("qiniu plugin start success");
+		logger.info("qiniu plugin start success");
 		return true;
 	}
 

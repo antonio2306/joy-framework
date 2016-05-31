@@ -2,13 +2,12 @@ package cn.joy.framework.support;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.rule.RuleResult;
-import cn.joy.framework.support.SecurityManager;
 
 public class DefaultSecurityManager implements SecurityManager{
-	private Logger logger = Logger.getLogger(DefaultSecurityManager.class);
+	private static Log logger = LogKit.get();
 
 	public RuleResult checkOpenRequest(HttpServletRequest request) {
 		logger.warn("Empty Impl...");

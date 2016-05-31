@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,19 +17,21 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
+import cn.joy.framework.kits.LogKit.Log;
 /**
  * Json操作工具类
  * @author liyy
  * @date 2014-05-20
  */
 public class JsonKit {
-	private static Logger logger = Logger.getLogger(JsonKit.class);
+	private static Log logger = LogKit.get();
 	private static final ObjectMapper mapper = new ObjectMapper();
 	
 	static{
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		addSerializer(TestBean.class, new JsonSerializer<TestBean>(){
 			@Override
@@ -61,7 +63,7 @@ public class JsonKit {
 		tb.setAge(30);
 		lst.add(tb);
 		
-		System.out.println(object2Json(lst));
+		logger.debug(object2Json(lst));
 		
 		/*String json = "[{\"name\":\"aaa\",\"age\":\"15\"}, {\"name\":\"bbb\",\"age\":\"25\"}]";
 		List<TestBean> lst = json2ListBean(json, TestBean.class);

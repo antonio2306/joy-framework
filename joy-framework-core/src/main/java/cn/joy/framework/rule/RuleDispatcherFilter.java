@@ -11,13 +11,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.core.JoyManager;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.StringKit;
 
 public class RuleDispatcherFilter implements Filter{
-	private Logger logger = Logger.getLogger(RuleDispatcherFilter.class);
+	private static Log logger = LogKit.get();
 	private String charset = "UTF-8";
 
 	public void init(FilterConfig filterConfig) throws ServletException{
@@ -31,8 +31,7 @@ public class RuleDispatcherFilter implements Filter{
 		request.setCharacterEncoding(charset);
 		
 		String servletPath = request.getServletPath();
-		if(logger.isDebugEnabled())
-			logger.debug("servletPath="+servletPath);
+		logger.debug("servletPath="+servletPath);
 		
 		servletPath = servletPath.substring(1);
 		if(servletPath.equals(JoyManager.getServer().getUrlOpen())){

@@ -18,7 +18,7 @@ import cn.joy.framework.provider.JoyProvider;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PluginManager{
-	private static Log log = LogKit.getLog(PluginManager.class);
+	private static Log log = LogKit.get();
 	private static final PluginManager me = new PluginManager();
 	private JoyMap<String, JoyPlugin> plugins = new JoyMap<>();
 	private JoyMap<Class<? extends JoyProvider>, JoyMap<String, JoyProvider>> providers = new JoyMap<>();
@@ -34,8 +34,7 @@ public class PluginManager{
 		log.info("plugin manager init...");
 		scanPlugin("cn.joy.plugin");
 		
-		if(log.isDebugEnabled())
-			log.debug("plugins="+plugins+", providers="+providers);
+		log.debug("plugins={}, providers={}", plugins, providers);
 	}
 	
 	public void scanPlugin(String packageName){

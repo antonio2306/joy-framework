@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.kits.BeanKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.StringKit;
 /**
  * 业务规则加载器
@@ -19,7 +19,7 @@ import cn.joy.framework.kits.StringKit;
  * @date 2014-05-20
  */
 public class RuleLoader {
-	private Logger logger = Logger.getLogger(RuleLoader.class);
+	private static Log logger = LogKit.get();
 	
 	private Map<String, BaseRule> rules = new HashMap<String, BaseRule>();
 	
@@ -95,8 +95,7 @@ public class RuleLoader {
 		}
 		
 		String fullRuleURI = String.format(JoyManager.getServer().getRuleURIPattern(), moduleName, StringKit.capitalize(ruleName));
-		if(logger.isDebugEnabled())
-			logger.debug("ruleURI="+ruleURI+", fullRuleURI="+fullRuleURI);
+		logger.debug("ruleURI="+ruleURI+", fullRuleURI="+fullRuleURI);
 		return fullRuleURI;
 	}
 	

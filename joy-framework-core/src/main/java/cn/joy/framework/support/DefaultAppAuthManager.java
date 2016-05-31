@@ -5,18 +5,18 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.exception.SubError;
 import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.HttpKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.framework.rule.RuleDispatcher;
 import cn.joy.framework.rule.RuleResult;
 
 public class DefaultAppAuthManager extends AppAuthManager{
-	private Logger logger = Logger.getLogger(DefaultAppAuthManager.class);
+	private static Log logger = LogKit.get();
 
 	private static Map<String, String> appKeys = new HashMap<String, String>();
 

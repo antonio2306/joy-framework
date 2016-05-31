@@ -22,9 +22,9 @@ public class QuartzPlugin extends ResourcePlugin<QuartzResourceBuilder, QuartzRe
 		if(!clusterEnable)
 			getConfig().removeAll("org.quartz.jobStore").removeAll("org.quartz.dataSource");
 		
-		log.debug("clusterEnable="+clusterEnable);
+		logger.debug("clusterEnable="+clusterEnable);
 		this.mainResource = builder().name("joyScheduler").prop(getConfig()).build();
-		log.info("quartz plugin start success");
+		logger.info("quartz plugin start success");
 		return true;
 	}
 	

@@ -2,12 +2,11 @@ package cn.joy.framework.rule;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-
 import cn.joy.framework.core.JoyManager;
 import cn.joy.framework.exception.RuleException;
-import cn.joy.framework.exception.SubErrorType;
 import cn.joy.framework.kits.HttpKit;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 import cn.joy.framework.kits.RuleKit;
 import cn.joy.framework.kits.StringKit;
 /**
@@ -16,7 +15,7 @@ import cn.joy.framework.kits.StringKit;
  * @date 2014-05-20
  */
 public class RuleContext {
-	private static Logger logger = Logger.getLogger(RuleContext.class);
+	private static Log logger = LogKit.get();
 	public static final String CLEAR = "CLEAR";
 	public static final String NONE_LOGINID = "NONE";
 	public static final String SYSTEM_LOGINID = "SYSTEM";
@@ -70,9 +69,8 @@ public class RuleContext {
 		rContext.appId = RuleKit.getStringParam(request, JoyManager.getServer().getAppIdParam());
 		
 		rContext.request = request;
-		if(logger.isDebugEnabled())
-			logger.debug("loginId="+rContext.loginId+", companyCode="+rContext.companyCode+", sceneKey="+rContext.sceneKey
-					+", ip="+rContext.ip+", sourceIP="+rContext.sourceIP+", appId="+rContext.appId);
+		logger.debug("loginId={}, companyCode={}, sceneKey={}, ip={}, sourceIP={}, appId={}", 
+				rContext.loginId, rContext.companyCode, rContext.sceneKey, rContext.ip, rContext.sourceIP, rContext.appId);
 		return rContext;
 	}
 	
@@ -177,9 +175,8 @@ public class RuleContext {
 		context.ip = this.ip;
 		context.sourceIP = StringKit.getString(this.sourceIP, this.ip);
 		context.appId = this.appId;
-		if(logger.isDebugEnabled())
-			logger.debug("cloneContext, loginId="+context.loginId+", companyCode="+context.companyCode+", sceneKey="+context.sceneKey
-					+", ip="+context.ip+", sourceIP="+context.sourceIP+", appId="+context.appId);
+		logger.debug("cloneContext, loginId={}, companyCode={}, sceneKey={}, ip={}, sourceIP={}, appId={}", 
+				context.loginId, context.companyCode, context.sceneKey, context.ip, context.sourceIP, context.appId);
 		return context;
 	}
 	
@@ -197,8 +194,7 @@ public class RuleContext {
 			params.append("&"+JoyManager.getServer().getSourceIPParam()+"=").append(sourceIP);
 		if(StringKit.isNotEmpty(appId))
 			params.append("&"+JoyManager.getServer().getAppIdParam()+"=").append(appId);
-		if(logger.isDebugEnabled())
-			logger.debug("prepareRemoteContextParam, params="+params);
+		logger.debug("prepareRemoteContextParam, params="+params);
 		return params.toString();
 	}
 	

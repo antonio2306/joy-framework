@@ -340,8 +340,7 @@ public class PropKit {
 					throw new IllegalArgumentException("Properties file not found in classpath: " + fileName);
 				properties = new Properties();
 				properties.load(new InputStreamReader(inputStream, encoding));
-				if(logger.isDebugEnabled())
-					logger.debug("load Prop from "+fileName+": "+properties);
+				logger.debug("load Prop from {}: {}", fileName, properties);
 			} catch (Exception e) {
 				throw new RuntimeException("Error loading properties file.", e);
 			}
@@ -365,8 +364,7 @@ public class PropKit {
 				inputStream = new FileInputStream(file);
 				properties = new Properties();
 				properties.load(new InputStreamReader(inputStream, encoding));
-				if(logger.isDebugEnabled())
-					logger.debug("load Prop from "+file.getName()+": "+properties);
+				logger.debug("load Prop from {}: {}", file.getName(), properties);
 			} catch (IOException e) {
 				throw new RuntimeException("Error loading properties file.", e);
 			}
@@ -379,8 +377,7 @@ public class PropKit {
 			try {
 				properties = new Properties();
 				properties.load(new InputStreamReader(inputStream, encoding));
-				if(logger.isDebugEnabled())
-					logger.debug("load Prop from stream: "+properties);
+				logger.debug("load Prop from stream: {}", properties);
 			} catch (IOException e) {
 				throw new RuntimeException("Error loading properties stream.", e);
 			}

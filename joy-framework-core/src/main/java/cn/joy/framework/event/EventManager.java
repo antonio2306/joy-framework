@@ -12,14 +12,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import org.apache.log4j.Logger;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 /**
  * 事件管理器，负责事件监听器的注册及事件的发布
  * @author liyy
  * @date 2014-07-06
  */
 public class EventManager {
-	private static Logger logger = Logger.getLogger(EventManager.class);
+	private static Log logger = LogKit.get();
 
 	private static Executor executor;
 
@@ -62,8 +63,7 @@ public class EventManager {
             cachedEventListeners.put(eventType, listenerRegistry);
         }
         List listeners = cachedEventListeners.get(eventType).getJoyEventListeners();
-        if(logger.isDebugEnabled())
-    		logger.debug("publishEvent, event type="+event.getClass().getSimpleName()+", listener size="+listeners.size());
+    	logger.debug("publishEvent, event type={}, listener size={}", event.getClass().getSimpleName(), listeners.size());
         return listeners;
     }
 
@@ -97,8 +97,7 @@ public class EventManager {
     public static void publishEvent(final JoyEvent event) {
     	if(event==null)
     		return;
-    	if(logger.isDebugEnabled())
-    		logger.debug("publishEvent, event type="+event.getClass().getSimpleName());
+    	logger.debug("publishEvent, event type={}", event.getClass().getSimpleName());
 		try {
 			for (final JoyEventListener listener : getJoyEventListeners(event)) {
 				Executor executor = getExecutor();
@@ -113,7 +112,7 @@ public class EventManager {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("", e);
+			logger.error(e);
 		}
 	}
 

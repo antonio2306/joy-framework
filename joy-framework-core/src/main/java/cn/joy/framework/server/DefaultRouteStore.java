@@ -3,10 +3,11 @@ package cn.joy.framework.server;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 
 public class DefaultRouteStore implements RouteStore{
-	private Logger logger = Logger.getLogger(DefaultRouteStore.class);
+	private static Log logger = LogKit.get();
 
 	public String getServerURL(String routeKey) {
 		logger.warn("Empty Impl...");

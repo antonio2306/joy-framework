@@ -26,7 +26,6 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,7 +55,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+
+import cn.joy.framework.kits.LogKit.Log;
 
 /**
  * Http操作工具类
@@ -65,7 +65,7 @@ import org.apache.log4j.Logger;
  * @date 2014-05-20
  */
 public class HttpKit {
-	private static Logger logger = Logger.getLogger(HttpKit.class);
+	private static Log logger = LogKit.get();
 
 	private static final int DEFAULT_SOCKET_BUFFER_SIZE = 8 * 1024; // 8KB
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";

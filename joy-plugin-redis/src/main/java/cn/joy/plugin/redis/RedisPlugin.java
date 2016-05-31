@@ -72,7 +72,7 @@ public class RedisPlugin extends ResourcePlugin<RedisResourceBuilder, RedisResou
 			try {
 				entry.getValue().destroy();
 			} catch (Exception e) {
-				log.error("", e);
+				logger.error("", e);
 			}
 		}
 	}

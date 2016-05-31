@@ -52,7 +52,7 @@ public class MailPlugin extends ResourcePlugin<MailResourceBuilder, MailResource
 		}
 
 		this.mainResource = builder().session(mainSession).name("joyMailServer").build();
-		log.info("mail plugin start success");
+		logger.info("mail plugin start success");
 		return true;
 	}
 

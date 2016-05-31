@@ -67,19 +67,16 @@ public class QiniuResource extends PluginResource {
 		try {
 			Response res = uploadManager.put(filePath, (String)datas.get("key"), getUploadToken(fileType), new StringMap().putAll(datas), null, false);
 			// 打印返回的信息
-			if(logger.isDebugEnabled())
-				logger.debug(res.bodyString());
+			logger.debug(res.bodyString());
 		} catch (QiniuException e) {
 			logger.error("", e);
 			
 			Response r = e.response;
 			// 请求失败时打印的异常的信息
-			if(logger.isDebugEnabled())
-				logger.debug(r.toString());
+			logger.debug(r.toString());
 			try {
 				// 响应的文本信息
-				if(logger.isDebugEnabled())
-					logger.debug(r.bodyString());
+				logger.debug(r.bodyString());
 			} catch (QiniuException e1) {
 				// ignore
 			}

@@ -14,7 +14,7 @@ import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.kits.StringKit;
 
 public abstract class JoyPlugin {
-	protected static Log log = LogKit.getLog(JoyPlugin.class);
+	protected Log logger = LogKit.get();
 	protected Prop config = null;
 	protected boolean isStarted = false;
 	
@@ -22,7 +22,7 @@ public abstract class JoyPlugin {
 		loadConfig();
 		
 		if(config==null){
-			log.warn("missing plugin["+this.getClass().getSimpleName()+"] properties");
+			logger.warn("missing plugin["+this.getClass().getSimpleName()+"] properties");
 			return false;
 		}
 		
@@ -70,8 +70,7 @@ public abstract class JoyPlugin {
 				this.config.setAll(PropKit.use(propFile));
 			}
 			
-			if(log.isDebugEnabled())
-				log.debug("plugin config="+this.config.getProperties());
+			logger.debug("plugin config={}", this.config.getProperties());
 			
 			String envMode = JoyManager.getServer().getEnvMode();
 			if(config!=null && !"product".equals(envMode)){
@@ -84,7 +83,7 @@ public abstract class JoyPlugin {
 				}
 			}
 		} catch (Exception e) {
-			log.warn("load config:"+e.getMessage());
+			logger.warn("load config:"+e.getMessage());
 		}
 	}
 	
