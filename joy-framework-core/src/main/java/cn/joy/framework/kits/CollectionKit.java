@@ -1,5 +1,6 @@
 package cn.joy.framework.kits;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,5 +40,23 @@ public class CollectionKit {
     	}
     	return newSet;
     }
+    
+    /**
+	 * 验证是否空集合
+	 * 
+	 * @param obj
+	 * @return 如果obj是null，或是空的集合、Map、数组，返回true，否则返回false
+	 */
+	public static boolean isEmpty(Object obj){
+		if(obj==null)
+			return true;
+		if(obj instanceof Collection)
+			return ((Collection) obj).isEmpty();
+		else if(obj instanceof Map)
+			return ((Map) obj).isEmpty();
+		else if(obj instanceof Object[])
+			return ((Object[]) obj).length==0;
+		return false;
+	}
     
 }

@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -123,6 +121,19 @@ public class JsonKit {
 	}
 	
 	/**
+	 * 对象转换为json字节数组
+	 */
+	public static byte[] object2JsonBytes(Object object) {
+		try {
+			if (object != null)
+				return mapper.writeValueAsBytes(object);
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return null;
+	}
+	
+	/**
 	 * 对象转换为格式化的json字符串
 	 */
 	public static String object2FormatJson(Object object) {
@@ -149,6 +160,20 @@ public class JsonKit {
 		}
 		return object;
 	}
+	
+	/**
+	 * json字节数组转换为指定类型的对象
+	 */
+	public static Object jsonBytes2Object(byte[] jsonBytes, Class klass) {
+		Object object = null;
+		try {
+			if (jsonBytes != null && jsonBytes.length > 0)
+				object = mapper.readValue(jsonBytes, klass);
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return object;
+	}
 
 	/**
 	 * json字符串转换为Map对象
@@ -163,6 +188,20 @@ public class JsonKit {
 		}
 		return m;
 	}
+	
+	/**
+	 * json字节数组转换为Map对象
+	 */
+	public static Map jsonBytes2Map(byte[] jsonBytes) {
+		Map m = null;
+		try {
+			if (jsonBytes != null && jsonBytes.length > 0)
+				m = mapper.readValue(jsonBytes, Map.class);
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return m;
+	}
 
 	/**
 	 * json字符串转换为元素为Map的List对象
@@ -172,6 +211,20 @@ public class JsonKit {
 		try {
 			if (json != null && json.length() > 0)
 				m = mapper.readValue(json, List.class);
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return m;
+	}
+	
+	/**
+	 * json字节数组转换为元素为Map的List对象
+	 */
+	public static List<Map> jsonBytes2ListMap(byte[] jsonBytes) {
+		List m = null;
+		try {
+			if (jsonBytes != null && jsonBytes.length > 0)
+				m = mapper.readValue(jsonBytes, List.class);
 		} catch (Exception e) {
 			logger.error("", e);
 		}
@@ -195,6 +248,22 @@ public class JsonKit {
 	}
 	
 	/**
+	 * json字节数组转换为元素为指定类型的List对象
+	 */
+	public static List jsonBytes2ListBean(byte[] jsonBytes, Class beanClass) {
+		List m = null;
+		try {
+			if (jsonBytes != null && jsonBytes.length > 0){
+				JavaType javaType = getCollectionType(ArrayList.class, beanClass);
+				m = (List) mapper.readValue(jsonBytes, javaType);
+			}
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return m;
+	}
+	
+	/**
 	 * json字符串转换为指定key和value类型的Map
 	 */
 	public static Map json2MapBean(String json, Class keyClass, Class beanClass) {
@@ -203,6 +272,22 @@ public class JsonKit {
 			if (json != null && json.length() > 0){
 				JavaType javaType = getCollectionType(HashMap.class, keyClass, beanClass);
 				m = (Map) mapper.readValue(json, javaType);
+			}
+		} catch (Exception e) {
+			logger.error("", e);
+		}
+		return m;
+	}
+	
+	/**
+	 * json字节数组转换为指定key和value类型的Map
+	 */
+	public static Map jsonBytes2MapBean(byte[] jsonBytes, Class keyClass, Class beanClass) {
+		Map m = null;
+		try {
+			if (jsonBytes != null && jsonBytes.length > 0){
+				JavaType javaType = getCollectionType(HashMap.class, keyClass, beanClass);
+				m = (Map) mapper.readValue(jsonBytes, javaType);
 			}
 		} catch (Exception e) {
 			logger.error("", e);

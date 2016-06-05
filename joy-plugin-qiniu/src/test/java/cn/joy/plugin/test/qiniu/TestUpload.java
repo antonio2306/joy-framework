@@ -14,6 +14,7 @@ public class TestUpload {
 		TestExecutor.executePluginGroup("case.qiniu");
 	}
 	
+	@Test(enabled = false)
 	public void testSimpleUpload(){
 		Qiniu.use().upload("D:/test.jpg", QiniuBucket.TYPE_IMAGE, JoyMap.createStringObject().put("x:company", "12335").put("x:ext", ".jpg").map());
 	}

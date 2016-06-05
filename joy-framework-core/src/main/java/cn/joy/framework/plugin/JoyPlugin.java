@@ -87,6 +87,10 @@ public abstract class JoyPlugin {
 		}
 	}
 	
+	public boolean isStarted(){
+		return isStarted;
+	}
+	
 	public abstract boolean start();
 
 	public abstract void stop();

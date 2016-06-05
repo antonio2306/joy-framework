@@ -10,22 +10,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.transform.Transformers;
+
+import cn.joy.framework.core.JoyCallback;
+import cn.joy.framework.kits.LogKit;
+import cn.joy.framework.kits.LogKit.Log;
 /**
  * 基于Spring、Hibernate的数据库定义
  * @author liyy
  * @date 2014-07-06
  */
 public class DbResource {
-	private Logger logger = Logger.getLogger(DbResource.class);
+	private Log logger = LogKit.get();
 	private SessionFactory sessionFactory = null;
-	private final ThreadLocal<LinkedList<Session>> threadLocal = new ThreadLocal<LinkedList<Session>>();
+	private final ThreadLocal<LinkedList<DbSession>> threadLocal = new ThreadLocal<LinkedList<DbSession>>();
 	
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
@@ -35,156 +38,159 @@ public class DbResource {
 		this.sessionFactory = sessionFactory;
 	}
 	
-	private LinkedList<Session> getThreadLocal(){
-		LinkedList<Session> sessionStack = threadLocal.get();
+	private LinkedList<DbSession> getThreadLocal(){
+		LinkedList<DbSession> sessionStack = threadLocal.get();
 		if(sessionStack==null){
-			sessionStack = new LinkedList<Session>();
+			sessionStack = new LinkedList<DbSession>();
 			threadLocal.set(sessionStack);
 		}
 		return sessionStack;
 	}
 	
-	Session getThreadLocalSession() {
+	DbSession getThreadLocalSession() {
 		return getThreadLocal().peekLast();
 	}
 	
 	//在当前线程中获取事务，如果为空，则开启自己的事务
-	public Session getSession() {
-		Session session = getThreadLocalSession();
-		if(session!=null)
-			return session;
-		if(logger.isDebugEnabled())
-			logger.debug("open single session...");
-		return sessionFactory.openSession();
+	public DbSession getSession() {
+		DbSession dbSession = getThreadLocalSession();
+		if(dbSession!=null)
+			return dbSession;
+		logger.debug("open single session...");
+		return new DbSession(sessionFactory.openSession());
 	}
 	
-	void beginTransaction(Session session) {
-		if(session!=null && session!=getThreadLocalSession())
-			session.beginTransaction();
+	public void addTransactionCallback(JoyCallback transactionCallback){
+		DbSession dbSession = getThreadLocalSession();
+		if(dbSession!=null){
+			logger.debug("add transaction callback...");
+			dbSession.setTransactionCallback(transactionCallback);
+		}
+	}
+	
+	public void removeTransactionCallback(){
+		DbSession dbSession = getThreadLocalSession();
+		if(dbSession!=null){
+			logger.debug("remove transaction callback...");
+			dbSession.setTransactionCallback(null);
+		}
+	}
+	
+	void beginTransaction(DbSession dbSession) {
+		if(dbSession!=null && dbSession!=getThreadLocalSession())
+			dbSession.beginTransaction();
 	}
 
-	void endTransaction(Session session) {
-		if(session!=null && session!=getThreadLocalSession()){
-			if (session.isOpen()){
-				if(logger.isDebugEnabled())
-					logger.debug("close single session...");
-				session.close();
+	void endTransaction(DbSession dbSession) {
+		if(dbSession!=null && dbSession!=getThreadLocalSession()){
+			if (dbSession.isOpen()){
+				logger.debug("close single session...");
+				dbSession.close();
 			}
 		}
 	}
 
-	void commitAndEndTransaction(Session session) {
-		if(session!=null && session!=getThreadLocalSession()){
+	void commitAndEndTransaction(DbSession dbSession) {
+		if(dbSession!=null && dbSession!=getThreadLocalSession()){
 			try {
-				session.getTransaction().commit();
+				dbSession.commit();
 			} catch (Exception e) {
 				logger.error("", e);
-				session.getTransaction().rollback();
+				dbSession.rollback();
 				throw new DbException(e);
 			} finally {
-				if(logger.isDebugEnabled())
-					logger.debug("close single session...");
-				session.close();
+				logger.debug("close single session...");
+				dbSession.close();
 			}
 		}
 	}
 
-	void rollbackAndEndTransaction(Session session) {
-		if(session!=null && session!=getThreadLocalSession()){
+	void rollbackAndEndTransaction(DbSession dbSession) {
+		if(dbSession!=null && dbSession!=getThreadLocalSession()){
 			try {
-				session.getTransaction().rollback();
+				dbSession.rollback();
 			} catch (Exception e) {
 				logger.error("", e);
 				throw new DbException(e);
 			} finally {
-				if(logger.isDebugEnabled())
-					logger.debug("close single session...");
-				session.close();
+				logger.debug("close single session...");
+				dbSession.close();
 			}
 		}
 	}
 	
-	void addLastSession(Session session) {
-		if(logger.isDebugEnabled())
-			logger.debug("add last session...");
-		getThreadLocal().add(session);
+	void addLastSession(DbSession dbSession) {
+		logger.debug("add last session...");
+		getThreadLocal().add(dbSession);
 	}
 	
-	Session removeLastSession() {
-		if(logger.isDebugEnabled())
-			logger.debug("close last session...");
+	DbSession removeLastSession() {
+		logger.debug("close last session...");
 		return getThreadLocal().pollLast();
 	}
 
 	public boolean beginTransaction() {
-		Session session = getThreadLocalSession();
-		if (session == null || !session.isOpen()){
-			session = sessionFactory.openSession();
-			session.beginTransaction();
-			addLastSession(session);
-			if (logger.isDebugEnabled())
-				logger.debug("beginTransaction do.");
+		DbSession dbSession = getThreadLocalSession();
+		if (dbSession == null || !dbSession.isOpen()){
+			dbSession = new DbSession(sessionFactory.openSession());
+			dbSession.beginTransaction();
+			addLastSession(dbSession);
+			logger.debug("beginTransaction do.");
 			return true;
 		}
 		return false;
 	}
 
 	public boolean beginNewTransaction() {
-		Session session = sessionFactory.openSession();
-		session.beginTransaction();
-		addLastSession(session);
-		if (logger.isDebugEnabled())
-			logger.debug("beginNewTransaction do.");
+		DbSession dbSession = new DbSession(sessionFactory.openSession());
+		dbSession.beginTransaction();
+		addLastSession(dbSession);
+		logger.debug("beginNewTransaction do.");
 		return true;
 	}
 
 	public boolean beginEmptyTransaction() {
-		if (logger.isDebugEnabled())
-			logger.debug("beginEmptyTransaction do.");
+		logger.debug("beginEmptyTransaction do.");
 		addLastSession(null);
 		return true;
 	}
 	
 	public void endTransaction() {
-		Session session = removeLastSession();
-		if (logger.isDebugEnabled())
-			logger.debug("endTransaction session="+session);
-		if (session != null && session.isOpen()){
-			session.close();
-			if (logger.isDebugEnabled())
-				logger.debug("endTransaction do.");
+		DbSession dbSession = removeLastSession();
+		logger.debug("endTransaction session");
+		if (dbSession != null && dbSession.isOpen()){
+			dbSession.close();
+			logger.debug("endTransaction do.");
 		}
 	}
 
 	public void commitAndEndTransaction() {
-		Session session = removeLastSession();
-		if (session != null) {
+		DbSession dbSession = removeLastSession();
+		if (dbSession != null) {
 			try {
-				session.getTransaction().commit();
-				if (logger.isDebugEnabled())
-					logger.debug("commitAndEndTransaction do.");
+				dbSession.commit();
+				logger.debug("commitAndEndTransaction do.");
 			} catch (Exception e) {
 				logger.error("", e);
-				session.getTransaction().rollback();
+				dbSession.rollback();
 				throw new DbException(e);
 			} finally {
-				session.close();
+				dbSession.close();
 			}
 		}
 	}
 
 	public void rollbackAndEndTransaction() {
-		Session session = removeLastSession();
-		if (session != null) {
+		DbSession dbSession = removeLastSession();
+		if (dbSession != null) {
 			try {
-				session.getTransaction().rollback();
-				if (logger.isDebugEnabled())
-					logger.debug("rollbackAndEndTransaction do.");
+				dbSession.rollback();
+				logger.debug("rollbackAndEndTransaction do.");
 			} catch (Exception e) {
 				logger.error("", e);
 				throw new DbException(e);
 			} finally {
-				session.close();
+				dbSession.close();
 			}
 		}
 	}
@@ -201,16 +207,16 @@ public class DbResource {
 	}*/
 	
 	public List<Object[]> query(String sql, Object... params) {
-		Session session = null;
+		DbSession dbSession = null;
 		try {
-			session = getSession();
-			SQLQuery query = session.createSQLQuery(sql);
+			dbSession = getSession();
+			SQLQuery query = dbSession.getSession().createSQLQuery(sql);
 			StringBuilder paramsInfo = null;
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				paramsInfo = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; i++){
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
@@ -219,33 +225,31 @@ public class DbResource {
 			List<Object[]> list = query.list();
 			if(list==null)
 				list = new ArrayList<Object[]>();
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				logger.debug("db list ==> " + sql+", params=["+paramsInfo+"], size="+list.size());
 			return list;
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 
 	public Object get(Class<?> clazz, Serializable pk) {
-		if (logger.isDebugEnabled())
-			logger.debug("db get ==> class="+clazz.getSimpleName()+", pk=" + pk);
-		Session session = null;
+		logger.debug("db get ==> class={}, pk={}", clazz.getSimpleName(), pk);
+		DbSession dbSession = null;
 		try {
-			session = getSession();
-			return session.get(clazz, pk);
+			dbSession = getSession();
+			return dbSession.getSession().get(clazz, pk);
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 
 	public <T> T get(String hql, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db get ==> " + hql);
+		logger.debug("db get ==> " + hql);
 		List<T> list = list(hql, params);
 		if (list != null && list.size() > 0)
 			return list.get(0);
@@ -253,8 +257,7 @@ public class DbResource {
 	}
 	
 	public <T> T get(String hql, Map<String, Object> namedParams, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db get ==> " + hql);
+		logger.debug("db get ==> " + hql);
 		List<T> list = list(hql, namedParams, params);
 		if (list != null && list.size() > 0)
 			return list.get(0);
@@ -262,28 +265,28 @@ public class DbResource {
 	}
 
 	public Object unique(String hql, Object... params) {
-		Session session = null;
+		DbSession dbSession = null;
 		try {
-			session = getSession();
-			Query query = session.createQuery(hql);
+			dbSession = getSession();
+			Query query = dbSession.getSession().createQuery(hql);
 			StringBuilder paramsInfo = null;
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				paramsInfo = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; i++){
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
 			}
 			
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				logger.debug("db unique ==> " + hql+", params=["+paramsInfo+"]");
 			return query.uniqueResult();
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 
@@ -292,16 +295,16 @@ public class DbResource {
 	}
 	
 	public <T> List<T> list(String hql, Map<String, Object> namedParams, Object... params) {
-		Session session = null;
+		DbSession dbSession = null;
 		try {
-			session = getSession();
-			Query query = session.createQuery(hql);
+			dbSession = getSession();
+			Query query = dbSession.getSession().createQuery(hql);
 			StringBuilder paramsInfo = null;
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				paramsInfo = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; i++){
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
@@ -311,7 +314,7 @@ public class DbResource {
 				for (Entry<String, Object> entry:namedParams.entrySet()){
 					String name = entry.getKey();
 					Object value = entry.getValue();
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						logger.debug("set named param["+name+"] = "+value);
 					if(value instanceof Collection)
 						query.setParameterList(name, (Collection)value);
@@ -325,13 +328,13 @@ public class DbResource {
 			List<T> list = query.list();
 			if(list==null)
 				list = new ArrayList<T>();
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				logger.debug("db list ==> " + hql+", params=["+paramsInfo+"], size="+list.size());
 			return list;
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 	
@@ -340,16 +343,16 @@ public class DbResource {
 	}
 	
 	public List<Map> listMap(String hql, Map<String, Object> namedParams, Object... params) {
-		Session session = null;
+		DbSession dbSession = null;
 		try {
-			session = getSession();
-			Query query = session.createQuery(hql).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+			dbSession = getSession();
+			Query query = dbSession.getSession().createQuery(hql).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 			StringBuilder paramsInfo = null;
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				paramsInfo = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; i++){
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
@@ -359,7 +362,7 @@ public class DbResource {
 				for (Entry<String, Object> entry:namedParams.entrySet()){
 					String name = entry.getKey();
 					Object value = entry.getValue();
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						logger.debug("set named param["+name+"] = "+value);
 					if(value instanceof Collection)
 						query.setParameterList(name, (Collection)value);
@@ -373,13 +376,13 @@ public class DbResource {
 			List<Map> list = query.list();
 			if(list==null)
 				list = new ArrayList<Map>();
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				logger.debug("db listMap ==> " + hql+", params=["+paramsInfo+"], size="+list.size());
 			return list;
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 
@@ -388,16 +391,16 @@ public class DbResource {
 	}
 	
 	public <T> List<T> page(String hql, int start, int count, Map<String, Object> namedParams, Object... params) {
-		Session session = null;
+		DbSession dbSession = null;
 		try {
-			session = getSession();
-			Query query = session.createQuery(hql);
+			dbSession = getSession();
+			Query query = dbSession.getSession().createQuery(hql);
 			StringBuilder paramsInfo = null;
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				paramsInfo = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; i++){
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
@@ -407,7 +410,7 @@ public class DbResource {
 				for (Entry<String, Object> entry:namedParams.entrySet()){
 					String name = entry.getKey();
 					Object value = entry.getValue();
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						logger.debug("set named param["+name+"] = "+value);
 					if(value instanceof Collection)
 						query.setParameterList(name, (Collection)value);
@@ -426,13 +429,13 @@ public class DbResource {
 			List<T> list = query.setFirstResult(start).setMaxResults(count).list();
 			if(list==null)
 				list = new ArrayList<T>();
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				logger.debug("db page ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count+", size="+list.size());
 			return list;
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 	
@@ -441,16 +444,16 @@ public class DbResource {
 	}
 	
 	public List<Map> pageMap(String hql, int start, int count, Map<String, Object> namedParams, Object... params) {
-		Session session = null;
+		DbSession dbSession = null;
 		try {
-			session = getSession();
-			Query query = session.createQuery(hql).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+			dbSession = getSession();
+			Query query = dbSession.getSession().createQuery(hql).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 			StringBuilder paramsInfo = null;
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				paramsInfo = new StringBuilder();
 			if (params != null) {
 				for (int i = 0; i < params.length; i++){
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						paramsInfo.append(params[i]).append(",");
 					query.setParameter(i, params[i]);
 				}
@@ -460,7 +463,7 @@ public class DbResource {
 				for (Entry<String, Object> entry:namedParams.entrySet()){
 					String name = entry.getKey();
 					Object value = entry.getValue();
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						logger.debug("set named param["+name+"] = "+value);
 					if(value instanceof Collection)
 						query.setParameterList(name, (Collection)value);
@@ -479,19 +482,18 @@ public class DbResource {
 			List<Map> list = query.setFirstResult(start).setMaxResults(count).list();
 			if(list==null)
 				list = new ArrayList<Map>();
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				logger.debug("db pageMap ==> " + hql+", params=["+paramsInfo+"], start="+start+", count="+count+", size="+list.size());
 			return list;
 		} catch (Exception e) {
 			throw new DbException(e);
 		} finally{
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 
 	public Integer count(String hql, Object... params) {
-		if (logger.isDebugEnabled())
-			logger.debug("db count ==> " + hql);
+		logger.debug("db count ==> " + hql);
 		Number count = (Number) unique(hql, params);
 		if (count == null)
 			return 0;
@@ -504,28 +506,28 @@ public class DbResource {
 
 	public int executeUpdate(String hql, Map<String, Object> namedParams, Object... positionParams) {
 		int result = 0;
-		Session session = getSession();
+		DbSession dbSession = getSession();
 		try {
-			beginTransaction(session);
-			Query query = session.createQuery(hql);
+			beginTransaction(dbSession);
+			Query query = dbSession.getSession().createQuery(hql);
 			StringBuilder paramsInfo = null;
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				paramsInfo = new StringBuilder();
 			if (positionParams != null) {
 				for (int i = 0; i < positionParams.length; i++){
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						paramsInfo.append(positionParams[i]).append(",");
 					query.setParameter(i, positionParams[i]);
 				}
 			}
-			if (logger.isDebugEnabled())
+			if (logger.getLogger().isDebugEnabled())
 				logger.debug("db executeUpdate ==> " + hql+", params=["+paramsInfo+"]");
 			
 			if (namedParams != null) {
 				for (Entry<String, Object> entry:namedParams.entrySet()){
 					String name = entry.getKey();
 					Object value = entry.getValue();
-					if (logger.isDebugEnabled())
+					if (logger.getLogger().isDebugEnabled())
 						logger.debug("set named param["+name+"] = "+value);
 					if(value instanceof Collection)
 						query.setParameterList(name, (Collection)value);
@@ -537,12 +539,12 @@ public class DbResource {
 			}
 			
 			result = query.executeUpdate();
-			commitAndEndTransaction(session);
+			commitAndEndTransaction(dbSession);
 		} catch (Exception e) {
-			rollbackAndEndTransaction(session);
+			rollbackAndEndTransaction(dbSession);
 			throw new DbException(e);
 		} finally {
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 		return result;
 	}
@@ -550,16 +552,16 @@ public class DbResource {
 	public void execute(DbCallback callback, Object... params) {
 		//if (logger.isDebugEnabled())
 		//	logger.debug("db execute ==> callback");
-		Session session = getSession();
+		DbSession dbSession = getSession();
 		try {
-			beginTransaction(session);
-			callback.run(session, params);
-			commitAndEndTransaction(session);
+			beginTransaction(dbSession);
+			callback.run(dbSession, params);
+			commitAndEndTransaction(dbSession);
 		} catch (Exception e) {
-			rollbackAndEndTransaction(session);
+			rollbackAndEndTransaction(dbSession);
 			throw new DbException(e);
 		} finally {
-			endTransaction(session);
+			endTransaction(dbSession);
 		}
 	}
 	
@@ -577,25 +579,24 @@ public class DbResource {
 	}
 
 	public void add(Object obj) {
-		if (logger.isDebugEnabled())
-			logger.debug("db add ==> " + obj);
+		logger.debug("db add ==> " + obj);
 
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
+			public void run(DbSession dbSession, Object... params) throws Exception {
 				setLastModifyTime(params[0]);
-				session.save(params[0]);
+				dbSession.getSession().save(params[0]);
 			}
 		}, obj);
 	}
 
 	public <T> void addAll(List<T> list) {
-		if (logger.isDebugEnabled())
-			logger.debug("db addAll ==> " + list);
+		logger.debug("db addAll ==> " + list);
 
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
+			public void run(DbSession dbSession, Object... params) throws Exception {
 				List<T> list = (List<T>) params[0];
 				if (list != null) {
+					Session session = dbSession.getSession();
 					session.setCacheMode(CacheMode.IGNORE);
 					for (int i = 0; i < list.size(); i++) {
 						T obj = list.get(i);
@@ -613,29 +614,26 @@ public class DbResource {
 	}
 
 	public void update(Object obj) {
-		if (logger.isDebugEnabled())
-			logger.debug("db update ==> " + obj);
+		logger.debug("db update ==> " + obj);
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
+			public void run(DbSession dbSession, Object... params) throws Exception {
 				setLastModifyTime(params[0]);
-				session.update(params[0]);
+				dbSession.getSession().update(params[0]);
 			}
 		}, obj);
 	}
 	
 	public <T> void updateAll(List<T> list) {
-		if (logger.isDebugEnabled())
-			logger.debug("db updateAll ==> " + list);
+		logger.debug("db updateAll ==> " + list);
 
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
+			public void run(DbSession dbSession, Object... params) throws Exception {
 				List<T> list = (List<T>) params[0];
 				if (list != null) {
-					if (list != null) {
-						for (T obj:list) {
-							setLastModifyTime(obj);
-							session.update(obj);
-						}
+					Session session = dbSession.getSession();
+					for (T obj:list) {
+						setLastModifyTime(obj);
+						session.update(obj);
 					}
 				}
 			}
@@ -643,45 +641,42 @@ public class DbResource {
 	}
 
 	public void saveOrUpdate(Object obj) {
-		if (logger.isDebugEnabled())
-			logger.debug("db saveOrUpdate ==> " + obj);
+		logger.debug("db saveOrUpdate ==> " + obj);
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
+			public void run(DbSession dbSession, Object... params) throws Exception {
 				setLastModifyTime(params[0]);
-				session.saveOrUpdate(params[0]);
+				dbSession.getSession().saveOrUpdate(params[0]);
 			}
 		}, obj);
 	}
 
 	public void merge(Object obj) {
-		if (logger.isDebugEnabled())
-			logger.debug("db merge ==> " + obj);
+		logger.debug("db merge ==> " + obj);
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
+			public void run(DbSession dbSession, Object... params) throws Exception {
 				setLastModifyTime(params[0]);
-				session.merge(params[0]);
+				dbSession.getSession().merge(params[0]);
 			}
 		}, obj);
 	}
 
 	public void delete(Object obj) {
-		if (logger.isDebugEnabled())
-			logger.debug("db delete ==> " + obj);
+		logger.debug("db delete ==> " + obj);
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
-				session.delete(params[0]);
+			public void run(DbSession dbSession, Object... params) throws Exception {
+				dbSession.getSession().delete(params[0]);
 			}
 		}, obj);
 	}
 	
 	public <T> void deleteAll(List<T> list) {
-		if (logger.isDebugEnabled())
-			logger.debug("db deleteAll ==> " + list);
+		logger.debug("db deleteAll ==> " + list);
 
 		execute(new DbCallback() {
-			public void run(Session session, Object... params) throws Exception {
+			public void run(DbSession dbSession, Object... params) throws Exception {
 				List<T> list = (List<T>) params[0];
 				if (list != null) {
+					Session session = dbSession.getSession();
 					for (T obj:list) {
 						session.delete(obj);
 					}

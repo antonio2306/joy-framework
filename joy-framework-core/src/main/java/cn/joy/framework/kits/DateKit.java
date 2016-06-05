@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Duration;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormatter;
@@ -174,11 +175,31 @@ public class DateKit {
 	public static Date lastDayOfMonth(Date date, int offsetMonth){
 		return new LocalDate(date).plusMonths(offsetMonth).dayOfMonth().withMaximumValue().toDate();
 	}
-	/*
-	public static void main(String[] args) throws Exception{
-		Date d1 = parseDate("2016-04-10 11:22:33");
-		Date d2 = parseDate("2016-04-13 10:22:33");
-		System.out.println(daysBetween(d1, d2));
-		System.out.println(daysBetweenIgnoreTime(d1, d2));
-	}*/
+	
+	/**
+	 * 获取相对指定时间偏离指定单位和数量后的时间
+	 * @param time
+	 * @param unit	Calendar.YEAR | MONTH | DAY_OF_MONTH | HOUR_OF_DAY | MINUTE | SECOND | MILLISECOND
+	 * @param count 偏离数量，正数则加，负数则减
+	 * @return
+	 */
+	public static Date getOffsetTime(Date time, int unit, int count){
+		LocalDateTime localTime = new LocalDateTime(time);
+		if(unit==Calendar.YEAR)
+			return localTime.plusYears(count).toDate();
+		else if(unit==Calendar.MONTH)
+			return localTime.plusMonths(count).toDate();
+		else if(unit==Calendar.DAY_OF_MONTH)
+			return localTime.plusDays(count).toDate();
+		else if(unit==Calendar.HOUR_OF_DAY)
+			return localTime.plusHours(count).toDate();
+		else if(unit==Calendar.MINUTE)
+			return localTime.plusMinutes(count).toDate();
+		else if(unit==Calendar.SECOND)
+			return localTime.plusSeconds(count).toDate();
+		else if(unit==Calendar.MILLISECOND)
+			return localTime.plusMillis(count).toDate();
+		return null;
+	}
+	
 }

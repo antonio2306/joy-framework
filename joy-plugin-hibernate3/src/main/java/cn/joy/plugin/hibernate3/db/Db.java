@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
+import cn.joy.framework.core.JoyCallback;
 import cn.joy.framework.kits.StringKit;
 import cn.joy.plugin.hibernate3.ResourceInject;
 /**
@@ -15,8 +15,6 @@ import cn.joy.plugin.hibernate3.ResourceInject;
  * @date 2014-07-06
  */
 public class Db {
-	private static Logger logger = Logger.getLogger(Db.class);
-	
 	private static DbResource use(){
 		return use(null);
 	}
@@ -28,7 +26,19 @@ public class Db {
 	}
 	
 	public static Session getSession() {
+		return use().getSession().getSession();
+	}
+	
+	public static DbSession getDbSession() {
 		return use().getSession();
+	}
+	
+	public static void addTransactionCallback(JoyCallback transactionCallback){
+		use().addTransactionCallback(transactionCallback);
+	}
+	
+	public static void removeTransactionCallback(){
+		use().removeTransactionCallback();
 	}
 	
 	public static boolean beginTransaction() {
