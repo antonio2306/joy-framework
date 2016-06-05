@@ -369,7 +369,7 @@ public class LogKit {
 		log4j.setAdditivity(true);
 		PatternLayout layout = new PatternLayout();
 		// log的输出形式
-		String conversionPattern = "%d %-5p %C %F %L - %m%n";
+		String conversionPattern = "%d %-5p %F %L - %m%n";
 		layout.setConversionPattern(conversionPattern);
 		appender.setLayout(layout);
 		appender.setFile(logFile);
