@@ -108,4 +108,5 @@ public class RocketmqPlugin extends ResourcePlugin<RocketmqResourceBuilder, Rock
 	public static void sendOneway(String producerGroup, String topic, String tags, String keys, byte[] data) {
 		use().sendOneway(producerGroup, topic, tags, keys, data);
 	}
+
 }

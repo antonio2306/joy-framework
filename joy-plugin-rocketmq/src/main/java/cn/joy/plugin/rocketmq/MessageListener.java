@@ -26,7 +26,8 @@ public class MessageListener implements MessageListenerConcurrently {
     
     @Override
     public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
-    	logger.debug("consume msgs:{}", msgs);
+    	//logger.debug("consume msgs:{}", msgs);
+
         for (MessageExt message : msgs) {
             String topic = message.getTopic();
 
