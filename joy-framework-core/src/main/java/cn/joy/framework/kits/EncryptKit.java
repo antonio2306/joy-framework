@@ -18,8 +18,12 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+
+import org.apache.commons.codec.binary.Base64;
 
 import cn.joy.framework.core.JoyConstants;
 
@@ -343,6 +347,65 @@ public class EncryptKit {
 	    return result;  
 	}  
 	
+	/**
+	 * PBEWithMD5AndDES加密字符串
+	 * @param key 密钥
+	 * @param str
+	 * @return
+	 * @throws Exception
+	 */
+	public static String encryptPEB(String key, String str) throws Exception {  
+        try {  
+            byte[] salt = new byte[8];  
+            MessageDigest md = MessageDigest.getInstance("MD5");  
+            md.update(key.getBytes());  
+            byte[] digest = md.digest();  
+            for (int i = 0; i < 8; i++) {  
+                salt[i] = digest[i];  
+            }  
+            PBEKeySpec pbeKeySpec = new PBEKeySpec(key.toCharArray());  
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");  
+            SecretKey skey = keyFactory.generateSecret(pbeKeySpec);  
+            PBEParameterSpec paramSpec = new PBEParameterSpec(salt, 20);  
+            Cipher cipher = Cipher.getInstance("PBEWithMD5AndDES");  
+            cipher.init(Cipher.ENCRYPT_MODE, skey, paramSpec);  
+            byte[] cipherText = cipher.doFinal(str.getBytes());  
+            String saltString = base64Encode(salt);  
+            String ciphertextString = base64Encode(cipherText);  
+            return saltString + ciphertextString;  
+        } catch (Exception e) {  
+        	 e.printStackTrace();  
+        }  
+        return null;
+    }  
+	
+	/**
+	 * PBEWithMD5AndDES解密字符串
+	 * @param key 密钥
+	 * @param str
+	 * @return
+	 * @throws Exception
+	 */
+	public static String decryptPEB(String key, String str) throws Exception {  
+        int saltLength = 12;  
+        try {  
+            String salt = str.substring(0, saltLength);  
+            String ciphertext = str.substring(saltLength, str.length());  
+            byte[] saltarray = base64Decode(salt);  
+            byte[] ciphertextArray = base64Decode(ciphertext);  
+            PBEKeySpec keySpec = new PBEKeySpec(key.toCharArray());  
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");  
+            SecretKey skey = keyFactory.generateSecret(keySpec);  
+            PBEParameterSpec paramSpec = new PBEParameterSpec(saltarray, 20);  
+            Cipher cipher = Cipher.getInstance("PBEWithMD5AndDES");  
+            cipher.init(Cipher.DECRYPT_MODE, skey, paramSpec);  
+            byte[] plaintextArray = cipher.doFinal(ciphertextArray);  
+            return new String(plaintextArray);  
+        } catch (Exception e) {  
+            throw new Exception(e);  
+        }  
+    }  
+	
 	public static void main(String[] args) throws Exception {
 		String inputStr = "简单加密";
 		System.out.println("原文:\n" + inputStr);
@@ -363,6 +426,12 @@ public class EncryptKit {
 		
 		output = decryptDES(desBytes, "abc12345");
 		System.out.println("DES解密后:\n" + new String(output));
+		
+		String encryptStr = encryptPEB("123456", inputStr);
+		System.out.println("PEB加密后:\n" + encryptStr);
+		
+		String decryptStr = decryptPEB("123456", encryptStr);
+		System.out.println("PEB解密后:\n" + decryptStr);
 
 		// 验证MD5对于同一内容加密是否一致
 		System.out.println(new BigInteger(md5(inputData)).equals(new BigInteger(md5(inputData))));
@@ -382,7 +451,8 @@ public class EncryptKit {
 		BigInteger sha = new BigInteger(sha(inputData));
 		System.out.println("SHA:\n" + sha.toString(32));
 
-		BigInteger mac = new BigInteger(hmacMd5(inputData, inputStr));
+		BigInteger mac = new BigInteger(hmacMd5(inputData, "12345678"));
 		System.out.println("HMAC-MD5:\n" + mac.toString(16));
+		
 	}
 }
