@@ -21,6 +21,7 @@ public class PluginManager{
 	private static Log log = LogKit.get();
 	private static final PluginManager me = new PluginManager();
 	private JoyMap<String, JoyPlugin> plugins = new JoyMap<>();
+	private JoyMap<Class<? extends JoyPlugin>, JoyPlugin> classPlugins = new JoyMap<>();
 	private JoyMap<Class<? extends JoyProvider>, JoyMap<String, JoyProvider>> providers = new JoyMap<>();
 	
 	private PluginManager(){
@@ -69,6 +70,7 @@ public class PluginManager{
 			String pluginKey = pluginInfo.key();
 			log.info("Plugin[class="+pluginClass.getName()+", key="+pluginKey+"] init...");
 			plugins.put(pluginKey, plugin);
+			classPlugins.put(pluginClass, plugin);
 			
 			Prop pluginConfig = plugin.getConfig();
 			List<Class<? extends JoyProvider>> providerClassList = ClassKit.listClassBySuper(pluginClass.getPackage().getName(), 
@@ -116,6 +118,15 @@ public class PluginManager{
 		return plugins.get(pluginKey);
 	}
 	
+	public JoyPlugin getPlugin(Class<? extends JoyPlugin> pluginClass){
+		JoyPlugin plugin = classPlugins.get(pluginClass);
+		if(plugin==null){
+			plugin = BeanKit.getNewInstance(pluginClass);
+			classPlugins.put(pluginClass, plugin);
+		}
+		return plugin;
+	}
+	
 	public JoyProvider getProvider(Class<? extends JoyProvider> providerClass){
 		return getProvider(providerClass, null);
 	}
@@ -136,6 +147,8 @@ public class PluginManager{
 			}
 		}
 		plugins.clear();
+		//classPlugins多出来的都是空plugin，不需要release
+		classPlugins.clear();
 		
 		for (Entry<Class<? extends JoyProvider>, JoyMap<String, JoyProvider>> entry : providers.entry()) {
 			JoyMap<String, JoyProvider> providerMap = entry.getValue();

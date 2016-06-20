@@ -207,5 +207,6 @@
 		<module>joy-plugin-archetype</module>
 		<module>joy-plugin-qiniu</module>
     <module>joy-plugin-rocketmq</module>
+    <module>joy-plugin-mqtt</module>
   </modules>
 </project>

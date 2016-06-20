@@ -13,7 +13,7 @@ public class QuartzPlugin extends ResourcePlugin<QuartzResourceBuilder, QuartzRe
 	}
 	
 	public static QuartzPlugin plugin(){
-		return (QuartzPlugin)JoyManager.plugin("quartz");
+		return (QuartzPlugin)JoyManager.plugin(QuartzPlugin.class);
 	}
 	
 	@Override

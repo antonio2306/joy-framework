@@ -14,7 +14,7 @@ public class BeetlPlugin extends ResourcePlugin<BeetlResourceBuilder, BeetlResou
 	}
 	
 	public static BeetlPlugin plugin(){
-		return (BeetlPlugin)JoyManager.plugin("beetl");
+		return (BeetlPlugin)JoyManager.plugin(BeetlPlugin.class);
 	}
 	
 	public static BeetlResource use(){

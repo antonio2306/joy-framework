@@ -19,7 +19,7 @@ public class RocketmqPlugin extends ResourcePlugin<RocketmqResourceBuilder, Rock
 	}
 
 	public static RocketmqPlugin plugin() {
-		return (RocketmqPlugin) JoyManager.plugin("rocketmq");
+		return (RocketmqPlugin) JoyManager.plugin(RocketmqPlugin.class);
 	}
 
 	@Override

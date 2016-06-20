@@ -14,9 +14,13 @@ import cn.joy.framework.kits.PropKit.Prop;
 import cn.joy.framework.kits.StringKit;
 
 public abstract class JoyPlugin {
-	protected Log logger = LogKit.get();
+	protected Log logger = LogKit.getLog(JoyPlugin.class);
 	protected Prop config = null;
 	protected boolean isStarted = false;
+	
+	protected JoyPlugin(){
+		//DO NOTHING
+	}
 	
 	public boolean init(){
 		loadConfig();

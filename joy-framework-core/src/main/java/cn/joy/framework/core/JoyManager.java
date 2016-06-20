@@ -54,6 +54,10 @@ public class JoyManager {
 		return plugin().getPlugin(pluginKey);
 	}
 	
+	public static JoyPlugin plugin(Class<? extends JoyPlugin> pluginClass){
+		return plugin().getPlugin(pluginClass);
+	}
+	
 	public static JoyProvider provider(Class<? extends JoyProvider> providerClass){
 		return plugin().getProvider(providerClass);
 	}

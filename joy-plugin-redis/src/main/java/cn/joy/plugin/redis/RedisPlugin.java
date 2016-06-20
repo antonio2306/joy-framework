@@ -25,7 +25,7 @@ public class RedisPlugin extends ResourcePlugin<RedisResourceBuilder, RedisResou
 	}
 	
 	public static RedisPlugin plugin(){
-		return (RedisPlugin)JoyManager.plugin("redis");
+		return (RedisPlugin)JoyManager.plugin(RedisPlugin.class);
 	}
 	
 	public boolean start() {

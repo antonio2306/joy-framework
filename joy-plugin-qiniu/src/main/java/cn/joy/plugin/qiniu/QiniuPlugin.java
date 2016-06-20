@@ -14,7 +14,7 @@ public class QiniuPlugin extends ResourcePlugin<QiniuResourceBuilder, QiniuResou
 	}
 
 	public static QiniuPlugin plugin() {
-		return (QiniuPlugin) JoyManager.plugin("qiniu");
+		return (QiniuPlugin) JoyManager.plugin(QiniuPlugin.class);
 	}
 	
 	@Override

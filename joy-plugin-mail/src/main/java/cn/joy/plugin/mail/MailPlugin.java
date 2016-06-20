@@ -22,7 +22,7 @@ public class MailPlugin extends ResourcePlugin<MailResourceBuilder, MailResource
 	}
 
 	public static MailPlugin plugin() {
-		return (MailPlugin) JoyManager.plugin("mail");
+		return (MailPlugin) JoyManager.plugin(MailPlugin.class);
 	}
 
 	@Override
